@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
@@ -120,7 +121,16 @@ public class Kit {
 		addIfNonNull(this::getShovelToolStack, stacks);
 	}
 
+	protected StatusEffectInstance[] getStatusEffects() {
+		return new StatusEffectInstance[0];
+	}
+
 	public final void applyInventory(ServerPlayerEntity player) {
+		// Add status effects
+		for (StatusEffectInstance effect : this.getStatusEffects()) {
+			player.addStatusEffect(new StatusEffectInstance(effect.getEffectType(), effect.getDuration(), effect.getAmplifier(), true, false));
+		}
+
 		List<ItemStack> armorStacks = this.getArmorStacks();
 		int index = 3;
 		for (ItemStack stack : armorStacks) {

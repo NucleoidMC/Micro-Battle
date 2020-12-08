@@ -5,6 +5,7 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 
 public enum Kits {
+	FOX("fox", new FoxKit()),
 	PLAYER("player", new Kit(DyeColor.RED.getFireworkColor(), DyeColor.RED.getFireworkColor())),
 	SHULKER("shulker", new ShulkerKit()),
 	SKELETON("skeleton", new SkeletonKit()),
