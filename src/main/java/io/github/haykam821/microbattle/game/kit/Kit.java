@@ -2,10 +2,12 @@ package io.github.haykam821.microbattle.game.kit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -52,8 +54,27 @@ public class Kit {
 		return;
 	}
 
-	protected void appendCustomInitialStacks(List<ItemStack> stacks) {
-		return;
+	protected ItemStack getMainWeaponStack() {
+		return unbreakableStack(Items.STONE_SWORD);
+	}
+
+	protected ItemStack getPickaxeToolStack() {
+		return unbreakableStack(Items.STONE_PICKAXE);
+	}
+
+	protected ItemStack getAxeToolStack() {
+		return unbreakableStack(Items.STONE_AXE);
+	}
+
+	protected ItemStack getShovelToolStack() {
+		return unbreakableStack(Items.STONE_SHOVEL);
+	}
+
+	protected void appendInitialStacks(List<ItemStack> stacks) {
+		addIfNonNull(this::getMainWeaponStack, stacks);
+		addIfNonNull(this::getPickaxeToolStack, stacks);
+		addIfNonNull(this::getAxeToolStack, stacks);
+		addIfNonNull(this::getShovelToolStack, stacks);
 	}
 
 	public final void applyInventory(ServerPlayerEntity player) {
@@ -65,7 +86,7 @@ public class Kit {
 		}
 	
 		List<ItemStack> stacks = new ArrayList<>();
-		this.appendCustomInitialStacks(stacks);
+		this.appendInitialStacks(stacks);
 		int slot = 0;
 		for (ItemStack stack : stacks) {
 			player.inventory.setStack(slot, stack);
@@ -76,5 +97,16 @@ public class Kit {
 		player.currentScreenHandler.sendContentUpdates();
 		player.playerScreenHandler.onContentChanged(player.inventory);
 		player.updateCursorStack();
+	}
+
+	protected static ItemStack unbreakableStack(ItemConvertible item) {
+		return ItemStackBuilder.of(item).setUnbreakable().build();
+	}
+
+	private static void addIfNonNull(Supplier<ItemStack> supplier, List<ItemStack> stacks) {
+		ItemStack stack = supplier.get();
+		if (stack != null) {
+			stacks.add(stack);
+		}
 	}
 }

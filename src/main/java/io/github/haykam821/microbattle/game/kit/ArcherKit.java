@@ -35,7 +35,8 @@ public class ArcherKit extends Kit {
 	}
 
 	@Override
-	protected void appendCustomInitialStacks(List<ItemStack> stacks) {
+	protected void appendInitialStacks(List<ItemStack> stacks) {
+		super.appendInitialStacks(stacks);
 		stacks.add(this.getBowStack());
 		stacks.add(this.getArrowStack());
 	}

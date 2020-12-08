@@ -84,7 +84,7 @@ public class MicroBattleActivePhase {
 
 		int index = 0;
  		for (PlayerEntry entry : this.players) {
-			entry.getPlayer().setGameMode(GameMode.ADVENTURE);
+			entry.getPlayer().setGameMode(GameMode.SURVIVAL);
 			MicroBattleActivePhase.spawn(this.world, this.map, entry.getPlayer());
 
 			Kit kit = kits.get(index % kits.size());
