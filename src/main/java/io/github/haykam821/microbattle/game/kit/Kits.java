@@ -1,9 +1,11 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.Main;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 
 public enum Kits {
+	PLAYER("player", new Kit(DyeColor.RED.getFireworkColor(), DyeColor.RED.getFireworkColor())),
 	SHULKER("shulker", new ShulkerKit()),
 	SKELETON("skeleton", new SkeletonKit()),
 	VINDICATOR("vindicator", new VindicatorKit());
