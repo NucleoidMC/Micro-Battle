@@ -7,30 +7,37 @@ public class MicroBattleMapConfig {
 	public static final Codec<MicroBattleMapConfig> CODEC = RecordCodecBuilder.create(instance -> {
 		return instance.group(
 			Codec.INT.fieldOf("x").forGetter(MicroBattleMapConfig::getX),
+			Codec.INT.fieldOf("y").forGetter(MicroBattleMapConfig::getY),
 			Codec.INT.fieldOf("z").forGetter(MicroBattleMapConfig::getZ),
-			Codec.BOOL.optionalFieldOf("walls", true).forGetter(MicroBattleMapConfig::hasWalls)
+			Codec.INT.optionalFieldOf("floor_height", 6).forGetter(MicroBattleMapConfig::getFloorHeight)
 		).apply(instance, MicroBattleMapConfig::new);
 	});
 
 	private final int x;
+	private final int y;
 	private final int z;
-	private final boolean walls;
+	private final int floorHeight;
 
-	public MicroBattleMapConfig(int x, int z, boolean walls) {
+	public MicroBattleMapConfig(int x, int y, int z, int floorHeight) {
 		this.x = x;
+		this.y = y;
 		this.z = z;
-		this.walls = walls;
+		this.floorHeight = floorHeight;
 	}
 
 	public int getX() {
 		return this.x;
 	}
 
+	public int getY() {
+		return this.y;
+	}
+
 	public int getZ() {
 		return this.z;
 	}
 
-	public boolean hasWalls() {
-		return this.walls;
+	public int getFloorHeight() {
+		return this.floorHeight;
 	}
 }

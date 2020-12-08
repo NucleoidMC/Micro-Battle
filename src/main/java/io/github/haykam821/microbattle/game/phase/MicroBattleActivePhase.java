@@ -191,7 +191,7 @@ public class MicroBattleActivePhase {
 	}
 
 	public static void spawn(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
-		Vec3d center = map.getInnerBounds().getCenter();
-		player.teleport(world, center.getX(), map.getInnerBounds().getMin().getY() + 1, center.getZ(), 0, 0);
+		Vec3d center = map.getFloorBounds().getCenter();
+		player.teleport(world, center.getX(), map.getFloorBounds().getMax().getY() + 1, center.getZ(), 0, 0);
 	}
 }
