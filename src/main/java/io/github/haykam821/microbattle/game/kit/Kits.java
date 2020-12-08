@@ -4,7 +4,7 @@ import io.github.haykam821.microbattle.Main;
 import net.minecraft.util.Identifier;
 
 public enum Kits {
-	;
+	VINDICATOR("vindicator", new VindicatorKit());
 
 	private final Identifier id;
 	private final Kit kit;
