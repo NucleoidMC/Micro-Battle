@@ -2,6 +2,7 @@
 	"type": "microbattle:micro_battle",
 	"name": "Soul Micro Battle",
 	"kits": [
+		"microbattle:skeleton",
 		"microbattle:vindicator"
 	],
 	"map": {

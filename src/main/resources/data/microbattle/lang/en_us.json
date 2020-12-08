@@ -1,5 +1,6 @@
 {
 	"gameType.microbattle.micro_battle": "Micro Battle",
+	"kit.microbattle.skeleton": "Skeleton",
 	"kit.microbattle.vindicator": "Vindicator",
 	"text.microbattle.eliminated": "%s died",
 	"text.microbattle.eliminated.killed": "%s was killed",
