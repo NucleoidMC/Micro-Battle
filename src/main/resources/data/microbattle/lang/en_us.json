@@ -1,5 +1,7 @@
 {
 	"gameType.microbattle.micro_battle": "Micro Battle",
+	"item.microbattle.shulker_arrow": "Shulker Arrow",
+	"kit.microbattle.shulker": "Shulker",
 	"kit.microbattle.skeleton": "Skeleton",
 	"kit.microbattle.vindicator": "Vindicator",
 	"text.microbattle.eliminated": "%s died",

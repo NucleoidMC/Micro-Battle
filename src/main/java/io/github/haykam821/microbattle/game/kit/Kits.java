@@ -4,6 +4,7 @@ import io.github.haykam821.microbattle.Main;
 import net.minecraft.util.Identifier;
 
 public enum Kits {
+	SHULKER("shulker", new ShulkerKit()),
 	SKELETON("skeleton", new SkeletonKit()),
 	VINDICATOR("vindicator", new VindicatorKit());
 
