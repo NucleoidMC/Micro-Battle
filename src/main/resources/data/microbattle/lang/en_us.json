@@ -1,0 +1,15 @@
+{
+	"gameType.microbattle.micro_battle": "Micro Battle",
+	"text.microbattle.eliminated": "%s died",
+	"text.microbattle.eliminated.killed": "%s was killed",
+	"text.microbattle.eliminated.killed.by": "%s was killed by %s",
+	"text.microbattle.eliminated.out_of_bounds": "%s went out of bounds",
+	"text.microbattle.eliminated.void": "%s fell out of the world",
+	"text.microbattle.no_winners": "Nobody won the game after %s rounds!",
+	"text.microbattle.not_enough_kits": "There are not enough kits specified for this game!",
+	"text.microbattle.team_armor.boots": "%s Boots",
+	"text.microbattle.team_armor.chestplate": "%s Chestplate",
+	"text.microbattle.team_armor.helmet": "%s Helmet",
+	"text.microbattle.team_armor.leggings": "%s Leggings",
+	"text.microbattle.win": "%s has won the game after %s rounds!"
+}

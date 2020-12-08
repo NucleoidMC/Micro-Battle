@@ -1,0 +1,25 @@
+{
+	"schemaVersion": 1,
+	"id": "microbattle",
+	"version": "${version}",
+	"name": "Micro Battle",
+	"description": "A miniature deathmatch minigame for Minecraft.",
+	"authors": [
+		"haykam821"
+	],
+	"contact": {
+		"homepage": "https://github.com/haykam821/Micro-Battle#readme",
+		"issues": "https://github.com/haykam821/Micro-Battle/issues"
+	},
+	"entrypoints": {
+		"main": [
+			"io.github.haykam821.microbattle.Main"
+		]
+	},
+	"license": "MIT",
+	"icon": "assets/microbattle/icon.png",
+	"depends": {
+		"fabricloader": ">=0.4.0",
+		"plasmid": ">=0.4.0"
+	}
+}
