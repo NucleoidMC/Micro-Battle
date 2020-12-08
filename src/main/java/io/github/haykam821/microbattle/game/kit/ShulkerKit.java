@@ -14,6 +14,21 @@ public class ShulkerKit extends ArcherKit {
 	}
 
 	@Override
+	protected String[] getAdvantages() {
+		return new String[] {
+			"Your shulker arrows give others levitation",
+		};
+	}
+
+	@Override
+	protected String[] getDisadvantages() {
+		return new String[] {
+			"You can only hold one arrow at a time",
+			"Your arrows restock slowly",
+		};
+	}
+
+	@Override
 	protected int getArrowRestockDelay() {
 		return 20 * 10;
 	}

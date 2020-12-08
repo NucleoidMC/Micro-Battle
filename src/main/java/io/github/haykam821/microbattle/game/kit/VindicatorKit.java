@@ -10,6 +10,20 @@ public class VindicatorKit extends Kit {
 	}
 
 	@Override
+	protected String[] getAdvantages() {
+		return new String[] {
+			"Your axe is stronger"
+		};
+	}
+
+	@Override
+	protected String[] getDisadvantages() {
+		return new String[] {
+			"You have no sword"
+		};
+	}
+
+	@Override
 	protected ItemStack getMainWeaponStack() {
 		return unbreakableStack(Items.IRON_AXE);
 	}

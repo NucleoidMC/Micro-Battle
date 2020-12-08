@@ -90,6 +90,7 @@ public class MicroBattleActivePhase {
 			Kit kit = kits.get(index % kits.size());
 			entry.setKit(kit);
 			entry.applyInventory();
+			entry.getPlayer().sendMessage(kit.getReceivedText(), false);
 
 			index += 1;
 		}

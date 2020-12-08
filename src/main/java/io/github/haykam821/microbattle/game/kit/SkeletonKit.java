@@ -10,6 +10,21 @@ public class SkeletonKit extends ArcherKit {
 	}
 
 	@Override
+	protected String[] getNeutrals() {
+		return new String[] {
+			"You can shoot others with arrows",
+		};
+	}
+
+	@Override
+	protected String[] getAdvantages() {
+		return new String[] {
+			"You can hold up to five arrows at a time",
+			"Your arrows restock quickly",
+		};
+	}
+
+	@Override
 	protected ItemStack getMainWeaponStack() {
 		return unbreakableStack(Items.WOODEN_SWORD);
 	}

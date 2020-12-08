@@ -11,8 +11,12 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.registry.TinyRegistry;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
@@ -28,9 +32,48 @@ public class Kit {
 		this.secondaryColor = secondaryColor;
 	}
 
+	protected String[] getNeutrals() {
+		return new String[0];
+	}
+
+	protected String[] getAdvantages() {
+		return new String[0];
+	}
+
+	protected String[] getDisadvantages() {
+		return new String[0];
+	}
+
+	private Text getTooltip() {
+		MutableText text = new LiteralText("");
+		text.append(new LiteralText("• Defeat the other players!").formatted(Formatting.GRAY));
+
+		for (String line : this.getNeutrals()) {
+			text.append(new LiteralText("\n• " + line).formatted(Formatting.GRAY));
+		}
+		for (String line : this.getAdvantages()) {
+			text.append(new LiteralText("\n+ " + line).formatted(Formatting.GREEN));
+		}
+		for (String line : this.getDisadvantages()) {
+			text.append(new LiteralText("\n- " + line).formatted(Formatting.RED));
+		}
+
+		return text;
+	}
+
 	private Text getName() {
 		Identifier id = Kit.REGISTRY.getIdentifier(this);
 		return new TranslatableText("kit." + id.getNamespace() + "." + id.getPath());
+	}
+
+	private Text getHoverableName() {
+		return this.getName().shallowCopy().styled(style -> {
+			return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, this.getTooltip()));
+		});
+	}
+
+	public Text getReceivedText() {
+		return new TranslatableText("text.microbattle.kit_received", this.getHoverableName()).formatted(Formatting.GRAY);
 	}
 
 	private ItemStack createArmorStack(Item item, String type, boolean secondary) {
