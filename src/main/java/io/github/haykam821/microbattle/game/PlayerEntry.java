@@ -30,6 +30,12 @@ public class PlayerEntry {
 		return this.team;
 	}
 
+	public boolean isSameTeam(PlayerEntry other) {
+		if (this.team == null) return false;
+		if (other.team == null) return false;
+		return this.team == other.team;
+	}
+
 	public Kit getKit() {
 		return this.kit;
 	}

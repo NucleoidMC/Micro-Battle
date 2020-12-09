@@ -39,6 +39,7 @@ import xyz.nucleoid.plasmid.game.event.GameCloseListener;
 import xyz.nucleoid.plasmid.game.event.GameOpenListener;
 import xyz.nucleoid.plasmid.game.event.GameTickListener;
 import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
+import xyz.nucleoid.plasmid.game.event.PlayerDamageListener;
 import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
 import xyz.nucleoid.plasmid.game.event.PlayerRemoveListener;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
@@ -105,6 +106,7 @@ public class MicroBattleActivePhase {
 			game.on(GameOpenListener.EVENT, phase::open);
 			game.on(GameTickListener.EVENT, phase::tick);
 			game.on(PlayerAddListener.EVENT, phase::addPlayer);
+			game.on(PlayerDamageListener.EVENT, phase::onPlayerDamage);
 			game.on(PlayerDeathListener.EVENT, phase::onPlayerDeath);
 			game.on(PlayerRemoveListener.EVENT, phase::onPlayerRemove);
 		});
@@ -223,6 +225,15 @@ public class MicroBattleActivePhase {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
 		}
 		return ActionResult.FAIL;
+	}
+
+	private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+		PlayerEntry target = this.getEntryFromPlayer(player);
+		if (target == null) return ActionResult.PASS;
+		if (!(source.getAttacker() instanceof ServerPlayerEntity)) return ActionResult.PASS;
+
+		PlayerEntry attacker = this.getEntryFromPlayer((ServerPlayerEntity) source.getAttacker());
+		return attacker != null && target.isSameTeam(attacker) ? ActionResult.FAIL : ActionResult.PASS;
 	}
 	
 	public void onPlayerRemove(ServerPlayerEntity player) {
