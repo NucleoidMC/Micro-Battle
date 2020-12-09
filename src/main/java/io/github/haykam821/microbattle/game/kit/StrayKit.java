@@ -1,13 +1,24 @@
 package io.github.haykam821.microbattle.game.kit;
 
+import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potions;
 import net.minecraft.util.DyeColor;
 
 public class StrayKit extends SkeletonKit {
-	public StrayKit() {
-		super(DyeColor.LIGHT_GRAY.getFireworkColor(), DyeColor.CYAN.getFireworkColor());
+	public StrayKit(PlayerEntry entry) {
+		super(KitTypes.STRAY, entry);
+	}
+
+	@Override
+	protected int getBaseColor() {
+		return DyeColor.LIGHT_GRAY.getFireworkColor();
+	}
+
+	@Override
+	protected int getSecondaryColor() {
+		return DyeColor.CYAN.getFireworkColor();
 	}
 
 	@Override

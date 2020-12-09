@@ -11,11 +11,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
-public class ArcherKit extends Kit {
+public abstract class ArcherKit extends Kit {
 	private final Item arrowItem = this.getArrowStack().getItem();
 
-	public ArcherKit(int baseColor, int secondaryColor) {
-		super(baseColor, secondaryColor);
+	public ArcherKit(KitType<?> type, PlayerEntry entry) {
+		super(type, entry);
 	}
 	
 	protected ItemStack getBowStack() {

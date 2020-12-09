@@ -1,16 +1,27 @@
 package io.github.haykam821.microbattle.game.kit;
 
+import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.DyeColor;
 
 public class SkeletonKit extends ArcherKit {
-	public SkeletonKit(int baseColor, int secondaryColor) {
-		super(baseColor, secondaryColor);
+	public SkeletonKit(KitType<?> type, PlayerEntry entry) {
+		super(type, entry);
 	}
 
-	public SkeletonKit() {
-		this(DyeColor.LIGHT_GRAY.getFireworkColor(), DyeColor.GRAY.getFireworkColor());
+	public SkeletonKit(PlayerEntry entry) {
+		super(KitTypes.SKELETON, entry);
+	}
+
+	@Override
+	protected int getBaseColor() {
+		return DyeColor.LIGHT_GRAY.getFireworkColor();
+	}
+
+	@Override
+	protected int getSecondaryColor() {
+		return DyeColor.GRAY.getFireworkColor();
 	}
 
 	@Override

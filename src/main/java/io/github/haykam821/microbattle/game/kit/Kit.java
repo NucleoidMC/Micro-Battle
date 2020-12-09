@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
@@ -18,21 +19,26 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.logic.combat.OldCombat;
-import xyz.nucleoid.plasmid.registry.TinyRegistry;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
-public class Kit {
-	public static final TinyRegistry<Kit> REGISTRY = TinyRegistry.newStable();
+public abstract class Kit {
+	private final KitType<?> type;
+	protected final PlayerEntry entry;
+	protected final ServerPlayerEntity player;
+	protected final MicroBattleActivePhase phase;
 
-	private final int baseColor;
-	private final int secondaryColor;
+	public Kit(KitType<?> type, PlayerEntry entry) {
+		this.type = type;
 
-	public Kit(int baseColor, int secondaryColor) {
-		this.baseColor = baseColor;
-		this.secondaryColor = secondaryColor;
+		this.entry = entry;
+		this.player = entry.getPlayer();
+		this.phase = entry.getPhase();
 	}
+
+	protected abstract int getBaseColor();
+
+	protected abstract int getSecondaryColor();
 
 	protected String[] getNeutrals() {
 		return new String[0];
@@ -64,8 +70,7 @@ public class Kit {
 	}
 
 	private Text getName() {
-		Identifier id = Kit.REGISTRY.getIdentifier(this);
-		return new TranslatableText("kit." + id.getNamespace() + "." + id.getPath());
+		return this.type.getName();
 	}
 
 	private Text getHoverableName() {
@@ -81,7 +86,7 @@ public class Kit {
 	private ItemStack createArmorStack(Item item, String type, boolean secondary) {
 		return ItemStackBuilder.of(item)
 			.addEnchantment(Enchantments.BINDING_CURSE, 1)
-			.setColor(secondary ? this.secondaryColor : this.baseColor)
+			.setColor(secondary ? this.getSecondaryColor() : this.getBaseColor())
 			.setName(new TranslatableText("text.microbattle.team_armor." + type, this.getName()))
 			.build();
 	}
@@ -131,7 +136,7 @@ public class Kit {
 		return new StatusEffectInstance[0];
 	}
 
-	public final void applyInventory(ServerPlayerEntity player, boolean oldCombat) {
+	public final void applyInventory() {
 		// Add status effects
 		for (StatusEffectInstance effect : this.getStatusEffects()) {
 			player.addStatusEffect(new StatusEffectInstance(effect.getEffectType(), effect.getDuration(), effect.getAmplifier(), true, false));
@@ -148,7 +153,7 @@ public class Kit {
 		this.appendInitialStacks(stacks);
 		int slot = 0;
 		for (ItemStack stack : stacks) {
-			player.inventory.setStack(slot, oldCombat ? OldCombat.applyTo(stack) : stack);
+			player.inventory.setStack(slot, this.phase.isOldCombat() ? OldCombat.applyTo(stack) : stack);
 			slot += 1;
 		}
 
@@ -156,6 +161,11 @@ public class Kit {
 		player.currentScreenHandler.sendContentUpdates();
 		player.playerScreenHandler.onContentChanged(player.inventory);
 		player.updateCursorStack();
+	}
+
+	public final void initialize() {
+		this.applyInventory();
+		this.entry.getPlayer().sendMessage(this.getReceivedText(), false);
 	}
 
 	protected static ItemStack unbreakableStack(ItemConvertible item) {

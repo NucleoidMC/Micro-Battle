@@ -27,18 +27,13 @@ public class PlayerEntry {
 		return this.kit;
 	}
 
-	public void setKit(Kit kit) {
+	public void initializeKit(Kit kit) {
 		this.kit = kit;
+		this.kit.initialize();
 	}
 
 	public int getTicks() {
 		return this.ticks;
-	}
-
-	public void applyInventory(boolean oldCombat) {
-		if (this.kit != null) {
-			this.kit.applyInventory(this.getPlayer(), oldCombat);
-		}
 	}
 
 	public void tick() {

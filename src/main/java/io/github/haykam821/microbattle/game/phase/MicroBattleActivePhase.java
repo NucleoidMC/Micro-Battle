@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import io.github.haykam821.microbattle.game.kit.Kit;
+import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.map.MicroBattleMap;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -79,18 +79,16 @@ public class MicroBattleActivePhase {
 		this.opened = true;
 		this.singleplayer = this.players.size() == 1;
 
-		List<Kit> kits = new ArrayList<>(this.config.getKits());
-		if (kits.size() == 0) throw new GameOpenException(new TranslatableText("text.microbattle.not_enough_kits"));
-		Collections.shuffle(kits);
+		List<KitType<?>> kitTypes = new ArrayList<>(this.config.getKits());
+		if (kitTypes.size() == 0) throw new GameOpenException(new TranslatableText("text.microbattle.not_enough_kits"));
+		Collections.shuffle(kitTypes);
 
 		int index = 0;
  		for (PlayerEntry entry : this.players) {
 			entry.getPlayer().setGameMode(GameMode.SURVIVAL);
 
-			Kit kit = kits.get(index % kits.size());
-			entry.setKit(kit);
-			entry.applyInventory(this.isOldCombat());
-			entry.getPlayer().sendMessage(kit.getReceivedText(), false);
+			KitType<?> kitType = kitTypes.get(index % kitTypes.size());
+			entry.initializeKit(kitType.create(entry));
 
 			index += 1;
 		}

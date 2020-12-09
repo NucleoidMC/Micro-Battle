@@ -16,8 +16,18 @@ import xyz.nucleoid.plasmid.logic.combat.OldCombat;
 public class FoxKit extends Kit {
 	private static final WeightedList<ItemStack> DIG_ITEMS = new WeightedList<>();
 
-	public FoxKit() {
-		super(DyeColor.WHITE.getFireworkColor(), DyeColor.ORANGE.getFireworkColor());
+	public FoxKit(PlayerEntry entry) {
+		super(KitTypes.FOX, entry);
+	}
+	
+	@Override
+	protected int getBaseColor() {
+		return DyeColor.WHITE.getFireworkColor();
+	}
+
+	@Override
+	protected int getSecondaryColor() {
+		return DyeColor.ORANGE.getFireworkColor();
 	}
 
 	@Override

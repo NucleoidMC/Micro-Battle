@@ -2,13 +2,14 @@ package io.github.haykam821.microbattle.game.kit;
 
 import java.util.List;
 
+import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 
-public class InventoryKit extends Kit {
+public abstract class InventoryKit extends Kit {
 	private final ItemStack[] stacks;
 
-	public InventoryKit(int baseColor, int secondaryColor, ItemStack... stacks) {
-		super(baseColor, secondaryColor);
+	public InventoryKit(KitType<?> type, PlayerEntry entry, ItemStack... stacks) {
+		super(type, entry);
 		this.stacks = stacks;
 	}
 

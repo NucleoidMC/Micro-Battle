@@ -1,12 +1,23 @@
 package io.github.haykam821.microbattle.game.kit;
 
+import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.DyeColor;
 
 public class VindicatorKit extends Kit {
-	public VindicatorKit() {
-		super(DyeColor.LIGHT_GRAY.getFireworkColor(), DyeColor.CYAN.getFireworkColor());
+	public VindicatorKit(PlayerEntry entry) {
+		super(KitTypes.VINDICATOR, entry);
+	}
+
+	@Override
+	protected int getBaseColor() {
+		return DyeColor.LIGHT_GRAY.getFireworkColor();
+	}
+
+	@Override
+	protected int getSecondaryColor() {
+		return DyeColor.CYAN.getFireworkColor();
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package io.github.haykam821.microbattle.game.kit;
 
+import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
@@ -9,8 +10,18 @@ import net.minecraft.util.DyeColor;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public class ShulkerKit extends ArcherKit {
-	public ShulkerKit() {
-		super(DyeColor.MAGENTA.getFireworkColor(), DyeColor.MAGENTA.getFireworkColor());
+	public ShulkerKit(PlayerEntry entry) {
+		super(KitTypes.SHULKER, entry);
+	}
+
+	@Override
+	protected int getBaseColor() {
+		return DyeColor.MAGENTA.getFireworkColor();
+	}
+
+	@Override
+	protected int getSecondaryColor() {
+		return DyeColor.MAGENTA.getFireworkColor();
 	}
 
 	@Override
