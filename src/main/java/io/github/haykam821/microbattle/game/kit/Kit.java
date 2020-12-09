@@ -12,6 +12,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.potion.Potion;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
@@ -19,6 +20,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.logic.combat.OldCombat;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
@@ -177,5 +179,11 @@ public abstract class Kit {
 		if (stack != null) {
 			stacks.add(stack);
 		}
+	}
+
+	protected static ItemStack potionLikeStack(ItemConvertible item, Potion potion) {
+		ItemStack stack = new ItemStack(item);
+		stack.getOrCreateTag().putString("Potion", Registry.POTION.getId(potion).toString());
+		return stack;
 	}
 }

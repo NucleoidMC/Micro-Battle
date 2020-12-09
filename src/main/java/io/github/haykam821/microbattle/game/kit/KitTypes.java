@@ -13,6 +13,7 @@ public class KitTypes {
 	public static KitType<SkeletonKit> SKELETON = register("skeleton", SkeletonKit::new);
 	public static KitType<StrayKit> STRAY = register("stray", StrayKit::new);
 	public static KitType<VindicatorKit> VINDICATOR = register("vindicator", VindicatorKit::new);
+	public static KitType<WitchKit> WITCH = register("witch", WitchKit::new);
 
 	private static <T extends Kit> KitType<T> register(String path, Function<PlayerEntry, T> creator) {
 		KitType<T> type = new KitType<>(creator);

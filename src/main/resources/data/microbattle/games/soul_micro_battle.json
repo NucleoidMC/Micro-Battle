@@ -6,7 +6,8 @@
 		"microbattle:shulker",
 		"microbattle:skeleton",
 		"microbattle:stray",
-		"microbattle:vindicator"
+		"microbattle:vindicator",
+		"microbattle:witch"
 	],
 	"map": {
 		"x": 48,

@@ -7,6 +7,7 @@
 	"kit.microbattle.skeleton": "Skeleton",
 	"kit.microbattle.stray": "Stray",
 	"kit.microbattle.vindicator": "Vindicator",
+	"kit.microbattle.witch": "Witch",
 	"text.microbattle.eliminated": "%s died",
 	"text.microbattle.eliminated.killed": "%s was killed",
 	"text.microbattle.eliminated.killed.by": "%s was killed by %s",

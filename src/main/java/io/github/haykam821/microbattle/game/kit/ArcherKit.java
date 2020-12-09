@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public abstract class ArcherKit extends Kit {
@@ -55,8 +54,6 @@ public abstract class ArcherKit extends Kit {
 	}
 
 	protected static ItemStack potionArrowStack(Potion potion) {
-		ItemStack stack = new ItemStack(Items.TIPPED_ARROW);
-		stack.getOrCreateTag().putString("Potion", Registry.POTION.getId(potion).toString());
-		return stack;
+		return potionLikeStack(Items.TIPPED_ARROW, potion);
 	}
 }
