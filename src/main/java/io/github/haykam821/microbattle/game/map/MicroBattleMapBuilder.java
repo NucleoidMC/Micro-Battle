@@ -1,6 +1,7 @@
 package io.github.haykam821.microbattle.game.map;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import net.minecraft.block.BlockState;
@@ -26,9 +27,38 @@ public class MicroBattleMapBuilder {
 
 		BlockBounds floorBounds = new BlockBounds(BlockPos.ORIGIN, new BlockPos(mapConfig.getX() - 1, mapConfig.getFloorHeight(), mapConfig.getZ() - 1));
 		this.build(floorBounds, template, mapConfig);
+		this.generateBuildings(floorBounds, template, mapConfig.getPadding());
 
 		BlockBounds fullBounds = new BlockBounds(floorBounds.getMin().add(-8, -4, -8), new BlockPos(floorBounds.getMax().add(8, mapConfig.getY() - mapConfig.getFloorHeight(), 8)));
 		return new MicroBattleMap(template, floorBounds, fullBounds);
+	}
+
+	private void generateBuildings(BlockBounds floorBounds, MapTemplate template, int padding) {
+		Random random = new Random();
+		int height = random.nextInt(8) + 4;
+
+		int minY = floorBounds.getMax().getY();
+
+		int minX = floorBounds.getMin().getX() + padding;
+		int minZ = floorBounds.getMin().getZ() + padding;
+
+		int maxX = floorBounds.getMax().getX() - padding + 1;
+		int maxZ = floorBounds.getMax().getZ() - padding + 1;
+
+		// North-west
+		Building.randomizeHeight(random, height).generate(template, minX, minY, minZ);
+
+		// North-east
+		Building neBuilding = Building.randomizeHeight(random, height);
+		neBuilding.generate(template, maxX - neBuilding.getWidth(), minY, minZ);
+
+		// South-west
+		Building swBuilding = Building.randomizeHeight(random, height);
+		swBuilding.generate(template, minX, minY, maxZ - swBuilding.getDepth());
+
+		// South-east
+		Building seBuilding = Building.randomizeHeight(random, height);
+		seBuilding.generate(template, maxX - seBuilding.getWidth(), minY, maxZ - seBuilding.getDepth());
 	}
 
 	private BlockState getBlockState(BlockPos pos, BlockBounds bounds, MicroBattleMapConfig mapConfig) {
