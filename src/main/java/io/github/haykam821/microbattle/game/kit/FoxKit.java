@@ -1,7 +1,6 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemConvertible;
@@ -9,8 +8,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.collection.WeightedList;
+import xyz.nucleoid.plasmid.logic.combat.OldCombat;
 
 public class FoxKit extends Kit {
 	private static final WeightedList<ItemStack> DIG_ITEMS = new WeightedList<>();
@@ -67,10 +68,10 @@ public class FoxKit extends Kit {
 		if (!entry.getPlayer().isSneaking()) return;
 		if (!entry.getPlayer().isOnGround()) return;
 
-		BlockState groundState = entry.getPlayer().getEntityWorld().getBlockState(entry.getPlayer().getBlockPos().down());
-		entry.getPlayer().playSound(groundState.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1, 1);
+		entry.getPlayer().playSound(SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1, 1);
 
-		entry.getPlayer().giveItemStack(DIG_ITEMS.pickRandom(entry.getPlayer().getRandom()).copy());
+		ItemStack stack = DIG_ITEMS.pickRandom(entry.getPlayer().getRandom()).copy();
+		entry.getPlayer().giveItemStack(entry.getPhase().isOldCombat() ? OldCombat.applyTo(stack) : stack);
 	}
 
 	protected static ItemStack durabilityStack(ItemConvertible item, int durability) {

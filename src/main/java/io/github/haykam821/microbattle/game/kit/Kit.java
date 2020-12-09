@@ -19,6 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import xyz.nucleoid.plasmid.logic.combat.OldCombat;
 import xyz.nucleoid.plasmid.registry.TinyRegistry;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
@@ -130,7 +131,7 @@ public class Kit {
 		return new StatusEffectInstance[0];
 	}
 
-	public final void applyInventory(ServerPlayerEntity player) {
+	public final void applyInventory(ServerPlayerEntity player, boolean oldCombat) {
 		// Add status effects
 		for (StatusEffectInstance effect : this.getStatusEffects()) {
 			player.addStatusEffect(new StatusEffectInstance(effect.getEffectType(), effect.getDuration(), effect.getAmplifier(), true, false));
@@ -147,7 +148,7 @@ public class Kit {
 		this.appendInitialStacks(stacks);
 		int slot = 0;
 		for (ItemStack stack : stacks) {
-			player.inventory.setStack(slot, stack);
+			player.inventory.setStack(slot, oldCombat ? OldCombat.applyTo(stack) : stack);
 			slot += 1;
 		}
 

@@ -41,17 +41,18 @@ public class MicroBattleActivePhase {
 	private boolean singleplayer;
 	private boolean opened;
 
-	public MicroBattleActivePhase(GameSpace gameSpace, MicroBattleMap map, MicroBattleConfig config, Set<PlayerEntry> players) {
+	public MicroBattleActivePhase(GameSpace gameSpace, MicroBattleMap map, MicroBattleConfig config) {
 		this.world = gameSpace.getWorld();
 		this.gameSpace = gameSpace;
 		this.map = map;
 		this.config = config;
-		this.players = players;
+		this.players = gameSpace.getPlayers().stream().map(entity -> {
+			return new PlayerEntry(this, entity);
+		}).collect(Collectors.toSet());;
 	}
 
 	public static void open(GameSpace gameSpace, MicroBattleMap map, MicroBattleConfig config) {
-		Set<PlayerEntry> players = gameSpace.getPlayers().stream().map(PlayerEntry::new).collect(Collectors.toSet());
-		MicroBattleActivePhase phase = new MicroBattleActivePhase(gameSpace, map, config, players);
+		MicroBattleActivePhase phase = new MicroBattleActivePhase(gameSpace, map, config);
 
 		gameSpace.openGame(game -> {
 			game.setRule(GameRule.BLOCK_DROPS, RuleResult.ALLOW);
@@ -88,7 +89,7 @@ public class MicroBattleActivePhase {
 
 			Kit kit = kits.get(index % kits.size());
 			entry.setKit(kit);
-			entry.applyInventory();
+			entry.applyInventory(this.isOldCombat());
 			entry.getPlayer().sendMessage(kit.getReceivedText(), false);
 
 			index += 1;
@@ -188,6 +189,10 @@ public class MicroBattleActivePhase {
 		if (entry != null) {
 			this.eliminate(entry, true);
 		}
+	}
+
+	public boolean isOldCombat() {
+		return this.config.isOldCombat();
 	}
 
 	public static void spawn(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
