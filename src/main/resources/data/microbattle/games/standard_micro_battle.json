@@ -1,9 +1,7 @@
 {
 	"type": "microbattle:micro_battle",
 	"name": "Micro Battle",
-	"kits": [
-		"microbattle:player"
-	],
+	"kits": "microbattle:standard",
 	"map": {
 		"x": 48,
 		"y": 48,

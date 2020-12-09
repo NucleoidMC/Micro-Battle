@@ -3,9 +3,11 @@ package io.github.haykam821.microbattle.game;
 import java.util.List;
 import java.util.Optional;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import io.github.haykam821.microbattle.game.kit.KitPreset;
 import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.map.MicroBattleMapConfig;
 import xyz.nucleoid.plasmid.game.config.PlayerConfig;
@@ -14,7 +16,7 @@ import xyz.nucleoid.plasmid.game.player.GameTeam;
 public class MicroBattleConfig {
 	public static final Codec<MicroBattleConfig> CODEC = RecordCodecBuilder.create(instance -> {
 		return instance.group(
-			KitType.REGISTRY.listOf().fieldOf("kits").forGetter(MicroBattleConfig::getKits),
+			KitPreset.EITHER_CODEC.fieldOf("kits").forGetter(config -> Either.right(config.getKits())),
 			GameTeam.CODEC.listOf().optionalFieldOf("teams").forGetter(MicroBattleConfig::getTeams),
 			Codec.BOOL.optionalFieldOf("old_combat", false).forGetter(MicroBattleConfig::isOldCombat),
 			MicroBattleMapConfig.CODEC.fieldOf("map").forGetter(MicroBattleConfig::getMapConfig),
@@ -28,8 +30,8 @@ public class MicroBattleConfig {
 	private final MicroBattleMapConfig mapConfig;
 	private final PlayerConfig playerConfig;
 
-	public MicroBattleConfig(List<KitType<?>> kits, Optional<List<GameTeam>> teams, boolean oldCombat, MicroBattleMapConfig mapConfig, PlayerConfig playerConfig) {
-		this.kits = kits;
+	public MicroBattleConfig(Either<List<KitType<?>>, List<KitType<?>>> kits, Optional<List<GameTeam>> teams, boolean oldCombat, MicroBattleMapConfig mapConfig, PlayerConfig playerConfig) {
+		this.kits = kits.left().isPresent() ? kits.left().get() : kits.right().get();
 		this.teams = teams;
 		this.oldCombat = oldCombat;
 		this.mapConfig = mapConfig;

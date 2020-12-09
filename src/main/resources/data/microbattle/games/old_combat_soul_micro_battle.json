@@ -1,14 +1,7 @@
 {
 	"type": "microbattle:micro_battle",
 	"name": "Old Combat Soul Micro Battle",
-	"kits": [
-		"microbattle:fox",
-		"microbattle:shulker",
-		"microbattle:skeleton",
-		"microbattle:stray",
-		"microbattle:vindicator",
-		"microbattle:witch"
-	],
+	"kits": "microbattle:soul",
 	"old_combat": true,
 	"map": {
 		"x": 48,

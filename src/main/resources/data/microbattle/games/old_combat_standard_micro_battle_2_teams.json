@@ -1,9 +1,7 @@
 {
 	"type": "microbattle:micro_battle",
 	"name": "Old Combat Micro Battle: 2 Teams",
-	"kits": [
-		"microbattle:player"
-	],
+	"kits": "microbattle:standard",
 	"teams": [
 		{
 			"key": "red",

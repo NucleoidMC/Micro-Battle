@@ -1,6 +1,7 @@
 package io.github.haykam821.microbattle;
 
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
+import io.github.haykam821.microbattle.game.kit.KitPresets;
 import io.github.haykam821.microbattle.game.kit.KitTypes;
 import io.github.haykam821.microbattle.game.phase.MicroBattleWaitingPhase;
 import net.fabricmc.api.ModInitializer;
@@ -19,5 +20,6 @@ public class Main implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		KitTypes.initialize();
+		KitPresets.initialize();
 	}
 }

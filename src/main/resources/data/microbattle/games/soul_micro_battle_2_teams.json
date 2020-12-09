@@ -1,14 +1,7 @@
 {
 	"type": "microbattle:micro_battle",
 	"name": "Soul Micro Battle: 2 Teams",
-	"kits": [
-		"microbattle:fox",
-		"microbattle:shulker",
-		"microbattle:skeleton",
-		"microbattle:stray",
-		"microbattle:vindicator",
-		"microbattle:witch"
-	],
+	"kits": "microbattle:soul",
 	"teams": [
 		{
 			"key": "red",
