@@ -14,6 +14,7 @@ public class MicroBattleMapBuilder {
 	private static final BlockState STONE = Blocks.STONE.getDefaultState();
 	private static final BlockState DIRT = Blocks.DIRT.getDefaultState();
 	private static final BlockState GRASS = Blocks.GRASS_BLOCK.getDefaultState();
+	private static final BlockState WATER = Blocks.WATER.getDefaultState();
 
 	private final MicroBattleConfig config;
 
@@ -30,7 +31,7 @@ public class MicroBattleMapBuilder {
 		this.generateBuildings(floorBounds, template, mapConfig.getPadding());
 
 		BlockBounds fullBounds = new BlockBounds(floorBounds.getMin().add(-8, -4, -8), new BlockPos(floorBounds.getMax().add(8, mapConfig.getY() - mapConfig.getFloorHeight(), 8)));
-		return new MicroBattleMap(template, floorBounds, fullBounds);
+		return new MicroBattleMap(template, mapConfig, floorBounds, fullBounds);
 	}
 
 	private void generateBuildings(BlockBounds floorBounds, MapTemplate template, int padding) {
@@ -61,24 +62,33 @@ public class MicroBattleMapBuilder {
 		seBuilding.generate(template, maxX - seBuilding.getWidth(), minY, maxZ - seBuilding.getDepth());
 	}
 
-	private BlockState getBlockState(BlockPos pos, BlockBounds bounds, MicroBattleMapConfig mapConfig) {
+	private BlockState getBlockState(BlockPos pos, BlockBounds bounds, int centerX, int minRiverX, int maxRiverX, int centerZ, int minRiverZ, int maxRiverZ, MicroBattleMapConfig mapConfig) {
 		int layer = pos.getY() - bounds.getMin().getY();
 		if (layer < mapConfig.getFloorHeight() - 3) {
 			return STONE;
 		} else if (layer < mapConfig.getFloorHeight() - 1) {
 			return DIRT;
 		} else if (layer < mapConfig.getFloorHeight()) {
-			return GRASS;
+			boolean river = (pos.getX() >= minRiverX && pos.getX() <= maxRiverX) || (pos.getZ() >= minRiverZ && pos.getZ() <= maxRiverZ);
+			return river ? WATER : GRASS;
 		}
 		return null;
 	}
 
 	public void build(BlockBounds bounds, MapTemplate template, MicroBattleMapConfig mapConfig) {
+		int centerX = bounds.getSize().getX() / 2;
+		int minRiverX = centerX - mapConfig.getRiverRadius() + 1;
+		int maxRiverX = centerX + mapConfig.getRiverRadius();
+
+		int centerZ = bounds.getSize().getZ() / 2;
+		int minRiverZ = centerZ - mapConfig.getRiverRadius() + 1;
+		int maxRiverZ = centerZ + mapConfig.getRiverRadius();
+
 		Iterator<BlockPos> iterator = bounds.iterator();
 		while (iterator.hasNext()) {
 			BlockPos pos = iterator.next();
 
-			BlockState state = this.getBlockState(pos, bounds, mapConfig);
+			BlockState state = this.getBlockState(pos, bounds, centerX, minRiverX, maxRiverX, centerZ, minRiverZ, maxRiverZ, mapConfig);
 			if (state != null) {
 				template.setBlockState(pos, state);
 			}

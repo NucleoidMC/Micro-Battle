@@ -10,6 +10,7 @@ public class MicroBattleMapConfig {
 			Codec.INT.fieldOf("y").forGetter(MicroBattleMapConfig::getY),
 			Codec.INT.fieldOf("z").forGetter(MicroBattleMapConfig::getZ),
 			Codec.INT.optionalFieldOf("floor_height", 6).forGetter(MicroBattleMapConfig::getFloorHeight),
+			Codec.INT.optionalFieldOf("river_radius", 2).forGetter(MicroBattleMapConfig::getRiverRadius),
 			Codec.INT.optionalFieldOf("padding", 6).forGetter(MicroBattleMapConfig::getPadding)
 		).apply(instance, MicroBattleMapConfig::new);
 	});
@@ -18,13 +19,15 @@ public class MicroBattleMapConfig {
 	private final int y;
 	private final int z;
 	private final int floorHeight;
+	private final int riverRadius;
 	private final int padding;
 
-	public MicroBattleMapConfig(int x, int y, int z, int floorHeight, int padding) {
+	public MicroBattleMapConfig(int x, int y, int z, int floorHeight, int riverRadius, int padding) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.floorHeight = floorHeight;
+		this.riverRadius = riverRadius;
 		this.padding = padding;
 	}
 
@@ -42,6 +45,10 @@ public class MicroBattleMapConfig {
 
 	public int getFloorHeight() {
 		return this.floorHeight;
+	}
+
+	public int getRiverRadius() {
+		return this.riverRadius;
 	}
 
 	public int getPadding() {

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import io.github.haykam821.microbattle.Main;
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.kit.KitType;
@@ -93,6 +94,7 @@ public class MicroBattleActivePhase {
 			game.setRule(GameRule.BREAK_BLOCKS, RuleResult.ALLOW);
 			game.setRule(GameRule.CRAFTING, RuleResult.DENY);
 			game.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
+			game.setRule(Main.FLUID_FLOW, RuleResult.DENY);
 			game.setRule(GameRule.HUNGER, RuleResult.ALLOW);
 			game.setRule(GameRule.INTERACTION, RuleResult.ALLOW);
 			game.setRule(GameRule.PLACE_BLOCKS, RuleResult.ALLOW);
@@ -270,6 +272,9 @@ public class MicroBattleActivePhase {
 
 	public static void spawn(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
 		Vec3d center = map.getFloorBounds().getCenter();
-		player.teleport(world, center.getX(), map.getFloorBounds().getMax().getY(), center.getZ(), 0, 0);
+		int xOffset = (map.getRiverRadius() + 2) * (world.getRandom().nextBoolean() ? 1 : -1);
+		int zOffset = (map.getRiverRadius() + 2) * (world.getRandom().nextBoolean() ? 1 : -1);
+
+		player.teleport(world, center.getX() + xOffset + 0.5, map.getFloorBounds().getMax().getY(), center.getZ() + zOffset + 0.5, 0, 0);
 	}
 }

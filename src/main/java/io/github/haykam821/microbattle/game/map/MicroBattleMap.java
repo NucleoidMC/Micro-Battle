@@ -8,14 +8,20 @@ import xyz.nucleoid.plasmid.util.BlockBounds;
 
 public class MicroBattleMap {
 	private final MapTemplate template;
+	private final MicroBattleMapConfig config;
 	private final BlockBounds floorBounds;
 	private final BlockBounds fullBounds;
 
-	public MicroBattleMap(MapTemplate template, BlockBounds floorBounds, BlockBounds fullBounds) {
+	public MicroBattleMap(MapTemplate template, MicroBattleMapConfig config, BlockBounds floorBounds, BlockBounds fullBounds) {
 		this.template = template;
+		this.config = config;
 
 		this.floorBounds = floorBounds;
 		this.fullBounds = fullBounds;
+	}
+
+	public int getRiverRadius() {
+		return this.config.getRiverRadius();
 	}
 
 	public BlockBounds getFloorBounds() {

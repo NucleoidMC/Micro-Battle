@@ -16,6 +16,9 @@
 			"io.github.haykam821.microbattle.Main"
 		]
 	},
+	"mixins": [
+		"microbattle.mixin.json"
+	],
 	"license": "MIT",
 	"icon": "assets/microbattle/icon.png",
 	"depends": {
