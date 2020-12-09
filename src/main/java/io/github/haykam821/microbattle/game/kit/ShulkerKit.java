@@ -56,4 +56,8 @@ public class ShulkerKit extends ArcherKit {
 
 		return stack;
 	}
+
+	protected ItemStack getFoodStack() {
+		return new ItemStack(Items.CHORUS_FRUIT, 8);
+	}
 }

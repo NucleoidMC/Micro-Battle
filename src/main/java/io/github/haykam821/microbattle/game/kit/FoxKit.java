@@ -90,4 +90,8 @@ public class FoxKit extends Kit {
 		DIG_ITEMS.add(new ItemStack(Items.EGG, 4), 500);
 		DIG_ITEMS.add(new ItemStack(Items.TOTEM_OF_UNDYING), 1);
 	}
+
+	protected ItemStack getFoodStack() {
+		return new ItemStack(Items.COOKED_CHICKEN, 8);
+	}
 }

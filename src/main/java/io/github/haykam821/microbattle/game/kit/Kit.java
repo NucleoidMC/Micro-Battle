@@ -114,11 +114,16 @@ public class Kit {
 		return unbreakableStack(Items.STONE_SHOVEL);
 	}
 
+	protected ItemStack getFoodStack() {
+		return new ItemStack(Items.APPLE, 8);
+	}
+
 	protected void appendInitialStacks(List<ItemStack> stacks) {
 		addIfNonNull(this::getMainWeaponStack, stacks);
 		addIfNonNull(this::getPickaxeToolStack, stacks);
 		addIfNonNull(this::getAxeToolStack, stacks);
 		addIfNonNull(this::getShovelToolStack, stacks);
+		addIfNonNull(this::getFoodStack, stacks);
 	}
 
 	protected StatusEffectInstance[] getStatusEffects() {

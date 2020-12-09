@@ -32,4 +32,8 @@ public class VindicatorKit extends Kit {
 	protected ItemStack getAxeToolStack() {
 		return null;
 	}
+
+	protected ItemStack getFoodStack() {
+		return new ItemStack(Items.COOKED_BEEF, 4);
+	}
 }
