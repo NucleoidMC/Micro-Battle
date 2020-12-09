@@ -85,7 +85,6 @@ public class MicroBattleActivePhase {
 		int index = 0;
  		for (PlayerEntry entry : this.players) {
 			entry.getPlayer().setGameMode(GameMode.SURVIVAL);
-			MicroBattleActivePhase.spawn(this.world, this.map, entry.getPlayer());
 
 			Kit kit = kits.get(index % kits.size());
 			entry.setKit(kit);
@@ -193,6 +192,6 @@ public class MicroBattleActivePhase {
 
 	public static void spawn(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
 		Vec3d center = map.getFloorBounds().getCenter();
-		player.teleport(world, center.getX(), map.getFloorBounds().getMax().getY() + 1, center.getZ(), 0, 0);
+		player.teleport(world, center.getX(), map.getFloorBounds().getMax().getY(), center.getZ(), 0, 0);
 	}
 }
