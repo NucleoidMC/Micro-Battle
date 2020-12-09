@@ -20,6 +20,7 @@
 	"text.microbattle.team_armor.chestplate": "%s Chestplate",
 	"text.microbattle.team_armor.helmet": "%s Helmet",
 	"text.microbattle.team_armor.leggings": "%s Leggings",
+	"text.microbattle.team_kit_received": "You are a %s on the %s team",
 	"text.microbattle.team_win": "The %s team has won the game!",
 	"text.microbattle.win": "%s has won the game!"
 }

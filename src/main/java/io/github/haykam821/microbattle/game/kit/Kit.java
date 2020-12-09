@@ -54,18 +54,18 @@ public abstract class Kit {
 		return new String[0];
 	}
 
-	private Text getTooltip() {
-		MutableText text = new LiteralText("");
+	private Text getTooltip(String linePrefix) {
+		MutableText text = new LiteralText(linePrefix);
 		text.append(new LiteralText("• Defeat the other players!").formatted(Formatting.GRAY));
 
 		for (String line : this.getNeutrals()) {
-			text.append(new LiteralText("\n• " + line).formatted(Formatting.GRAY));
+			text.append(new LiteralText("\n" + linePrefix + "• " + line).formatted(Formatting.GRAY));
 		}
 		for (String line : this.getAdvantages()) {
-			text.append(new LiteralText("\n+ " + line).formatted(Formatting.GREEN));
+			text.append(new LiteralText("\n" + linePrefix + "+ " + line).formatted(Formatting.GREEN));
 		}
 		for (String line : this.getDisadvantages()) {
-			text.append(new LiteralText("\n- " + line).formatted(Formatting.RED));
+			text.append(new LiteralText("\n" + linePrefix + "- " + line).formatted(Formatting.RED));
 		}
 
 		return text;
@@ -77,12 +77,21 @@ public abstract class Kit {
 
 	private Text getHoverableName() {
 		return this.getName().shallowCopy().styled(style -> {
-			return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, this.getTooltip()));
+			return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, this.getTooltip("")));
 		});
 	}
 
-	public Text getReceivedText() {
-		return new TranslatableText("text.microbattle.kit_received", this.getHoverableName()).formatted(Formatting.GRAY);
+	public MutableText getReceivedMessage() {
+		if (this.entry.getTeam() == null) {
+			return new TranslatableText("text.microbattle.kit_received", this.getHoverableName()).formatted(Formatting.GRAY);
+		} else {
+			Text teamName = new LiteralText(this.entry.getTeam().getDisplay()).formatted(this.entry.getTeam().getFormatting());
+			return new TranslatableText("text.microbattle.team_kit_received", this.getHoverableName(), teamName).formatted(Formatting.GRAY);
+		}
+	}
+
+	public Text getInitialMessage() {
+		return this.getReceivedMessage().append("\n").append(this.getTooltip("  "));
 	}
 
 	private ItemStack createArmorStack(Item item, String type, boolean secondary) {
@@ -169,7 +178,7 @@ public abstract class Kit {
 
 	public final void initialize() {
 		this.applyInventory();
-		this.entry.getPlayer().sendMessage(this.getReceivedText(), false);
+		this.entry.getPlayer().sendMessage(this.getInitialMessage(), false);
 	}
 
 	protected static ItemStack unbreakableStack(ItemConvertible item) {
