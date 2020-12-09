@@ -3,16 +3,19 @@ package io.github.haykam821.microbattle.game;
 import io.github.haykam821.microbattle.game.kit.Kit;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.server.network.ServerPlayerEntity;
+import xyz.nucleoid.plasmid.game.player.GameTeam;
 
 public class PlayerEntry {
 	private final MicroBattleActivePhase phase;
 	private final ServerPlayerEntity player;
+	private final GameTeam team;
 	private Kit kit;
 	private int ticks = 0;
 
-	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayerEntity player) {
+	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayerEntity player, GameTeam team) {
 		this.phase = phase;
 		this.player = player;
+		this.team = team;
 	}
 
 	public MicroBattleActivePhase getPhase() {
@@ -21,6 +24,10 @@ public class PlayerEntry {
 
 	public ServerPlayerEntity getPlayer() {
 		return this.player;
+	}
+	
+	public GameTeam getTeam() {
+		return this.team;
 	}
 
 	public Kit getKit() {

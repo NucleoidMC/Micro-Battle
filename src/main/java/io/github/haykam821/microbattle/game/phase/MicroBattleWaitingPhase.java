@@ -13,6 +13,7 @@ import xyz.nucleoid.plasmid.game.GameOpenProcedure;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.GameWaitingLobby;
 import xyz.nucleoid.plasmid.game.StartResult;
+import xyz.nucleoid.plasmid.game.TeamSelectionLobby;
 import xyz.nucleoid.plasmid.game.config.PlayerConfig;
 import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
 import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
@@ -25,11 +26,13 @@ import xyz.nucleoid.plasmid.game.rule.RuleResult;
 public class MicroBattleWaitingPhase {
 	private final GameSpace gameSpace;
 	private final MicroBattleMap map;
+	private final TeamSelectionLobby teamSelection;
 	private final MicroBattleConfig config;
 
-	public MicroBattleWaitingPhase(GameSpace gameSpace, MicroBattleMap map, MicroBattleConfig config) {
+	public MicroBattleWaitingPhase(GameSpace gameSpace, MicroBattleMap map, TeamSelectionLobby teamSelection, MicroBattleConfig config) {
 		this.gameSpace = gameSpace;
 		this.map = map;
+		this.teamSelection = teamSelection;
 		this.config = config;
 	}
 
@@ -42,9 +45,11 @@ public class MicroBattleWaitingPhase {
 			.setDefaultGameMode(GameMode.ADVENTURE);
 
 		return context.createOpenProcedure(worldConfig, game -> {
-			MicroBattleWaitingPhase phase = new MicroBattleWaitingPhase(game.getSpace(), map, context.getConfig());
+			MicroBattleConfig config = context.getConfig();
+			TeamSelectionLobby teamSelection = config.getTeams().isPresent() ? TeamSelectionLobby.applyTo(game, config.getTeams().get()) : null;
 
-			GameWaitingLobby.applyTo(game, context.getConfig().getPlayerConfig());
+			MicroBattleWaitingPhase phase = new MicroBattleWaitingPhase(game.getSpace(), map, teamSelection, config);
+			GameWaitingLobby.applyTo(game, config.getPlayerConfig());
 			
 			game.setRule(GameRule.BLOCK_DROPS, RuleResult.DENY);
 			game.setRule(GameRule.BREAK_BLOCKS, RuleResult.DENY);
@@ -79,7 +84,7 @@ public class MicroBattleWaitingPhase {
 			return StartResult.NOT_ENOUGH_PLAYERS;
 		}
 
-		MicroBattleActivePhase.open(this.gameSpace, this.map, this.config);
+		MicroBattleActivePhase.open(this.gameSpace, this.map, this.teamSelection, this.config);
 		return StartResult.OK;
 	}
 

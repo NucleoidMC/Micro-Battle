@@ -1,0 +1,34 @@
+{
+	"type": "microbattle:micro_battle",
+	"name": "Soul Micro Battle: 2 Teams",
+	"kits": [
+		"microbattle:fox",
+		"microbattle:shulker",
+		"microbattle:skeleton",
+		"microbattle:stray",
+		"microbattle:vindicator",
+		"microbattle:witch"
+	],
+	"teams": [
+		{
+			"key": "red",
+			"display": "Red",
+			"color": "red"
+		},
+		{
+			"key": "blue",
+			"display": "Blue",
+			"color": "blue"
+		}
+	],
+	"map": {
+		"x": 48,
+		"y": 48,
+		"z": 48
+	},
+	"players": {
+		"min": 1,
+		"max": 32,
+		"threshold": 4
+	}
+}

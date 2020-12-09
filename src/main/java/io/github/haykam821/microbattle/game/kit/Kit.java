@@ -139,6 +139,8 @@ public abstract class Kit {
 	}
 
 	public final void applyInventory() {
+		entry.getPlayer().inventory.clear();
+
 		// Add status effects
 		for (StatusEffectInstance effect : this.getStatusEffects()) {
 			player.addStatusEffect(new StatusEffectInstance(effect.getEffectType(), effect.getDuration(), effect.getAmplifier(), true, false));
