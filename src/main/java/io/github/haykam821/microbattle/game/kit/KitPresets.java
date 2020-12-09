@@ -11,6 +11,7 @@ public class KitPresets {
 		KitTypes.FOX,
 		KitTypes.SHULKER,
 		KitTypes.SKELETON,
+		KitTypes.SNOW_GOLEM,
 		KitTypes.STRAY,
 		KitTypes.VINDICATOR,
 		KitTypes.WITCH

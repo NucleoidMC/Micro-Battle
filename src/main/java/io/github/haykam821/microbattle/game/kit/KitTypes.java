@@ -11,6 +11,7 @@ public class KitTypes {
 	public static final KitType<PlayerKit> PLAYER = register("player", PlayerKit::new);
 	public static final KitType<ShulkerKit> SHULKER = register("shulker", ShulkerKit::new);
 	public static final KitType<SkeletonKit> SKELETON = register("skeleton", SkeletonKit::new);
+	public static final KitType<SnowGolemKit> SNOW_GOLEM = register("snow_golem", SnowGolemKit::new);
 	public static final KitType<StrayKit> STRAY = register("stray", StrayKit::new);
 	public static final KitType<VindicatorKit> VINDICATOR = register("vindicator", VindicatorKit::new);
 	public static final KitType<WitchKit> WITCH = register("witch", WitchKit::new);

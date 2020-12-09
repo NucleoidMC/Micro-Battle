@@ -90,7 +90,9 @@ public class FoxKit extends Kit {
 	}
 
 	@Override
-	public void tick(PlayerEntry entry) {
+	public void tick() {
+		super.tick();
+
 		this.player.experienceProgress = MathHelper.clamp((IDLE_DIG_TICKS - this.digTicks) / (float) IDLE_DIG_TICKS, 0, 1);
 		this.player.setExperienceLevel(0);
 

@@ -1,7 +1,6 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import java.util.List;
-import java.util.Random;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
@@ -10,13 +9,9 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.registry.Registry;
 
 public class WitchKit extends Kit {
-	private static final Random RANDOM = new Random();
-	private static final int MAX_RESTOCK_TICKS = 20 * 10;
-
-	private int restockTicks = MAX_RESTOCK_TICKS;
-
 	public WitchKit(PlayerEntry entry) {
 		super(KitTypes.WITCH, entry);
+		this.addRestockEntry(new RestockEntry.Builder(this::getPotionStack, 20 * 10).maxCount(1).build());
 	}
 
 	@Override
@@ -64,14 +59,5 @@ public class WitchKit extends Kit {
 	protected void appendInitialStacks(List<ItemStack> stacks) {
 		super.appendInitialStacks(stacks);
 		stacks.add(this.getPotionStack());
-	}
-
-	@Override
-	public void tick(PlayerEntry entry) {
-		this.restockTicks -= 1;
-		if (this.restockTicks <= 0 && this.player.inventory.count(Items.SPLASH_POTION) == 0) {
-			this.restockTicks = MAX_RESTOCK_TICKS;
-			this.player.giveItemStack(this.getPotionStack());
-		}
 	}
 }

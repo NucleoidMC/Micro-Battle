@@ -52,7 +52,7 @@ public class PlayerEntry {
 	public void tick() {
 		this.ticks += 1;
 		if (this.kit != null) {
-			this.kit.tick(this);
+			this.kit.tick();
 		}
 	}
 }

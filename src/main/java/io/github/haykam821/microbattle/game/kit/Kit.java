@@ -2,6 +2,7 @@ package io.github.haykam821.microbattle.game.kit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Supplier;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
@@ -25,7 +26,10 @@ import xyz.nucleoid.plasmid.logic.combat.OldCombat;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public abstract class Kit {
+	protected static final Random RANDOM = new Random();
+
 	private final KitType<?> type;
+	private final List<RestockEntry> restockEntries = new ArrayList<>();
 	protected final PlayerEntry entry;
 	protected final ServerPlayerEntity player;
 	protected final MicroBattleActivePhase phase;
@@ -36,6 +40,10 @@ public abstract class Kit {
 		this.entry = entry;
 		this.player = entry.getPlayer();
 		this.phase = entry.getPhase();
+	}
+
+	protected boolean addRestockEntry(RestockEntry entry) {
+		return this.restockEntries.add(entry);
 	}
 
 	protected abstract int getBaseColor();
@@ -94,7 +102,7 @@ public abstract class Kit {
 		return this.getReceivedMessage().append("\n").append(this.getTooltip("  "));
 	}
 
-	private ItemStack createArmorStack(Item item, String type, boolean secondary) {
+	protected ItemStack createArmorStack(Item item, String type, boolean secondary) {
 		return ItemStackBuilder.of(item)
 			.addEnchantment(Enchantments.BINDING_CURSE, 1)
 			.setColor(secondary ? this.getSecondaryColor() : this.getBaseColor())
@@ -102,17 +110,35 @@ public abstract class Kit {
 			.build();
 	}
 
+	protected ItemStack getHelmetStack() {
+		return this.createArmorStack(Items.LEATHER_HELMET, "helmet", true);
+	}
+
+	protected ItemStack getChestplateStack() {
+		return this.createArmorStack(Items.LEATHER_CHESTPLATE, "chestplate", false);
+	}
+
+	protected ItemStack getLeggingsStack() {
+		return this.createArmorStack(Items.LEATHER_LEGGINGS, "leggings", false);
+	}
+
+	protected ItemStack getBootsStack() {
+		return this.createArmorStack(Items.LEATHER_BOOTS, "boots", true);
+	}
+
 	private List<ItemStack> getArmorStacks() {
 		List<ItemStack> armorStacks = new ArrayList<>();
-		armorStacks.add(this.createArmorStack(Items.LEATHER_HELMET, "helmet", true));
-		armorStacks.add(this.createArmorStack(Items.LEATHER_CHESTPLATE, "chestplate", false));
-		armorStacks.add(this.createArmorStack(Items.LEATHER_LEGGINGS, "leggings", false));
-		armorStacks.add(this.createArmorStack(Items.LEATHER_BOOTS, "boots", true));
+		armorStacks.add(this.getHelmetStack());
+		armorStacks.add(this.getChestplateStack());
+		armorStacks.add(this.getLeggingsStack());
+		armorStacks.add(this.getBootsStack());
 		return armorStacks;
 	}
 
-	public void tick(PlayerEntry entry) {
-		return;
+	public void tick() {
+		for (RestockEntry entry : this.restockEntries) {
+			entry.tick(this.entry);
+		}
 	}
 
 	protected ItemStack getMainWeaponStack() {
@@ -141,6 +167,10 @@ public abstract class Kit {
 		addIfNonNull(this::getAxeToolStack, stacks);
 		addIfNonNull(this::getShovelToolStack, stacks);
 		addIfNonNull(this::getFoodStack, stacks);
+		
+		for (RestockEntry entry : this.restockEntries) {
+			addIfNonNull(entry::supplyStack, stacks);
+		}
 	}
 
 	protected StatusEffectInstance[] getStatusEffects() {

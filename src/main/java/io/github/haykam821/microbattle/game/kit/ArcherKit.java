@@ -47,9 +47,10 @@ public abstract class ArcherKit extends Kit {
 	}
 
 	@Override
-	public void tick(PlayerEntry entry) {
-		if (entry.getTicks() % this.getArrowRestockDelay() == 0 && this.canRestock(entry.getPlayer())) {
-			entry.getPlayer().giveItemStack(this.getArrowStack());
+	public void tick() {
+		super.tick();
+		if (this.entry.getTicks() % this.getArrowRestockDelay() == 0 && this.canRestock(this.player)) {
+			this.player.giveItemStack(this.getArrowStack());
 		}
 	}
 
