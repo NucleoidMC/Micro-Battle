@@ -6,7 +6,9 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.potion.Potion;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public class ArcherKit extends Kit {
@@ -50,5 +52,11 @@ public class ArcherKit extends Kit {
 		if (entry.getTicks() % this.getArrowRestockDelay() == 0 && this.canRestock(entry.getPlayer())) {
 			entry.getPlayer().giveItemStack(this.getArrowStack());
 		}
+	}
+
+	protected static ItemStack potionArrowStack(Potion potion) {
+		ItemStack stack = new ItemStack(Items.TIPPED_ARROW);
+		stack.getOrCreateTag().putString("Potion", Registry.POTION.getId(potion).toString());
+		return stack;
 	}
 }

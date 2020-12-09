@@ -9,6 +9,7 @@ public enum Kits {
 	PLAYER("player", new Kit(DyeColor.RED.getFireworkColor(), DyeColor.RED.getFireworkColor())),
 	SHULKER("shulker", new ShulkerKit()),
 	SKELETON("skeleton", new SkeletonKit()),
+	STRAY("stray", new StrayKit()),
 	VINDICATOR("vindicator", new VindicatorKit());
 
 	private final Identifier id;

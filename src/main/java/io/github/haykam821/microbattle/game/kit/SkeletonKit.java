@@ -5,8 +5,12 @@ import net.minecraft.item.Items;
 import net.minecraft.util.DyeColor;
 
 public class SkeletonKit extends ArcherKit {
+	public SkeletonKit(int baseColor, int secondaryColor) {
+		super(baseColor, secondaryColor);
+	}
+
 	public SkeletonKit() {
-		super(DyeColor.LIGHT_GRAY.getFireworkColor(), DyeColor.GRAY.getFireworkColor());
+		this(DyeColor.LIGHT_GRAY.getFireworkColor(), DyeColor.GRAY.getFireworkColor());
 	}
 
 	@Override

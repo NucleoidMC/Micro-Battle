@@ -5,6 +5,7 @@
 	"kit.microbattle.player": "Player",
 	"kit.microbattle.shulker": "Shulker",
 	"kit.microbattle.skeleton": "Skeleton",
+	"kit.microbattle.stray": "Stray",
 	"kit.microbattle.vindicator": "Vindicator",
 	"text.microbattle.eliminated": "%s died",
 	"text.microbattle.eliminated.killed": "%s was killed",
