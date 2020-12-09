@@ -137,6 +137,15 @@ public class MicroBattleActivePhase {
 		return player.getY() < this.map.getFullBounds().getMin().getY();
 	}
 
+	private Text getOutOfBoundsMessage(ServerPlayerEntity player) {
+		String type = this.isInVoid(player) ? "void" : "out_of_bounds";
+		if (player.getPrimeAdversary() == null) {
+			return new TranslatableText("text.microbattle.eliminated." + type, player.getDisplayName()).formatted(Formatting.RED);
+		} else {
+			return new TranslatableText("text.microbattle.eliminated." + type + ".by", player.getDisplayName(), player.getPrimeAdversary().getDisplayName()).formatted(Formatting.RED);
+		}
+	}
+
 	private void tick() {
 		// Eliminate players that are out of bounds or in the void
 		Iterator<PlayerEntry> playerIterator = this.players.iterator();
@@ -146,7 +155,7 @@ public class MicroBattleActivePhase {
 
 			ServerPlayerEntity player = entry.getPlayer();
 			if (!this.map.getFullBounds().contains(player.getBlockPos())) {
-				this.eliminate(entry, this.isInVoid(player) ? ".void" : ".out_of_bounds", false);
+				this.eliminate(entry, this.getOutOfBoundsMessage(player), false);
 				playerIterator.remove();
 			}
 		}
@@ -217,14 +226,10 @@ public class MicroBattleActivePhase {
 
 	private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
-		if (entry != null) {
-			if (source.getAttacker() == null) {
-				this.eliminate(entry, ".killed", true);
-			} else {
-				this.eliminate(entry, new TranslatableText("text.microbattle.eliminated.killed.by", player.getDisplayName(), source.getAttacker().getDisplayName()).formatted(Formatting.RED), true);
-			}
-		} else {
+		if (entry == null) {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
+		} else {
+			this.eliminate(entry, source.getDeathMessage(player).shallowCopy().formatted(Formatting.RED), true);
 		}
 		return ActionResult.FAIL;
 	}
