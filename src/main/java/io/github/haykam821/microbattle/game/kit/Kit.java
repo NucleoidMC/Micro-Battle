@@ -144,6 +144,10 @@ public abstract class Kit {
 		for (RestockEntry entry : this.restockEntries) {
 			entry.tick(this.entry);
 		}
+
+		if (this.isDamagedByWater() && this.player.isWet()) {
+			this.player.damage(DamageSource.DROWN, 1.0F);
+		}
 	}
 
 	protected ItemStack getMainWeaponStack() {
@@ -235,6 +239,14 @@ public abstract class Kit {
 
 	protected static ItemStack unbreakableStack(ItemConvertible item) {
 		return ItemStackBuilder.of(item).setUnbreakable().build();
+	}
+
+	public boolean isDamagedByWater() {
+		return false;
+	}
+
+	public boolean isDamagedByFire() {
+		return true;
 	}
 
 	private static void addIfNonNull(Supplier<ItemStack> supplier, List<ItemStack> stacks) {

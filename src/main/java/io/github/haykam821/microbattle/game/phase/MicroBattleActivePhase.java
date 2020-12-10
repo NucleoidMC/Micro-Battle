@@ -255,15 +255,18 @@ public class MicroBattleActivePhase {
 	private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
 		PlayerEntry target = this.getEntryFromPlayer(player);
 		if (target == null) return ActionResult.PASS;
-		if (!(source.getAttacker() instanceof ServerPlayerEntity)) return ActionResult.PASS;
+		if (source.isFire() && target.getKit() != null && !target.getKit().isDamagedByFire()) {
+			return ActionResult.FAIL;
+		}
 
+		if (!(source.getAttacker() instanceof ServerPlayerEntity)) return ActionResult.PASS;
 		PlayerEntry attacker = this.getEntryFromPlayer((ServerPlayerEntity) source.getAttacker());
 		if (attacker != null && target.isSameTeam(attacker)) {
 			return ActionResult.FAIL;
 		}
 
 		if (target.getKit() != null) {
-			ActionResult damagedResult = target.getKit().onDamaged(target, source, amount);
+			ActionResult damagedResult = target.getKit().onDamaged(attacker, source, amount);
 			if (damagedResult != ActionResult.PASS) return damagedResult;
 		}
 		if (attacker.getKit() != null) {
