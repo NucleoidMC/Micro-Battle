@@ -30,6 +30,8 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
@@ -43,6 +45,7 @@ import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
 import xyz.nucleoid.plasmid.game.event.PlayerDamageListener;
 import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
 import xyz.nucleoid.plasmid.game.event.PlayerRemoveListener;
+import xyz.nucleoid.plasmid.game.event.UseBlockListener;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
@@ -111,6 +114,7 @@ public class MicroBattleActivePhase {
 			game.on(PlayerDamageListener.EVENT, phase::onPlayerDamage);
 			game.on(PlayerDeathListener.EVENT, phase::onPlayerDeath);
 			game.on(PlayerRemoveListener.EVENT, phase::onPlayerRemove);
+			game.on(UseBlockListener.EVENT, phase::onUseBlock);
 		});
 	}
 
@@ -224,6 +228,15 @@ public class MicroBattleActivePhase {
 		return null;
 	}
 
+	private ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
+		PlayerEntry entry = this.getEntryFromPlayer(player);
+		if (entry != null) {
+			return entry.getKit().onUseBlock(hand, hitResult);
+		}
+
+		return ActionResult.PASS;
+	}
+
 	private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
 		if (entry == null) {
@@ -240,7 +253,14 @@ public class MicroBattleActivePhase {
 		if (!(source.getAttacker() instanceof ServerPlayerEntity)) return ActionResult.PASS;
 
 		PlayerEntry attacker = this.getEntryFromPlayer((ServerPlayerEntity) source.getAttacker());
-		return attacker != null && target.isSameTeam(attacker) ? ActionResult.FAIL : ActionResult.PASS;
+		if (attacker != null && target.isSameTeam(attacker)) {
+			return ActionResult.FAIL;
+		}
+
+		ActionResult damagedResult = attacker.getKit().onDamaged(target, source, amount);
+		if (damagedResult != ActionResult.PASS) return damagedResult;
+
+		return attacker.getKit().onDealDamage(target, source, amount);
 	}
 	
 	public void onPlayerRemove(ServerPlayerEntity player) {

@@ -11,7 +11,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.collection.WeightedList;
-import net.minecraft.util.math.MathHelper;
 import xyz.nucleoid.plasmid.logic.combat.OldCombat;
 
 public class FoxKit extends Kit {
@@ -92,9 +91,7 @@ public class FoxKit extends Kit {
 	@Override
 	public void tick() {
 		super.tick();
-
-		this.player.experienceProgress = MathHelper.clamp((IDLE_DIG_TICKS - this.digTicks) / (float) IDLE_DIG_TICKS, 0, 1);
-		this.player.setExperienceLevel(0);
+		this.setExperienceBar((IDLE_DIG_TICKS - this.digTicks) / (float) IDLE_DIG_TICKS);
 
 		if (this.canDig() || this.digTicks > IDLE_DIG_TICKS) {
 			this.digTicks -= 1;

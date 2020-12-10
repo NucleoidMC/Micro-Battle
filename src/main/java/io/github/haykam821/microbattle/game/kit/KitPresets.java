@@ -9,6 +9,7 @@ import net.minecraft.util.Identifier;
 public class KitPresets {
 	public static final List<KitType<?>> SOUL = register("soul", new KitType[] {
 		KitTypes.FOX,
+		KitTypes.SHEEP,
 		KitTypes.SHULKER,
 		KitTypes.SKELETON,
 		KitTypes.SNOW_GOLEM,

@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
@@ -20,7 +21,11 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.logic.combat.OldCombat;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
@@ -209,6 +214,23 @@ public abstract class Kit {
 	public final void initialize() {
 		this.applyInventory();
 		this.entry.getPlayer().sendMessage(this.getInitialMessage(), false);
+	}
+
+	protected void setExperienceBar(float progress) {
+		this.player.experienceProgress = MathHelper.clamp(progress, 0, 1);
+		this.player.setExperienceLevel(0);
+	}
+
+	public ActionResult onUseBlock(Hand hand, BlockHitResult hitResult) {
+		return ActionResult.PASS;
+	}
+
+	public ActionResult onDamaged(PlayerEntry target, DamageSource source, float amount) {
+		return ActionResult.PASS;
+	}
+
+	public ActionResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
+		return ActionResult.PASS;
 	}
 
 	protected static ItemStack unbreakableStack(ItemConvertible item) {
