@@ -46,6 +46,15 @@ public class MicroBattleConfig {
 		return this.teams;
 	}
 
+	public GameTeam getTeam(int index) {
+		if (!this.teams.isPresent()) return null;
+
+		if (index < 0) return null;
+		if (index >= this.teams.get().size()) return null;
+
+		return this.teams.get().get(index);
+	}
+
 	public boolean isOldCombat() {
 		return this.oldCombat;
 	}

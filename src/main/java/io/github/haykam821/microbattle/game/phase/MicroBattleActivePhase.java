@@ -262,10 +262,15 @@ public class MicroBattleActivePhase {
 			return ActionResult.FAIL;
 		}
 
-		ActionResult damagedResult = attacker.getKit().onDamaged(target, source, amount);
-		if (damagedResult != ActionResult.PASS) return damagedResult;
+		if (target.getKit() != null) {
+			ActionResult damagedResult = target.getKit().onDamaged(target, source, amount);
+			if (damagedResult != ActionResult.PASS) return damagedResult;
+		}
+		if (attacker.getKit() != null) {
+			return attacker.getKit().onDealDamage(target, source, amount);
+		}
 
-		return attacker.getKit().onDealDamage(target, source, amount);
+		return ActionResult.PASS;
 	}
 	
 	public void onPlayerRemove(ServerPlayerEntity player) {
