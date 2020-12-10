@@ -141,8 +141,7 @@ public class MicroBattleActivePhase {
 		return player.getY() < this.map.getFullBounds().getMin().getY();
 	}
 
-	private Text getOutOfBoundsMessage(ServerPlayerEntity player) {
-		String type = this.isInVoid(player) ? "void" : "out_of_bounds";
+	private Text getCustomEliminatedMessage(ServerPlayerEntity player, String type) {
 		if (player.getPrimeAdversary() == null) {
 			return new TranslatableText("text.microbattle.eliminated." + type, player.getDisplayName()).formatted(Formatting.RED);
 		} else {
@@ -159,8 +158,12 @@ public class MicroBattleActivePhase {
 
 			ServerPlayerEntity player = entry.getPlayer();
 			if (!this.map.getFullBounds().contains(player.getBlockPos())) {
-				this.eliminate(entry, this.getOutOfBoundsMessage(player), false);
-				playerIterator.remove();
+				if (this.isInVoid(player)) {
+					this.eliminate(entry, this.getCustomEliminatedMessage(player, "void"), false);
+					playerIterator.remove();
+				} else {
+					entry.tickOutOfBounds();
+				}
 			}
 		}
 
@@ -241,6 +244,8 @@ public class MicroBattleActivePhase {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
 		if (entry == null) {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
+		} else if (!this.map.getFullBounds().contains(player.getBlockPos())) {
+			this.eliminate(entry, this.getCustomEliminatedMessage(player, "out_of_bounds"), true);
 		} else {
 			this.eliminate(entry, source.getDeathMessage(player).shallowCopy().formatted(Formatting.RED), true);
 		}

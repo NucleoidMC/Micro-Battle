@@ -2,6 +2,7 @@ package io.github.haykam821.microbattle.game;
 
 import io.github.haykam821.microbattle.game.kit.Kit;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
@@ -11,6 +12,7 @@ public class PlayerEntry {
 	private final GameTeam team;
 	private Kit kit;
 	private int ticks = 0;
+	private int outOfBoundsTicks = 0;
 
 	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayerEntity player, GameTeam team) {
 		this.phase = phase;
@@ -54,5 +56,10 @@ public class PlayerEntry {
 		if (this.kit != null) {
 			this.kit.tick();
 		}
+	}
+
+	public void tickOutOfBounds() {
+		this.outOfBoundsTicks += 1;
+		player.damage(DamageSource.OUT_OF_WORLD, this.outOfBoundsTicks / 80);
 	}
 }
