@@ -25,6 +25,8 @@ public class FlowableFluidMixin {
 		World world = (World) blockView;
 
 		ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(world);
+		if (gameSpace == null) return;
+
 		if (gameSpace.testRule(Main.FLUID_FLOW) == RuleResult.DENY) {
 			ci.setReturnValue(false);
 		}
