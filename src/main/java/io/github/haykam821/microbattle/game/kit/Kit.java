@@ -215,8 +215,12 @@ public abstract class Kit {
 		player.updateCursorStack();
 	}
 
-	public final void initialize() {
+	public final void reinitialize() {
 		this.applyInventory();
+	}
+
+	public final void initialize() {
+		this.reinitialize();
 		this.entry.getPlayer().sendMessage(this.getInitialMessage(), false);
 	}
 

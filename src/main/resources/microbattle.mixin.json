@@ -3,6 +3,7 @@
 	"package": "io.github.haykam821.microbattle.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
+		"BlockItemMixin",
 		"FlowableFluidMixin"
 	],
 	"injectors": {

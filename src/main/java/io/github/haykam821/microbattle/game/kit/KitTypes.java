@@ -10,6 +10,7 @@ public class KitTypes {
 	public static final KitType<BlazeKit> BLAZE = register("blaze", BlazeKit::new);
 	public static final KitType<FoxKit> FOX = register("fox", FoxKit::new);
 	public static final KitType<PlayerKit> PLAYER = register("player", PlayerKit::new);
+	public static final KitType<RespawnerKit> RESPAWNER = register("respawner", RespawnerKit::new);
 	public static final KitType<SheepKit> SHEEP = register("sheep", SheepKit::new);
 	public static final KitType<ShulkerKit> SHULKER = register("shulker", ShulkerKit::new);
 	public static final KitType<SkeletonKit> SKELETON = register("skeleton", SkeletonKit::new);

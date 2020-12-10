@@ -6,9 +6,13 @@ import net.minecraft.util.DyeColor;
 public class PlayerKit extends Kit {
 	private final int color;
 
-	public PlayerKit(PlayerEntry entry) {
-		super(KitTypes.PLAYER, entry);
+	public PlayerKit(KitType<?> type, PlayerEntry entry) {
+		super(type, entry);
 		this.color = this.entry.getTeam() == null ? DyeColor.RED.getFireworkColor() : this.entry.getTeam().getFireworkColor();
+	}
+
+	public PlayerKit(PlayerEntry entry) {
+		this(KitTypes.PLAYER, entry);
 	}
 	
 	@Override

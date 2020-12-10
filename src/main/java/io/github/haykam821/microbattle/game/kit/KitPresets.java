@@ -7,6 +7,7 @@ import io.github.haykam821.microbattle.Main;
 import net.minecraft.util.Identifier;
 
 public class KitPresets {
+	public static final List<KitType<?>> RESPAWNER = register("respawner", KitTypes.RESPAWNER);
 	public static final List<KitType<?>> SOUL = register("soul", new KitType[] {
 		KitTypes.BLAZE,
 		KitTypes.FOX,

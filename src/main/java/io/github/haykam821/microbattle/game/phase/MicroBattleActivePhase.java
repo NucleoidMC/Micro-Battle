@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,17 +15,25 @@ import org.apache.commons.lang3.RandomStringUtils;
 import io.github.haykam821.microbattle.Main;
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import io.github.haykam821.microbattle.game.event.AfterBlockPlaceListener;
 import io.github.haykam821.microbattle.game.kit.KitType;
+import io.github.haykam821.microbattle.game.kit.RespawnerKit;
 import io.github.haykam821.microbattle.game.map.MicroBattleMap;
 import io.github.haykam821.microbattle.game.win.FreeForAllWinManager;
 import io.github.haykam821.microbattle.game.win.TeamWinManager;
 import io.github.haykam821.microbattle.game.win.WinManager;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.RespawnAnchorBlock;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -32,12 +41,15 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameOpenException;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.TeamSelectionLobby;
+import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
 import xyz.nucleoid.plasmid.game.event.GameCloseListener;
 import xyz.nucleoid.plasmid.game.event.GameOpenListener;
 import xyz.nucleoid.plasmid.game.event.GameTickListener;
@@ -107,6 +119,8 @@ public class MicroBattleActivePhase {
 			game.setRule(GameRule.THROW_ITEMS, RuleResult.ALLOW);
 
 			// Listeners
+			game.on(AfterBlockPlaceListener.EVENT, phase::afterBlockPlace);
+			game.on(BreakBlockListener.EVENT, phase::onBreakBlock);
 			game.on(GameCloseListener.EVENT, phase::onClose);
 			game.on(GameOpenListener.EVENT, phase::open);
 			game.on(GameTickListener.EVENT, phase::tick);
@@ -159,6 +173,9 @@ public class MicroBattleActivePhase {
 			ServerPlayerEntity player = entry.getPlayer();
 			if (!this.map.getFullBounds().contains(player.getBlockPos())) {
 				if (this.isInVoid(player)) {
+					if (this.attemptRespawnerRespawn(entry) == ActionResult.SUCCESS) {
+						break;
+					}
 					this.eliminate(entry, this.getCustomEliminatedMessage(player, "void"), false);
 					playerIterator.remove();
 				} else {
@@ -239,6 +256,45 @@ public class MicroBattleActivePhase {
 
 		return ActionResult.PASS;
 	}
+	
+	private Vec3d getRespawnAroundPos(BlockPos beaconPos) {
+		Optional<Vec3d> spawnOptional = RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, beaconPos);
+		if (spawnOptional.isPresent()) {
+			Vec3d spawn = spawnOptional.get();
+			if (spawn.getY() <= 255) {
+				return spawn;
+			}
+		}
+		return new Vec3d(beaconPos.getX() + 0.5, beaconPos.getY(), beaconPos.getZ() + 0.5);
+	}
+	
+	public ActionResult attemptRespawnerRespawn(PlayerEntry entry) {
+		if (!(entry.getKit() instanceof RespawnerKit)) return ActionResult.FAIL;
+		RespawnerKit respawner = (RespawnerKit) entry.getKit();
+
+		BlockPos respawnPos = respawner.getRespawnPos();
+		if (respawnPos == null) {
+			return ActionResult.FAIL;
+		}
+
+		BlockState respawnState = this.world.getBlockState(respawnPos);
+		if (!respawnState.isIn(Main.RESPAWN_BEACONS)) {
+			return ActionResult.FAIL;
+		}
+
+		// Reset state
+		entry.getPlayer().setHealth(entry.getPlayer().getMaxHealth());
+		entry.getPlayer().getHungerManager().setFoodLevel(20);
+		entry.getPlayer().extinguish();
+		entry.getPlayer().getDamageTracker().update();
+
+		// Teleport and spawn
+		Vec3d spawn = this.getRespawnAroundPos(respawnPos);
+		entry.getPlayer().teleport(world, spawn.getX(), spawn.getY(), spawn.getZ(), 0, 0);;
+		respawner.reinitialize();
+
+		return ActionResult.SUCCESS;
+	}
 
 	private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
@@ -246,9 +302,63 @@ public class MicroBattleActivePhase {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
 		} else if (!this.map.getFullBounds().contains(player.getBlockPos())) {
 			this.eliminate(entry, this.getCustomEliminatedMessage(player, "out_of_bounds"), true);
-		} else {
+		} else if (this.attemptRespawnerRespawn(entry) != ActionResult.SUCCESS) {
 			this.eliminate(entry, source.getDeathMessage(player).shallowCopy().formatted(Formatting.RED), true);
 		}
+		return ActionResult.FAIL;
+	}
+
+	private boolean placeBeacon(PlayerEntry entry, RespawnerKit respawner, BlockPos pos) {
+		if (respawner.getRespawnPos() != null) return true;
+		if (!this.map.getFullBounds().contains(pos)) {
+			entry.getPlayer().sendMessage(new TranslatableText("text.microbattle.cannot_place_out_of_bounds_beacon").formatted(Formatting.RED), false);
+			return false;
+		}
+		respawner.setRespawnPos(pos);
+		return true;
+	}
+
+	private ActionResult afterBlockPlace(BlockPos pos, World world, ServerPlayerEntity player, ItemStack stack, BlockState state) {
+		if (!state.isIn(Main.RESPAWN_BEACONS)) return ActionResult.PASS;
+		
+		PlayerEntry entry = this.getEntryFromPlayer(player);
+		if (entry == null) return ActionResult.PASS;
+
+		if (!(entry.getKit() instanceof RespawnerKit)) return ActionResult.PASS;
+		return this.placeBeacon(entry, (RespawnerKit) entry.getKit(), pos) ? ActionResult.SUCCESS : ActionResult.FAIL;
+	}
+
+	private ActionResult onBreakBlock(ServerPlayerEntity player, BlockPos pos) {
+		PlayerEntry breaker = this.getEntryFromPlayer(player);
+		if (breaker == null) return ActionResult.PASS;
+
+		// Prevent breaking own beacon
+		if (breaker.getKit() instanceof RespawnerKit) {
+			RespawnerKit respawner = (RespawnerKit) breaker.getKit();
+			if (pos.equals(respawner.getRespawnPos())) {
+				player.sendMessage(new TranslatableText("text.microbattle.cannot_break_own_beacon").formatted(Formatting.RED), false);
+				return ActionResult.FAIL;
+			}
+		}
+
+		// Prevent breaking non-beacons
+		BlockState state = player.getEntityWorld().getBlockState(pos);
+		if (!state.isIn(Main.RESPAWN_BEACONS)) return ActionResult.SUCCESS;
+
+		// Send message
+		for (PlayerEntry entry : this.players) {
+			if (!(breaker.getKit() instanceof RespawnerKit)) continue;
+			RespawnerKit respawner = (RespawnerKit) breaker.getKit();
+
+			if (pos.equals(respawner.getRespawnPos())) {
+				this.gameSpace.getPlayers().sendSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 1, 1);
+				this.gameSpace.getPlayers().sendMessage(new TranslatableText("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).formatted(Formatting.RED));
+				break;
+			}
+		}
+
+		// Remove beacon
+		player.getEntityWorld().setBlockState(pos, state.getFluidState().getBlockState());
 		return ActionResult.FAIL;
 	}
 
