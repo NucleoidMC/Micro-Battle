@@ -1,7 +1,5 @@
 package io.github.haykam821.microbattle.game.kit;
 
-import java.util.List;
-
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -53,11 +51,5 @@ public class WitchKit extends Kit {
 
 	private ItemStack getPotionStack() {
 		return potionLikeStack(Items.SPLASH_POTION, Registry.POTION.getRandom(RANDOM));
-	}
-
-	@Override
-	protected void appendInitialStacks(List<ItemStack> stacks) {
-		super.appendInitialStacks(stacks);
-		stacks.add(this.getPotionStack());
 	}
 }
