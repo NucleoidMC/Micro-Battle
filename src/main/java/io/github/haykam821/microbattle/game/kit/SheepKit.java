@@ -35,6 +35,14 @@ public class SheepKit extends Kit {
 		return DyeColor.WHITE.getFireworkColor();
 	}
 
+	@Override
+	protected String[] getAdvantages() {
+		return new String[] {
+			"Eat grass to replenish your wool coat",
+			"Wrap your wool coat around enemies by attacking them",
+		};
+	}
+
 	private void updateExperienceBarForWoolCoat() {
 		this.setExperienceBar(grassEaten / (float) WOOL_COAT_REQUIRED_GRASS);
 	}
