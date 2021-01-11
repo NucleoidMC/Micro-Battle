@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
+import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -25,6 +26,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.logic.combat.OldCombat;
@@ -233,11 +235,31 @@ public abstract class Kit {
 		return ActionResult.PASS;
 	}
 
+	public ActionResult afterBlockPlace(BlockPos pos, ItemStack stack, BlockState state) {
+		return ActionResult.PASS;
+	}
+
+	public ActionResult onBreakBlock(BlockPos pos) {
+		return ActionResult.PASS;
+	}
+
 	public ActionResult onDamaged(PlayerEntry target, DamageSource source, float amount) {
 		return ActionResult.PASS;
 	}
 
 	public ActionResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
+		return ActionResult.PASS;
+	}
+
+	public ActionResult onDeath(DamageSource source) {
+		return ActionResult.PASS;
+	}
+
+	public ActionResult attemptRespawn() {
+		return ActionResult.FAIL;
+	}
+
+	public ActionResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
 		return ActionResult.PASS;
 	}
 

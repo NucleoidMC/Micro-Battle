@@ -7,6 +7,7 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.util.Identifier;
 
 public class KitTypes {
+	public static final KitType<BeeKit> BEE = register("bee", BeeKit::new);
 	public static final KitType<BlazeKit> BLAZE = register("blaze", BlazeKit::new);
 	public static final KitType<FoxKit> FOX = register("fox", FoxKit::new);
 	public static final KitType<PlayerKit> PLAYER = register("player", PlayerKit::new);
