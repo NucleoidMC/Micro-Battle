@@ -4,6 +4,7 @@ import io.github.haykam821.microbattle.game.kit.Kit;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
 public class PlayerEntry {
@@ -61,5 +62,21 @@ public class PlayerEntry {
 	public void tickOutOfBounds() {
 		this.outOfBoundsTicks += 1;
 		player.damage(DamageSource.OUT_OF_WORLD, this.outOfBoundsTicks / 80);
+	}
+
+	/**
+	 * Sends inventory updates to the player's client.
+	 */
+	public void updateInventory() {
+		this.player.currentScreenHandler.sendContentUpdates();
+		this.player.playerScreenHandler.onContentChanged(this.player.inventory);
+		this.player.updateCursorStack();
+	}
+
+	public void onEliminated() {
+		this.player.setGameMode(GameMode.SPECTATOR);
+
+		this.player.inventory.clear();
+		this.updateInventory();
 	}
 }

@@ -211,10 +211,7 @@ public abstract class Kit {
 			slot += 1;
 		}
 
-		// Update inventory
-		player.currentScreenHandler.sendContentUpdates();
-		player.playerScreenHandler.onContentChanged(player.inventory);
-		player.updateCursorStack();
+		this.entry.updateInventory();
 	}
 
 	public final void reinitialize() {

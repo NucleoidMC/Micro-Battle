@@ -227,7 +227,7 @@ public class MicroBattleActivePhase {
 		if (remove) {
 			this.players.remove(entry);
 		}
-		this.setSpectator(entry.getPlayer());
+		entry.onEliminated();
 	}
 
 	private void eliminate(PlayerEntry entry, String suffix, boolean remove) {
