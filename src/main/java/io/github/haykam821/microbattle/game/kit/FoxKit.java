@@ -6,7 +6,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
@@ -107,7 +107,7 @@ public class FoxKit extends Kit {
 	protected static ItemStack durabilityStack(ItemConvertible item, int durability) {
 		ItemStack stack = new ItemStack(item);
 
-		CompoundTag tag = stack.getOrCreateTag();
+		NbtCompound tag = stack.getOrCreateTag();
 		tag.putInt("Damage", stack.getMaxDamage() - durability);
 
 		return stack;

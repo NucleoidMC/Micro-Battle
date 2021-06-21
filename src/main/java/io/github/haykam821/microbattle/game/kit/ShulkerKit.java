@@ -3,8 +3,8 @@ package io.github.haykam821.microbattle.game.kit;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DyeColor;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
@@ -55,11 +55,11 @@ public class ShulkerKit extends ArcherKit {
 			.setName(new TranslatableText("item.microbattle.shulker_arrow"))
 			.build();
 
-		CompoundTag potionEffect = new CompoundTag();
+		NbtCompound potionEffect = new NbtCompound();
 		potionEffect.putInt("Id", 25);
 		potionEffect.putInt("Duration", 3 * 20);
 
-		ListTag customPotionEffects = new ListTag();
+		NbtList customPotionEffects = new NbtList();
 		customPotionEffects.add(potionEffect);
 
 		stack.putSubTag("CustomPotionEffects", customPotionEffects);
