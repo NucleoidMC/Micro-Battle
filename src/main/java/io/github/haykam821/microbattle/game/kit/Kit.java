@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
@@ -111,7 +110,6 @@ public abstract class Kit {
 
 	protected ItemStack createArmorStack(Item item, String type, boolean secondary) {
 		return ItemStackBuilder.of(item)
-			.addEnchantment(Enchantments.BINDING_CURSE, 1)
 			.setColor(secondary ? this.getSecondaryColor() : this.getBaseColor())
 			.setName(new TranslatableText("text.microbattle.team_armor." + type, this.getName()))
 			.build();
