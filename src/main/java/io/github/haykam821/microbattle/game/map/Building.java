@@ -56,13 +56,6 @@ public class Building {
 		return new Building(size, random.nextInt(4) + 6, size, STATES.pickRandom(random));
 	}
 
-	public static Building randomize(Random random) {
-		int size = random.nextInt(2) + 3;
-		if (size % 2 == 0) size += 1;
-
-		return randomizeHeight(random, size);
-	}
-
 	static {
 		STATES.add(Blocks.STONE_BRICKS.getDefaultState(), 20);
 		STATES.add(Blocks.COBBLESTONE.getDefaultState(), 5);

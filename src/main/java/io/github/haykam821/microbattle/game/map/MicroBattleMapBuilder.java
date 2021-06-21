@@ -36,7 +36,9 @@ public class MicroBattleMapBuilder {
 
 	private void generateBuildings(BlockBounds floorBounds, MapTemplate template, int padding) {
 		Random random = new Random();
-		int height = random.nextInt(8) + 4;
+
+		int size = random.nextInt(8) + 4;
+		if (size % 2 == 0) size += 1;
 
 		int minY = floorBounds.getMax().getY();
 
@@ -47,18 +49,18 @@ public class MicroBattleMapBuilder {
 		int maxZ = floorBounds.getMax().getZ() - padding + 1;
 
 		// North-west
-		Building.randomizeHeight(random, height).generate(template, minX, minY, minZ);
+		Building.randomizeHeight(random, size).generate(template, minX, minY, minZ);
 
 		// North-east
-		Building neBuilding = Building.randomizeHeight(random, height);
+		Building neBuilding = Building.randomizeHeight(random, size);
 		neBuilding.generate(template, maxX - neBuilding.getWidth(), minY, minZ);
 
 		// South-west
-		Building swBuilding = Building.randomizeHeight(random, height);
+		Building swBuilding = Building.randomizeHeight(random, size);
 		swBuilding.generate(template, minX, minY, maxZ - swBuilding.getDepth());
 
 		// South-east
-		Building seBuilding = Building.randomizeHeight(random, height);
+		Building seBuilding = Building.randomizeHeight(random, size);
 		seBuilding.generate(template, maxX - seBuilding.getWidth(), minY, maxZ - seBuilding.getDepth());
 	}
 
