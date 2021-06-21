@@ -29,6 +29,13 @@ public class SnowGolemKit extends Kit {
 	}
 
 	@Override
+	protected String[] getDisadvantages() {
+		return new String[] {
+			"Water is harmful to you",
+		};
+	}
+
+	@Override
 	protected int getBaseColor() {
 		return DyeColor.WHITE.getFireworkColor();
 	}
@@ -41,6 +48,11 @@ public class SnowGolemKit extends Kit {
 	@Override
 	protected ItemStack getHelmetStack() {
 		return this.createArmorStack(Items.CARVED_PUMPKIN, "helmet", true);
+	}
+
+	@Override
+	public boolean isDamagedByWater() {
+		return true;
 	}
 
 	@Override
