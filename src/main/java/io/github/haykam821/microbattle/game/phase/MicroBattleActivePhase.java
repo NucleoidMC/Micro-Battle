@@ -1,7 +1,6 @@
 package io.github.haykam821.microbattle.game.phase;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,8 +16,8 @@ import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.event.AfterBlockPlaceListener;
 import io.github.haykam821.microbattle.game.kit.Kit;
-import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.kit.RespawnerKit;
+import io.github.haykam821.microbattle.game.kit.selection.KitSelectionManager;
 import io.github.haykam821.microbattle.game.map.MicroBattleMap;
 import io.github.haykam821.microbattle.game.win.FreeForAllWinManager;
 import io.github.haykam821.microbattle.game.win.TeamWinManager;
@@ -45,7 +44,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameOpenException;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.TeamSelectionLobby;
 import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
@@ -72,7 +70,7 @@ public class MicroBattleActivePhase {
 	private boolean singleplayer;
 	private boolean opened;
 
-	public MicroBattleActivePhase(GameSpace gameSpace, MicroBattleMap map, TeamSelectionLobby teamSelection, MicroBattleConfig config) {
+	public MicroBattleActivePhase(GameSpace gameSpace, MicroBattleMap map, TeamSelectionLobby teamSelection, KitSelectionManager kitSelection, MicroBattleConfig config) {
 		this.world = gameSpace.getWorld();
 		this.gameSpace = gameSpace;
 		this.map = map;
@@ -95,13 +93,13 @@ public class MicroBattleActivePhase {
 		}
 
 		this.players = gameSpace.getPlayers().stream().map(entity -> {
-			return new PlayerEntry(this, entity, playersToGameTeams.get(entity));
+			return new PlayerEntry(this, entity, playersToGameTeams.get(entity), kitSelection.get(entity, this.world.getRandom()));
 		}).collect(Collectors.toSet());;
 		this.winManager = teamSelection == null ? new FreeForAllWinManager(this) : new TeamWinManager(this);
 	}
 
-	public static void open(GameSpace gameSpace, MicroBattleMap map, TeamSelectionLobby teamSelection, MicroBattleConfig config) {
-		MicroBattleActivePhase phase = new MicroBattleActivePhase(gameSpace, map, teamSelection, config);
+	public static void open(GameSpace gameSpace, MicroBattleMap map, TeamSelectionLobby teamSelection, KitSelectionManager kitSelection, MicroBattleConfig config) {
+		MicroBattleActivePhase phase = new MicroBattleActivePhase(gameSpace, map, teamSelection, kitSelection, config);
 
 		gameSpace.openGame(game -> {
 			game.setRule(GameRule.BLOCK_DROPS, RuleResult.ALLOW);
@@ -135,18 +133,14 @@ public class MicroBattleActivePhase {
 		this.opened = true;
 		this.singleplayer = this.players.size() == 1;
 
-		List<KitType<?>> kitTypes = new ArrayList<>(this.config.getKits());
-		if (kitTypes.size() == 0) throw new GameOpenException(new TranslatableText("text.microbattle.not_enough_kits"));
-		Collections.shuffle(kitTypes);
-
-		int index = 0;
  		for (PlayerEntry entry : this.players) {
 			entry.getPlayer().setGameMode(GameMode.SURVIVAL);
+			entry.getPlayer().closeHandledScreen();
 
-			KitType<?> kitType = kitTypes.get(index % kitTypes.size());
-			entry.initializeKit(kitType.create(entry));
+			entry.getPlayer().inventory.clear();
+			entry.updateInventory();
 
-			index += 1;
+			entry.initializeKit();
 		}
 	}
 

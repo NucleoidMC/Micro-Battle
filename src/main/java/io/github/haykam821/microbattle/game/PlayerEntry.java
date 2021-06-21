@@ -1,6 +1,7 @@
 package io.github.haykam821.microbattle.game;
 
 import io.github.haykam821.microbattle.game.kit.Kit;
+import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -11,14 +12,15 @@ public class PlayerEntry {
 	private final MicroBattleActivePhase phase;
 	private final ServerPlayerEntity player;
 	private final GameTeam team;
-	private Kit kit;
+	private final Kit kit;
 	private int ticks = 0;
 	private int outOfBoundsTicks = 0;
 
-	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayerEntity player, GameTeam team) {
+	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayerEntity player, GameTeam team, KitType<?> kitType) {
 		this.phase = phase;
 		this.player = player;
 		this.team = team;
+		this.kit = kitType.create(this);
 	}
 
 	public MicroBattleActivePhase getPhase() {
@@ -43,8 +45,7 @@ public class PlayerEntry {
 		return this.kit;
 	}
 
-	public void initializeKit(Kit kit) {
-		this.kit = kit;
+	public void initializeKit() {
 		this.kit.initialize();
 	}
 

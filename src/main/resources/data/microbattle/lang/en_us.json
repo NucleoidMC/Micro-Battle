@@ -1,5 +1,6 @@
 {
 	"gameType.microbattle.micro_battle": "Micro Battle",
+	"item.microbattle.kit_selector": "Kit Selector",
 	"item.microbattle.shulker_arrow": "Shulker Arrow",
 	"kit.microbattle.bee": "Bee",
 	"kit.microbattle.blaze": "Blaze",
@@ -22,6 +23,8 @@
 	"text.microbattle.eliminated.void": "%s fell out of the world",
 	"text.microbattle.eliminated.void.by": "%s was knocked into the void by %s",
 	"text.microbattle.kit_received": "You are a %s",
+	"text.microbattle.kit_selection.random_kit": "Random Kit",
+	"text.microbattle.kit_selection.title": "Kit Selection",
 	"text.microbattle.no_winners": "Nobody won the game!",
 	"text.microbattle.not_enough_kits": "There are not enough kits specified for this game!",
 	"text.microbattle.team_armor.boots": "%s Boots",
