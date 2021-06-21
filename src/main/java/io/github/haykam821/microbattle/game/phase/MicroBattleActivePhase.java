@@ -15,6 +15,8 @@ import io.github.haykam821.microbattle.Main;
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.event.AfterBlockPlaceListener;
+import io.github.haykam821.microbattle.game.event.PlayDeathSoundListener;
+import io.github.haykam821.microbattle.game.event.PlayHurtSoundListener;
 import io.github.haykam821.microbattle.game.kit.Kit;
 import io.github.haykam821.microbattle.game.kit.RespawnerKit;
 import io.github.haykam821.microbattle.game.kit.selection.KitSelectionManager;
@@ -23,6 +25,7 @@ import io.github.haykam821.microbattle.game.win.FreeForAllWinManager;
 import io.github.haykam821.microbattle.game.win.TeamWinManager;
 import io.github.haykam821.microbattle.game.win.WinManager;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.ServerScoreboard;
@@ -31,6 +34,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -123,6 +127,8 @@ public class MicroBattleActivePhase {
 			game.on(GameCloseListener.EVENT, phase::onClose);
 			game.on(GameOpenListener.EVENT, phase::open);
 			game.on(GameTickListener.EVENT, phase::tick);
+			game.on(PlayDeathSoundListener.EVENT, phase::playDeathSound);
+			game.on(PlayHurtSoundListener.EVENT, phase::playHurtSound);
 			game.on(PlayerAddListener.EVENT, phase::addPlayer);
 			game.on(PlayerDamageListener.EVENT, phase::onPlayerDamage);
 			game.on(PlayerDeathListener.EVENT, phase::onPlayerDeath);
@@ -183,6 +189,26 @@ public class MicroBattleActivePhase {
 		if (this.winManager.checkForWinner()) {
 			gameSpace.close(GameCloseReason.FINISHED);
 		}
+	}
+
+	private SoundEvent playDeathSound(LivingEntity entity, SoundEvent defaultSound) {
+		if (entity instanceof ServerPlayerEntity) {
+			PlayerEntry entry = this.getEntryFromPlayer((ServerPlayerEntity) entity);
+			if (entry != null) {
+				return entry.getKit().getDeathSound();
+			}
+		}
+		return null;
+	}
+
+	private SoundEvent playHurtSound(LivingEntity entity, DamageSource source, SoundEvent defaultSound) {
+		if (entity instanceof ServerPlayerEntity) {
+			PlayerEntry entry = this.getEntryFromPlayer((ServerPlayerEntity) entity);
+			if (entry != null) {
+				return entry.getKit().getHurtSound(source);
+			}
+		}
+		return null;
 	}
 
 	public GameSpace getGameSpace() {

@@ -1,8 +1,11 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 
 public class SkeletonKit extends ArcherKit {
@@ -42,5 +45,15 @@ public class SkeletonKit extends ArcherKit {
 	@Override
 	protected ItemStack getMainWeaponStack() {
 		return unbreakableStack(Items.WOODEN_SWORD);
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_SKELETON_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_SKELETON_HURT;
 	}
 }

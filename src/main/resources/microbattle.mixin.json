@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
 		"BlockItemMixin",
-		"FlowableFluidMixin"
+		"FlowableFluidMixin",
+		"LivingEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -1,6 +1,7 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemConvertible;
@@ -8,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.collection.WeightedList;
@@ -102,6 +104,16 @@ public class FoxKit extends Kit {
 			this.digTicks += 1;
 		}
 
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_FOX_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_FOX_HURT;
 	}
 
 	protected static ItemStack durabilityStack(ItemConvertible item, int durability) {

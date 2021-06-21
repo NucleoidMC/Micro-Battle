@@ -6,6 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -90,5 +91,15 @@ public class SheepKit extends Kit {
 		world.playSoundFromEntity(null, this.player, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1, 1);
 
 		return ActionResult.PASS;
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_SHEEP_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_SHEEP_HURT;
 	}
 }

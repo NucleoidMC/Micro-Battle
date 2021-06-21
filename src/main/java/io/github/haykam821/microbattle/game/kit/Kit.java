@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
@@ -268,6 +269,22 @@ public abstract class Kit {
 
 	public boolean isDamagedByFire() {
 		return true;
+	}
+
+	/**
+	 * Gets the death sound used by this kit.
+	 * If {@code null}, uses the default death sound.
+	 */
+	public SoundEvent getDeathSound() {
+		return null;
+	}
+
+	/**
+	 * Gets the hurt sound used by this kit.
+	 * If {@code null}, uses the default hurt sound.
+	 */
+	public SoundEvent getHurtSound(DamageSource source) {
+		return null;
 	}
 
 	private static void addIfNonNull(Supplier<ItemStack> supplier, List<ItemStack> stacks) {

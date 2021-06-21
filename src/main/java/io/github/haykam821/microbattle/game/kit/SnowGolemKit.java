@@ -3,8 +3,11 @@ package io.github.haykam821.microbattle.game.kit;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -55,5 +58,15 @@ public class SnowGolemKit extends Kit {
 				world.setBlockState(pos, SNOW);
 			}
 		}
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_SNOW_GOLEM_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_SNOW_GOLEM_HURT;
 	}
 }

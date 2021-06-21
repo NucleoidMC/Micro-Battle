@@ -1,9 +1,12 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potions;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 
 public class StrayKit extends SkeletonKit {
@@ -51,5 +54,15 @@ public class StrayKit extends SkeletonKit {
 	@Override
 	protected ItemStack getArrowStack() {
 		return potionArrowStack(Potions.SLOWNESS);
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_STRAY_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_STRAY_HURT;
 	}
 }

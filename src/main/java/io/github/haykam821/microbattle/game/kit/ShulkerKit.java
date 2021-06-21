@@ -1,10 +1,13 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DyeColor;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
@@ -70,5 +73,15 @@ public class ShulkerKit extends ArcherKit {
 
 	protected ItemStack getFoodStack() {
 		return new ItemStack(Items.CHORUS_FRUIT, 8);
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_SHULKER_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_SHULKER_HURT;
 	}
 }

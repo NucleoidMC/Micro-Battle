@@ -1,8 +1,11 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.registry.Registry;
 
@@ -51,5 +54,15 @@ public class WitchKit extends Kit {
 
 	private ItemStack getPotionStack() {
 		return potionLikeStack(Items.SPLASH_POTION, Registry.POTION.getRandom(RANDOM));
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_WITCH_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_WITCH_HURT;
 	}
 }

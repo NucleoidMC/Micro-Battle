@@ -4,6 +4,8 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -37,5 +39,15 @@ public class BeeKit extends Kit {
 			this.placeFlower(entry.getPlayer().getServerWorld(), entry.getPlayer().getBlockPos());
 		}
 		return ActionResult.PASS;
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_BEE_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_BEE_HURT;
 	}
 }

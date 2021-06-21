@@ -2,6 +2,8 @@ package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 
@@ -43,6 +45,16 @@ public class BlazeKit extends Kit {
 	@Override
 	public boolean isDamagedByFire() {
 		return false;
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_BLAZE_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_BLAZE_HURT;
 	}
 
 	@Override

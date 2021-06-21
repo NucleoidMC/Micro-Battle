@@ -1,8 +1,11 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 
 public class VindicatorKit extends Kit {
@@ -46,5 +49,15 @@ public class VindicatorKit extends Kit {
 
 	protected ItemStack getFoodStack() {
 		return new ItemStack(Items.COOKED_BEEF, 4);
+	}
+
+	@Override
+	public SoundEvent getDeathSound() {
+		return SoundEvents.ENTITY_VINDICATOR_DEATH;
+	}
+
+	@Override
+	public SoundEvent getHurtSound(DamageSource source) {
+		return SoundEvents.ENTITY_VINDICATOR_HURT;
 	}
 }
