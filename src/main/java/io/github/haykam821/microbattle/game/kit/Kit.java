@@ -113,6 +113,7 @@ public abstract class Kit {
 		return ItemStackBuilder.of(item)
 			.setColor(secondary ? this.getSecondaryColor() : this.getBaseColor())
 			.setName(new TranslatableText("text.microbattle.team_armor." + type, this.getName()))
+			.setUnbreakable()
 			.build();
 	}
 
