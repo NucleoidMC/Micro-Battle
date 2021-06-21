@@ -31,22 +31,22 @@ public class WitchKit extends Kit {
 
 	@Override
 	protected ItemStack getMainWeaponStack() {
-		return new ItemStack(Items.WOODEN_SWORD);
+		return unbreakableStack(Items.WOODEN_SWORD);
 	}
 
 	@Override
 	protected ItemStack getPickaxeToolStack() {
-		return new ItemStack(Items.WOODEN_PICKAXE);
+		return unbreakableStack(Items.WOODEN_PICKAXE);
 	}
 
 	@Override
 	protected ItemStack getAxeToolStack() {
-		return new ItemStack(Items.WOODEN_AXE);
+		return unbreakableStack(Items.WOODEN_AXE);
 	}
 
 	@Override
 	protected ItemStack getShovelToolStack() {
-		return new ItemStack(Items.WOODEN_SHOVEL);
+		return unbreakableStack(Items.WOODEN_SHOVEL);
 	}
 
 	private ItemStack getPotionStack() {
