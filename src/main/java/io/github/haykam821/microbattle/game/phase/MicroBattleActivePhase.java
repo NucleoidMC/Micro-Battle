@@ -111,6 +111,7 @@ public class MicroBattleActivePhase {
 			game.setRule(GameRule.INTERACTION, RuleResult.ALLOW);
 			game.setRule(GameRule.MODIFY_ARMOR, RuleResult.DENY);
 			game.setRule(GameRule.PLACE_BLOCKS, RuleResult.ALLOW);
+			game.setRule(GameRule.PLAYER_PROJECTILE_KNOCKBACK, RuleResult.ALLOW);
 			game.setRule(GameRule.PORTALS, RuleResult.DENY);
 			game.setRule(GameRule.PVP, RuleResult.ALLOW);
 			game.setRule(GameRule.TEAM_CHAT, RuleResult.ALLOW);
