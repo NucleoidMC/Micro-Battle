@@ -18,7 +18,7 @@ public class KitSelectionUi {
 		Text name = kitType.getName().shallowCopy().formatted(Formatting.GREEN);
 
 		builder.add(ShopEntry
-			.ofIcon(Items.CHEST)
+			.ofIcon(kitType.getIcon())
 			.withName(name)
 			.noCost()
 			.onBuy(player -> {
