@@ -13,7 +13,6 @@ import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.game.GameType;
-import xyz.nucleoid.plasmid.game.rule.GameRule;
 
 public class Main implements ModInitializer {
 	public static final String MOD_ID = "microbattle";
@@ -26,8 +25,6 @@ public class Main implements ModInitializer {
 
 	private static final Identifier RESPAWN_BEACONS_ID = new Identifier(MOD_ID, "respawn_beacons");
 	public static final Tag<Block> RESPAWN_BEACONS = TagRegistry.block(RESPAWN_BEACONS_ID);
-
-	public static final GameRule FLUID_FLOW = new GameRule();
 
 	@Override
 	public void onInitialize() {

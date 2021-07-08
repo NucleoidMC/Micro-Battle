@@ -110,7 +110,7 @@ public class MicroBattleActivePhase {
 			game.setRule(GameRule.BREAK_BLOCKS, RuleResult.ALLOW);
 			game.setRule(GameRule.CRAFTING, RuleResult.DENY);
 			game.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
-			game.setRule(Main.FLUID_FLOW, RuleResult.DENY);
+			game.setRule(GameRule.FLUID_FLOW, RuleResult.DENY);
 			game.setRule(GameRule.HUNGER, RuleResult.ALLOW);
 			game.setRule(GameRule.INTERACTION, RuleResult.ALLOW);
 			game.setRule(GameRule.MODIFY_ARMOR, RuleResult.DENY);

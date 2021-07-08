@@ -71,7 +71,7 @@ public class MicroBattleWaitingPhase {
 			game.setRule(GameRule.BREAK_BLOCKS, RuleResult.DENY);
 			game.setRule(GameRule.CRAFTING, RuleResult.DENY);
 			game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
-			game.setRule(Main.FLUID_FLOW, RuleResult.DENY);
+			game.setRule(GameRule.FLUID_FLOW, RuleResult.DENY);
 			game.setRule(GameRule.HUNGER, RuleResult.DENY);
 			game.setRule(GameRule.INTERACTION, RuleResult.DENY);
 			game.setRule(GameRule.MODIFY_ARMOR, RuleResult.DENY);
