@@ -17,6 +17,13 @@ public class BeeKit extends Kit {
 	}
 
 	@Override
+	protected String[] getDisadvantages() {
+		return new String[] {
+			"Water is harmful to you",
+		};
+	}
+
+	@Override
 	protected int getBaseColor() {
 		return DyeColor.YELLOW.getFireworkColor();
 	}
@@ -24,6 +31,11 @@ public class BeeKit extends Kit {
 	@Override
 	protected int getSecondaryColor() {
 		return DyeColor.BLACK.getFireworkColor();
+	}
+
+	@Override
+	public boolean isDamagedByWater() {
+		return true;
 	}
 
 	private void placeFlower(ServerWorld world, BlockPos pos) {
