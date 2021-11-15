@@ -61,7 +61,6 @@ import xyz.nucleoid.plasmid.game.event.PlayerRemoveListener;
 import xyz.nucleoid.plasmid.game.event.UseBlockListener;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
-import xyz.nucleoid.plasmid.game.rule.RuleResult;
 
 public class MicroBattleActivePhase {
 	private final ServerWorld world;
@@ -106,34 +105,34 @@ public class MicroBattleActivePhase {
 		MicroBattleActivePhase phase = new MicroBattleActivePhase(gameSpace, map, teamSelection, kitSelection, config);
 
 		gameSpace.openGame(game -> {
-			game.setRule(GameRule.BLOCK_DROPS, RuleResult.ALLOW);
-			game.setRule(GameRule.BREAK_BLOCKS, RuleResult.ALLOW);
-			game.setRule(GameRule.CRAFTING, RuleResult.DENY);
-			game.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
-			game.setRule(GameRule.FLUID_FLOW, RuleResult.DENY);
-			game.setRule(GameRule.HUNGER, RuleResult.ALLOW);
-			game.setRule(GameRule.INTERACTION, RuleResult.ALLOW);
-			game.setRule(GameRule.MODIFY_ARMOR, RuleResult.DENY);
-			game.setRule(GameRule.PLACE_BLOCKS, RuleResult.ALLOW);
-			game.setRule(GameRule.PLAYER_PROJECTILE_KNOCKBACK, RuleResult.ALLOW);
-			game.setRule(GameRule.PORTALS, RuleResult.DENY);
-			game.setRule(GameRule.PVP, RuleResult.ALLOW);
-			game.setRule(GameRule.TEAM_CHAT, RuleResult.ALLOW);
-			game.setRule(GameRule.THROW_ITEMS, RuleResult.ALLOW);
+			game.allow(GameRule.BLOCK_DROPS);
+			game.allow(GameRule.BREAK_BLOCKS);
+			game.deny(GameRule.CRAFTING);
+			game.allow(GameRule.FALL_DAMAGE);
+			game.deny(GameRule.FLUID_FLOW);
+			game.allow(GameRule.HUNGER);
+			game.allow(GameRule.INTERACTION);
+			game.deny(GameRule.MODIFY_ARMOR);
+			game.allow(GameRule.PLACE_BLOCKS);
+			game.allow(GameRule.PLAYER_PROJECTILE_KNOCKBACK);
+			game.deny(GameRule.PORTALS);
+			game.allow(GameRule.PVP);
+			game.allow(GameRule.TEAM_CHAT);
+			game.allow(GameRule.THROW_ITEMS);
 
 			// Listeners
-			game.on(AfterBlockPlaceListener.EVENT, phase::afterBlockPlace);
-			game.on(BreakBlockListener.EVENT, phase::onBreakBlock);
-			game.on(GameCloseListener.EVENT, phase::onClose);
-			game.on(GameOpenListener.EVENT, phase::open);
-			game.on(GameTickListener.EVENT, phase::tick);
-			game.on(PlayDeathSoundListener.EVENT, phase::playDeathSound);
-			game.on(PlayHurtSoundListener.EVENT, phase::playHurtSound);
-			game.on(PlayerAddListener.EVENT, phase::addPlayer);
-			game.on(PlayerDamageListener.EVENT, phase::onPlayerDamage);
-			game.on(PlayerDeathListener.EVENT, phase::onPlayerDeath);
-			game.on(PlayerRemoveListener.EVENT, phase::onPlayerRemove);
-			game.on(UseBlockListener.EVENT, phase::onUseBlock);
+			game.listen(AfterBlockPlaceListener.EVENT, phase::afterBlockPlace);
+			game.listen(BreakBlockListener.EVENT, phase::onBreakBlock);
+			game.listen(GameCloseListener.EVENT, phase::onClose);
+			game.listen(GameOpenListener.EVENT, phase::open);
+			game.listen(GameTickListener.EVENT, phase::tick);
+			game.listen(PlayDeathSoundListener.EVENT, phase::playDeathSound);
+			game.listen(PlayHurtSoundListener.EVENT, phase::playHurtSound);
+			game.listen(PlayerAddListener.EVENT, phase::addPlayer);
+			game.listen(PlayerDamageListener.EVENT, phase::onPlayerDamage);
+			game.listen(PlayerDeathListener.EVENT, phase::onPlayerDeath);
+			game.listen(PlayerRemoveListener.EVENT, phase::onPlayerRemove);
+			game.listen(UseBlockListener.EVENT, phase::onUseBlock);
 		});
 	}
 

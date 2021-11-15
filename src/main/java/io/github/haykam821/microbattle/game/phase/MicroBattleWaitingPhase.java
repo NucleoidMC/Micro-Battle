@@ -31,7 +31,6 @@ import xyz.nucleoid.plasmid.game.event.PlayerRemoveListener;
 import xyz.nucleoid.plasmid.game.event.RequestStartListener;
 import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
-import xyz.nucleoid.plasmid.game.rule.RuleResult;
 
 public class MicroBattleWaitingPhase {
 	private final GameSpace gameSpace;
@@ -64,29 +63,29 @@ public class MicroBattleWaitingPhase {
 		return context.createOpenProcedure(worldConfig, game -> {
 			TeamSelectionLobby teamSelection = config.getTeams().isPresent() ? TeamSelectionLobby.applyTo(game, config.getTeams().get()) : null;
 
-			MicroBattleWaitingPhase phase = new MicroBattleWaitingPhase(game.getSpace(), map, teamSelection, config);
+			MicroBattleWaitingPhase phase = new MicroBattleWaitingPhase(game.getGameSpace(), map, teamSelection, config);
 			GameWaitingLobby.applyTo(game, config.getPlayerConfig());
 			
-			game.setRule(GameRule.BLOCK_DROPS, RuleResult.DENY);
-			game.setRule(GameRule.BREAK_BLOCKS, RuleResult.DENY);
-			game.setRule(GameRule.CRAFTING, RuleResult.DENY);
-			game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
-			game.setRule(GameRule.FLUID_FLOW, RuleResult.DENY);
-			game.setRule(GameRule.HUNGER, RuleResult.DENY);
-			game.setRule(GameRule.INTERACTION, RuleResult.DENY);
-			game.setRule(GameRule.MODIFY_ARMOR, RuleResult.DENY);
-			game.setRule(GameRule.PLACE_BLOCKS, RuleResult.DENY);
-			game.setRule(GameRule.PORTALS, RuleResult.DENY);
-			game.setRule(GameRule.PVP, RuleResult.DENY);
-			game.setRule(GameRule.THROW_ITEMS, RuleResult.DENY);
+			game.deny(GameRule.BLOCK_DROPS);
+			game.deny(GameRule.BREAK_BLOCKS);
+			game.deny(GameRule.CRAFTING);
+			game.deny(GameRule.FALL_DAMAGE);
+			game.deny(GameRule.FLUID_FLOW);
+			game.deny(GameRule.HUNGER);
+			game.deny(GameRule.INTERACTION);
+			game.deny(GameRule.MODIFY_ARMOR);
+			game.deny(GameRule.PLACE_BLOCKS);
+			game.deny(GameRule.PORTALS);
+			game.deny(GameRule.PVP);
+			game.deny(GameRule.THROW_ITEMS);
 
 			// Listeners
-			game.on(PlayerAddListener.EVENT, phase::addPlayer);
-			game.on(PlayerDeathListener.EVENT, phase::onPlayerDeath);
-			game.on(PlayerRemoveListener.EVENT, phase::onRemovePlayer);
-			game.on(OfferPlayerListener.EVENT, phase::offerPlayer);
-			game.on(OpenKitSelectionListener.EVENT, phase::openKitSelection);
-			game.on(RequestStartListener.EVENT, phase::requestStart);
+			game.listen(PlayerAddListener.EVENT, phase::addPlayer);
+			game.listen(PlayerDeathListener.EVENT, phase::onPlayerDeath);
+			game.listen(PlayerRemoveListener.EVENT, phase::onRemovePlayer);
+			game.listen(OfferPlayerListener.EVENT, phase::offerPlayer);
+			game.listen(OpenKitSelectionListener.EVENT, phase::openKitSelection);
+			game.listen(RequestStartListener.EVENT, phase::requestStart);
 		});
 	}
 
