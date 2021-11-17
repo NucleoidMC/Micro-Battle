@@ -11,7 +11,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.game.ManagedGameSpace;
+import xyz.nucleoid.stimuli.EventInvokers;
+import xyz.nucleoid.stimuli.Stimuli;
 
 public class KitSelectorItem extends Item implements VirtualItem {
 	public KitSelectorItem(Item.Settings settings) {
@@ -25,15 +26,12 @@ public class KitSelectorItem extends Item implements VirtualItem {
 			return TypedActionResult.success(stack);
 		}
 
-		ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(world);
-		if (gameSpace == null) {
-			return TypedActionResult.pass(stack);
-		}
-		
-		ServerPlayerEntity serverUser = (ServerPlayerEntity) user;
-		ActionResult result = gameSpace.invoker(OpenKitSelectionListener.EVENT).openKitSelection(world, serverUser, hand);
+		try (EventInvokers invokers = Stimuli.select().forEntity(user)) {
+			ServerPlayerEntity serverUser = (ServerPlayerEntity) user;
+			ActionResult result = invokers.get(OpenKitSelectionListener.EVENT).openKitSelection(world, serverUser, hand);
 
-		return new TypedActionResult<>(result, stack);
+			return new TypedActionResult<>(result, stack);
+		}
 	}
 
 	@Override

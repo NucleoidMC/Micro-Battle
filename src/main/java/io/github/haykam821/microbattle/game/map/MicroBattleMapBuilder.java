@@ -7,8 +7,8 @@ import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.map_templates.MapTemplate;
 
 public class MicroBattleMapBuilder {
 	private static final BlockState STONE = Blocks.STONE.getDefaultState();
@@ -26,11 +26,11 @@ public class MicroBattleMapBuilder {
 		MapTemplate template = MapTemplate.createEmpty();
 		MicroBattleMapConfig mapConfig = this.config.getMapConfig();
 
-		BlockBounds floorBounds = new BlockBounds(BlockPos.ORIGIN, new BlockPos(mapConfig.getX() - 1, mapConfig.getFloorHeight(), mapConfig.getZ() - 1));
+		BlockBounds floorBounds = BlockBounds.of(BlockPos.ORIGIN, new BlockPos(mapConfig.getX() - 1, mapConfig.getFloorHeight(), mapConfig.getZ() - 1));
 		this.build(floorBounds, template, mapConfig);
 		this.generateBuildings(floorBounds, template, mapConfig.getPadding());
 
-		BlockBounds fullBounds = new BlockBounds(floorBounds.getMin().add(-8, -4, -8), new BlockPos(floorBounds.getMax().add(8, mapConfig.getY() - mapConfig.getFloorHeight(), 8)));
+		BlockBounds fullBounds = BlockBounds.of(floorBounds.min().add(-8, -4, -8), new BlockPos(floorBounds.max().add(8, mapConfig.getY() - mapConfig.getFloorHeight(), 8)));
 		return new MicroBattleMap(template, mapConfig, floorBounds, fullBounds);
 	}
 
@@ -40,13 +40,13 @@ public class MicroBattleMapBuilder {
 		int size = random.nextInt(8) + 4;
 		if (size % 2 == 0) size += 1;
 
-		int minY = floorBounds.getMax().getY();
+		int minY = floorBounds.max().getY();
 
-		int minX = floorBounds.getMin().getX() + padding;
-		int minZ = floorBounds.getMin().getZ() + padding;
+		int minX = floorBounds.min().getX() + padding;
+		int minZ = floorBounds.min().getZ() + padding;
 
-		int maxX = floorBounds.getMax().getX() - padding + 1;
-		int maxZ = floorBounds.getMax().getZ() - padding + 1;
+		int maxX = floorBounds.max().getX() - padding + 1;
+		int maxZ = floorBounds.max().getZ() - padding + 1;
 
 		// North-west
 		Building.randomizeHeight(random, size).generate(template, minX, minY, minZ);
@@ -65,7 +65,7 @@ public class MicroBattleMapBuilder {
 	}
 
 	private BlockState getBlockState(BlockPos pos, BlockBounds bounds, int centerX, int minRiverX, int maxRiverX, int centerZ, int minRiverZ, int maxRiverZ, MicroBattleMapConfig mapConfig) {
-		int layer = pos.getY() - bounds.getMin().getY();
+		int layer = pos.getY() - bounds.min().getY();
 		if (layer < mapConfig.getFloorHeight() - 3) {
 			return STONE;
 		} else if (layer < mapConfig.getFloorHeight() - 1) {
@@ -78,11 +78,11 @@ public class MicroBattleMapBuilder {
 	}
 
 	public void build(BlockBounds bounds, MapTemplate template, MicroBattleMapConfig mapConfig) {
-		int centerX = bounds.getSize().getX() / 2;
+		int centerX = bounds.size().getX() / 2;
 		int minRiverX = centerX - mapConfig.getRiverRadius() + 1;
 		int maxRiverX = centerX + mapConfig.getRiverRadius();
 
-		int centerZ = bounds.getSize().getZ() / 2;
+		int centerZ = bounds.size().getZ() / 2;
 		int minRiverZ = centerZ - mapConfig.getRiverRadius() + 1;
 		int maxRiverZ = centerZ + mapConfig.getRiverRadius();
 

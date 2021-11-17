@@ -4,12 +4,23 @@ import java.util.Random;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.collection.WeightedList;
+import net.minecraft.util.collection.DataPool;
 import net.minecraft.util.math.BlockPos;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
+import xyz.nucleoid.map_templates.MapTemplate;
 
 public class Building {
-	private static final WeightedList<BlockState> STATES = new WeightedList<>();
+	private static final DataPool<BlockState> STATES = DataPool.<BlockState>builder()
+		.add(Blocks.STONE_BRICKS.getDefaultState(), 20)
+		.add(Blocks.COBBLESTONE.getDefaultState(), 5)
+		.add(Blocks.BRICKS.getDefaultState(), 5)
+		.add(Blocks.PRISMARINE_BRICKS.getDefaultState(), 1)
+		.add(Blocks.END_STONE_BRICKS.getDefaultState(), 1)
+		.add(Blocks.NETHER_BRICKS.getDefaultState(), 1)
+		.add(Blocks.RED_NETHER_BRICKS.getDefaultState(), 1)
+		.add(Blocks.QUARTZ_BRICKS.getDefaultState(), 1)
+		.add(Blocks.POLISHED_BLACKSTONE_BRICKS.getDefaultState(), 1)
+		.add(Blocks.DEEPSLATE_BRICKS.getDefaultState(), 1)
+		.build();
 
 	private final int width;
 	private final int height;
@@ -53,18 +64,7 @@ public class Building {
 	}
 
 	public static Building randomizeHeight(Random random, int size) {
-		return new Building(size, random.nextInt(4) + 6, size, STATES.pickRandom(random));
-	}
-
-	static {
-		STATES.add(Blocks.STONE_BRICKS.getDefaultState(), 20);
-		STATES.add(Blocks.COBBLESTONE.getDefaultState(), 5);
-		STATES.add(Blocks.BRICKS.getDefaultState(), 5);
-		STATES.add(Blocks.PRISMARINE_BRICKS.getDefaultState(), 1);
-		STATES.add(Blocks.END_STONE_BRICKS.getDefaultState(), 1);
-		STATES.add(Blocks.NETHER_BRICKS.getDefaultState(), 1);
-		STATES.add(Blocks.RED_NETHER_BRICKS.getDefaultState(), 1);
-		STATES.add(Blocks.QUARTZ_BRICKS.getDefaultState(), 1);
-		STATES.add(Blocks.POLISHED_BLACKSTONE_BRICKS.getDefaultState(), 1);
+		BlockState state = STATES.getDataOrEmpty(random).orElseThrow(IllegalStateException::new);
+		return new Building(size, random.nextInt(4) + 6, size, state);
 	}
 }

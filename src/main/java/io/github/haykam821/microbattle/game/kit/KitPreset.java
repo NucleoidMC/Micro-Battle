@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.registry.TinyRegistry;
 
 public class KitPreset {
-	public static final TinyRegistry<List<KitType<?>>> REGISTRY = TinyRegistry.newStable();
+	public static final TinyRegistry<List<KitType<?>>> REGISTRY = TinyRegistry.create();
 	public static final Codec<List<KitType<?>>> CODEC = Codec.STRING.flatXmap(string -> {
 		Identifier id = Identifier.tryParse(string);
 		if (id == null) return DataResult.error("Invalid kit preset ID: '" + string + "'");

@@ -1,6 +1,5 @@
 {
 	"type": "microbattle:micro_battle",
-	"name": "Old Combat Soul Micro Battle",
 	"kits": "microbattle:soul",
 	"old_combat": true,
 	"map": {

@@ -43,7 +43,7 @@ public abstract class ArcherKit extends Kit {
 	}
 
 	private boolean canRestock(ServerPlayerEntity player) {
-		return player.inventory.count(this.arrowItem) < this.getMaxArrows();
+		return player.getInventory().count(this.arrowItem) < this.getMaxArrows();
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 {
 	"type": "microbattle:micro_battle",
-	"name": "Respawner Micro Battle",
 	"kits": "microbattle:respawner",
 	"map": {
 		"x": 48,

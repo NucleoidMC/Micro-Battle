@@ -1,6 +1,5 @@
 {
 	"type": "microbattle:micro_battle",
-	"name": "Micro Battle",
 	"kits": "microbattle:standard",
 	"map": {
 		"x": 48,

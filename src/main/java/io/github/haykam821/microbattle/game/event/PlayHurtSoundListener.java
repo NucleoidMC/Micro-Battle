@@ -3,16 +3,20 @@ package io.github.haykam821.microbattle.game.event;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.sound.SoundEvent;
-import xyz.nucleoid.plasmid.game.event.EventType;
+import xyz.nucleoid.stimuli.event.StimulusEvent;
 
 public interface PlayHurtSoundListener {
-	public EventType<PlayHurtSoundListener> EVENT = EventType.create(PlayHurtSoundListener.class, listeners -> {
+	public StimulusEvent<PlayHurtSoundListener> EVENT = StimulusEvent.create(PlayHurtSoundListener.class, context -> {
 		return (entity, source, defaultSound) -> {
-			for (PlayHurtSoundListener listener : listeners) {
-				SoundEvent sound = listener.playHurtSound(entity, source, defaultSound);
-				if (sound != null) {
-					return sound;
+			try {
+				for (PlayHurtSoundListener listener : context.getListeners()) {
+					SoundEvent sound = listener.playHurtSound(entity, source, defaultSound);
+					if (sound != null) {
+						return sound;
+					}
 				}
+			} catch (Throwable throwable) {
+				context.handleException(throwable);
 			}
 			return defaultSound;
 		};

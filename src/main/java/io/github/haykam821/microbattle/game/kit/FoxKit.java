@@ -1,5 +1,8 @@
 package io.github.haykam821.microbattle.game.kit;
 
+import java.util.Optional;
+import java.util.Random;
+
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -12,11 +15,19 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.collection.WeightedList;
-import xyz.nucleoid.plasmid.logic.combat.OldCombat;
+import net.minecraft.util.collection.DataPool;
+import xyz.nucleoid.plasmid.game.common.OldCombat;
 
 public class FoxKit extends Kit {
-	private static final WeightedList<ItemStack> DIG_ITEMS = new WeightedList<>();
+	private static final DataPool<ItemStack> DIG_ITEMS = DataPool.<ItemStack>builder()
+		.add(durabilityStack(Items.IRON_SWORD, 4), 500)
+		.add(durabilityStack(Items.IRON_PICKAXE, 32), 500)
+		.add(durabilityStack(Items.IRON_AXE, 4), 500)
+		.add(durabilityStack(Items.IRON_SHOVEL, 32), 500)
+		.add(new ItemStack(Items.EGG, 4), 500)
+		.add(new ItemStack(Items.TOTEM_OF_UNDYING), 1)
+		.build();
+
 	private static final int IDLE_DIG_TICKS = 20 * 1;
 	private static final int RESET_DIG_TICKS = 20 * 3;
 
@@ -86,8 +97,15 @@ public class FoxKit extends Kit {
 		this.digTicks = RESET_DIG_TICKS;
 		entry.getPlayer().playSound(SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1, 1);
 
-		ItemStack stack = DIG_ITEMS.pickRandom(entry.getPlayer().getRandom()).copy();
-		entry.getPlayer().giveItemStack(entry.getPhase().isOldCombat() ? OldCombat.applyTo(stack) : stack);
+		ItemStack stack = this.getDigStack(this.player.getRandom());
+		if (stack != null) {
+			entry.getPlayer().giveItemStack(entry.getPhase().isOldCombat() ? OldCombat.applyTo(stack) : stack);
+		}
+	}
+
+	private ItemStack getDigStack(Random random) {
+		Optional<ItemStack> optional = DIG_ITEMS.getDataOrEmpty(entry.getPlayer().getRandom());
+		return optional.isPresent() ? optional.get().copy() : null;
 	}
 
 	@Override
@@ -119,19 +137,10 @@ public class FoxKit extends Kit {
 	protected static ItemStack durabilityStack(ItemConvertible item, int durability) {
 		ItemStack stack = new ItemStack(item);
 
-		NbtCompound tag = stack.getOrCreateTag();
-		tag.putInt("Damage", stack.getMaxDamage() - durability);
+		NbtCompound nbt = stack.getOrCreateNbt();
+		nbt.putInt("Damage", stack.getMaxDamage() - durability);
 
 		return stack;
-	}
-
-	static {
-		DIG_ITEMS.add(durabilityStack(Items.IRON_SWORD, 4), 500);
-		DIG_ITEMS.add(durabilityStack(Items.IRON_PICKAXE, 32), 500);
-		DIG_ITEMS.add(durabilityStack(Items.IRON_AXE, 4), 500);
-		DIG_ITEMS.add(durabilityStack(Items.IRON_SHOVEL, 32), 500);
-		DIG_ITEMS.add(new ItemStack(Items.EGG, 4), 500);
-		DIG_ITEMS.add(new ItemStack(Items.TOTEM_OF_UNDYING), 1);
 	}
 
 	protected ItemStack getFoodStack() {

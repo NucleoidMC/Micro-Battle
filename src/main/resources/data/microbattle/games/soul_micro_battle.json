@@ -1,6 +1,5 @@
 {
 	"type": "microbattle:micro_battle",
-	"name": "Soul Micro Battle",
 	"kits": "microbattle:soul",
 	"map": {
 		"x": 48,

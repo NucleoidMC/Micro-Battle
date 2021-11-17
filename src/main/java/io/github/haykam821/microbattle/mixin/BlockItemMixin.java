@@ -14,27 +14,25 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.game.ManagedGameSpace;
+import xyz.nucleoid.stimuli.EventInvokers;
+import xyz.nucleoid.stimuli.Stimuli;
 
 @Mixin(BlockItem.class)
 public class BlockItemMixin {
 	@Inject(method = "postPlacement", at = @At("HEAD"))
 	private void invokeAfterBlockPlaceListeners(BlockPos pos, World world, PlayerEntity player, ItemStack stack, BlockState state, CallbackInfoReturnable<Boolean> ci) {
 		if (world.isClient) return;
-
-		ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(world);
-		if (gameSpace == null) return;
-		if (!gameSpace.containsEntity(player)) return;
 		
-		ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-		if (gameSpace.invoker(AfterBlockPlaceListener.EVENT).afterBlockPlace(pos, world, serverPlayer, stack, state) == ActionResult.FAIL) {
-			world.setBlockState(pos, state.getFluidState().getBlockState());
-			stack.increment(1);
+		try (EventInvokers invokers = Stimuli.select().forEntity(player)) {
+			ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+			if (invokers.get(AfterBlockPlaceListener.EVENT).afterBlockPlace(pos, world, serverPlayer, stack, state) == ActionResult.FAIL) {
+				world.setBlockState(pos, state.getFluidState().getBlockState());
+				stack.increment(1);
 
-			// Update inventory
-			player.currentScreenHandler.sendContentUpdates();
-			player.playerScreenHandler.onContentChanged(player.inventory);
-			serverPlayer.updateCursorStack();
+				// Update inventory
+				player.currentScreenHandler.sendContentUpdates();
+				player.playerScreenHandler.onContentChanged(player.getInventory());
+			}
 		}
 	}
 }

@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.registry.TinyRegistry;
 
 public class KitType<T extends Kit> {
-	public static final TinyRegistry<KitType<?>> REGISTRY = TinyRegistry.newStable();
+	public static final TinyRegistry<KitType<?>> REGISTRY = TinyRegistry.create();
 
 	private final Function<PlayerEntry, T> creator;
 	private final ItemStack icon;

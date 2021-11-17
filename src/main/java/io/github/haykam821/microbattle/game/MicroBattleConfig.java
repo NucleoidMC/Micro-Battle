@@ -10,14 +10,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.haykam821.microbattle.game.kit.KitPreset;
 import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.map.MicroBattleMapConfig;
-import xyz.nucleoid.plasmid.game.config.PlayerConfig;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamList;
 
 public class MicroBattleConfig {
 	public static final Codec<MicroBattleConfig> CODEC = RecordCodecBuilder.create(instance -> {
 		return instance.group(
 			KitPreset.EITHER_CODEC.fieldOf("kits").forGetter(config -> Either.right(config.getKits())),
-			GameTeam.CODEC.listOf().optionalFieldOf("teams").forGetter(MicroBattleConfig::getTeams),
+			GameTeamList.CODEC.optionalFieldOf("teams").forGetter(MicroBattleConfig::getTeams),
 			Codec.BOOL.optionalFieldOf("old_combat", false).forGetter(MicroBattleConfig::isOldCombat),
 			MicroBattleMapConfig.CODEC.fieldOf("map").forGetter(MicroBattleConfig::getMapConfig),
 			PlayerConfig.CODEC.fieldOf("players").forGetter(MicroBattleConfig::getPlayerConfig)
@@ -25,12 +25,12 @@ public class MicroBattleConfig {
 	});
 
 	private final List<KitType<?>> kits;
-	private final Optional<List<GameTeam>> teams;
+	private final Optional<GameTeamList> teams;
 	private final boolean oldCombat;
 	private final MicroBattleMapConfig mapConfig;
 	private final PlayerConfig playerConfig;
 
-	public MicroBattleConfig(Either<List<KitType<?>>, List<KitType<?>>> kits, Optional<List<GameTeam>> teams, boolean oldCombat, MicroBattleMapConfig mapConfig, PlayerConfig playerConfig) {
+	public MicroBattleConfig(Either<List<KitType<?>>, List<KitType<?>>> kits, Optional<GameTeamList> teams, boolean oldCombat, MicroBattleMapConfig mapConfig, PlayerConfig playerConfig) {
 		this.kits = kits.left().isPresent() ? kits.left().get() : kits.right().get();
 		this.teams = teams;
 		this.oldCombat = oldCombat;
@@ -42,17 +42,8 @@ public class MicroBattleConfig {
 		return this.kits;
 	}
 
-	public Optional<List<GameTeam>> getTeams() {
+	public Optional<GameTeamList> getTeams() {
 		return this.teams;
-	}
-
-	public GameTeam getTeam(int index) {
-		if (!this.teams.isPresent()) return null;
-
-		if (index < 0) return null;
-		if (index >= this.teams.get().size()) return null;
-
-		return this.teams.get().get(index);
 	}
 
 	public boolean isOldCombat() {

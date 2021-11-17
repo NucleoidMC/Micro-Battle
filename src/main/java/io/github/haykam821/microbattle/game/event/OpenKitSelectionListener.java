@@ -4,18 +4,22 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.game.event.EventType;
+import xyz.nucleoid.stimuli.event.StimulusEvent;
 
 public interface OpenKitSelectionListener {
-	public EventType<OpenKitSelectionListener> EVENT = EventType.create(OpenKitSelectionListener.class, listeners -> {
+	public StimulusEvent<OpenKitSelectionListener> EVENT = StimulusEvent.create(OpenKitSelectionListener.class, context -> {
 		return (world, user, hand) -> {
-			for (OpenKitSelectionListener listener : listeners) {
-				ActionResult result = listener.openKitSelection(world, user, hand);
-				if (result != ActionResult.PASS) {
-					return result;
+			try {
+				for (OpenKitSelectionListener listener : context.getListeners()) {
+					ActionResult result = listener.openKitSelection(world, user, hand);
+					if (result != ActionResult.PASS) {
+						return result;
+					}
 				}
+			} catch (Throwable throwable) {
+				context.handleException(throwable);
 			}
-			return ActionResult.SUCCESS;
+			return ActionResult.PASS;
 		};
 	});
 

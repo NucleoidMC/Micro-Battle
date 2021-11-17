@@ -1,15 +1,9 @@
 package io.github.haykam821.microbattle.game.phase;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.RandomStringUtils;
 
 import io.github.haykam821.microbattle.Main;
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
@@ -18,6 +12,7 @@ import io.github.haykam821.microbattle.game.event.AfterBlockPlaceListener;
 import io.github.haykam821.microbattle.game.event.PlayDeathSoundListener;
 import io.github.haykam821.microbattle.game.event.PlayHurtSoundListener;
 import io.github.haykam821.microbattle.game.kit.Kit;
+import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.kit.RespawnerKit;
 import io.github.haykam821.microbattle.game.kit.selection.KitSelectionManager;
 import io.github.haykam821.microbattle.game.map.MicroBattleMap;
@@ -28,15 +23,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
-import net.minecraft.scoreboard.ServerScoreboard;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
@@ -49,102 +40,107 @@ import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.TeamSelectionLobby;
-import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
-import xyz.nucleoid.plasmid.game.event.GameCloseListener;
-import xyz.nucleoid.plasmid.game.event.GameOpenListener;
-import xyz.nucleoid.plasmid.game.event.GameTickListener;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDamageListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.PlayerRemoveListener;
-import xyz.nucleoid.plasmid.game.event.UseBlockListener;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.game.rule.GameRule;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.game.common.team.TeamChat;
+import xyz.nucleoid.plasmid.game.common.team.TeamManager;
+import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
+import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.game.player.PlayerOffer;
+import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
+import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
+import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
+import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
+import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public class MicroBattleActivePhase {
 	private final ServerWorld world;
 	private final GameSpace gameSpace;
 	private final MicroBattleMap map;
 	private final MicroBattleConfig config;
-	private final List<Team> teams;
 	private final Set<PlayerEntry> players;
+	private final TeamManager teamManager;
 	private final WinManager winManager;
 	private boolean singleplayer;
-	private boolean opened;
 
-	public MicroBattleActivePhase(GameSpace gameSpace, MicroBattleMap map, TeamSelectionLobby teamSelection, KitSelectionManager kitSelection, MicroBattleConfig config) {
-		this.world = gameSpace.getWorld();
+	public MicroBattleActivePhase(GameSpace gameSpace, ServerWorld world, MicroBattleMap map, TeamManager teamManager, KitSelectionManager kitSelection, MicroBattleConfig config) {
+		this.world = world;
 		this.gameSpace = gameSpace;
 		this.map = map;
 		this.config = config;
 
-		Map<ServerPlayerEntity, GameTeam> playersToGameTeams = new HashMap<>();
-		this.teams = new ArrayList<>();
+		this.players = new HashSet<>(gameSpace.getPlayers().size());
+		for (ServerPlayerEntity player : gameSpace.getPlayers()) {
+			GameTeamKey team = teamManager == null ? null : teamManager.teamFor(player);
+			KitType<?> kitType = kitSelection.get(player, this.world.getRandom());
 
-		MinecraftServer server = gameSpace.getWorld().getServer();
-		ServerScoreboard scoreboard = server.getScoreboard();
-
-		if (teamSelection != null) {
-			teamSelection.allocate((gameTeam, player) -> {
-				playersToGameTeams.put(player, gameTeam);
-
-				Team team = createTeam(gameTeam, server);
-				teams.add(team);
-				scoreboard.addPlayerToTeam(player.getEntityName(), team);
-			});
+			this.players.add(new PlayerEntry(this, player, team, kitType));
 		}
 
-		this.players = gameSpace.getPlayers().stream().map(entity -> {
-			return new PlayerEntry(this, entity, playersToGameTeams.get(entity), kitSelection.get(entity, this.world.getRandom()));
-		}).collect(Collectors.toSet());;
-		this.winManager = teamSelection == null ? new FreeForAllWinManager(this) : new TeamWinManager(this);
+		this.teamManager = teamManager;
+		this.winManager = teamManager == null ? new FreeForAllWinManager(this) : new TeamWinManager(this);
 	}
 
-	public static void open(GameSpace gameSpace, MicroBattleMap map, TeamSelectionLobby teamSelection, KitSelectionManager kitSelection, MicroBattleConfig config) {
-		MicroBattleActivePhase phase = new MicroBattleActivePhase(gameSpace, map, teamSelection, kitSelection, config);
+	public static void open(GameSpace gameSpace, ServerWorld world, MicroBattleMap map, TeamSelectionLobby teamSelection, KitSelectionManager kitSelection, MicroBattleConfig config) {
+		gameSpace.setActivity(activity -> {
+			MicroBattleActivePhase phase;
+			if (teamSelection == null) {
+				phase = new MicroBattleActivePhase(gameSpace, world, map, null, kitSelection, config);
+			} else {
+				TeamManager teamManager = TeamManager.addTo(activity);
+				TeamChat.addTo(activity, teamManager);
+				
+				for (GameTeam team : config.getTeams().get()) {
+					teamManager.addTeam(team);
+				}
 
-		gameSpace.openGame(game -> {
-			game.allow(GameRule.BLOCK_DROPS);
-			game.allow(GameRule.BREAK_BLOCKS);
-			game.deny(GameRule.CRAFTING);
-			game.allow(GameRule.FALL_DAMAGE);
-			game.deny(GameRule.FLUID_FLOW);
-			game.allow(GameRule.HUNGER);
-			game.allow(GameRule.INTERACTION);
-			game.deny(GameRule.MODIFY_ARMOR);
-			game.allow(GameRule.PLACE_BLOCKS);
-			game.allow(GameRule.PLAYER_PROJECTILE_KNOCKBACK);
-			game.deny(GameRule.PORTALS);
-			game.allow(GameRule.PVP);
-			game.allow(GameRule.TEAM_CHAT);
-			game.allow(GameRule.THROW_ITEMS);
+				teamSelection.allocate(gameSpace.getPlayers(), (team, player) -> {
+					teamManager.addPlayerTo(player, team);
+				});
+
+				phase = new MicroBattleActivePhase(gameSpace, world, map, teamManager, kitSelection, config);
+			}
+
+			activity.allow(GameRuleType.BLOCK_DROPS);
+			activity.allow(GameRuleType.BREAK_BLOCKS);
+			activity.deny(GameRuleType.CRAFTING);
+			activity.allow(GameRuleType.FALL_DAMAGE);
+			activity.deny(GameRuleType.FLUID_FLOW);
+			activity.allow(GameRuleType.HUNGER);
+			activity.allow(GameRuleType.INTERACTION);
+			activity.deny(GameRuleType.MODIFY_ARMOR);
+			activity.allow(GameRuleType.PLACE_BLOCKS);
+			activity.allow(GameRuleType.PLAYER_PROJECTILE_KNOCKBACK);
+			activity.deny(GameRuleType.PORTALS);
+			activity.allow(GameRuleType.PVP);
+			activity.allow(GameRuleType.THROW_ITEMS);
 
 			// Listeners
-			game.listen(AfterBlockPlaceListener.EVENT, phase::afterBlockPlace);
-			game.listen(BreakBlockListener.EVENT, phase::onBreakBlock);
-			game.listen(GameCloseListener.EVENT, phase::onClose);
-			game.listen(GameOpenListener.EVENT, phase::open);
-			game.listen(GameTickListener.EVENT, phase::tick);
-			game.listen(PlayDeathSoundListener.EVENT, phase::playDeathSound);
-			game.listen(PlayHurtSoundListener.EVENT, phase::playHurtSound);
-			game.listen(PlayerAddListener.EVENT, phase::addPlayer);
-			game.listen(PlayerDamageListener.EVENT, phase::onPlayerDamage);
-			game.listen(PlayerDeathListener.EVENT, phase::onPlayerDeath);
-			game.listen(PlayerRemoveListener.EVENT, phase::onPlayerRemove);
-			game.listen(UseBlockListener.EVENT, phase::onUseBlock);
+			activity.listen(AfterBlockPlaceListener.EVENT, phase::afterBlockPlace);
+			activity.listen(BlockBreakEvent.EVENT, phase::onBreakBlock);
+			activity.listen(GameActivityEvents.ENABLE, phase::enable);
+			activity.listen(GameActivityEvents.TICK, phase::tick);
+			activity.listen(PlayDeathSoundListener.EVENT, phase::playDeathSound);
+			activity.listen(PlayHurtSoundListener.EVENT, phase::playHurtSound);
+			activity.listen(GamePlayerEvents.OFFER, phase::offerPlayer);
+			activity.listen(PlayerDamageEvent.EVENT, phase::onPlayerDamage);
+			activity.listen(PlayerDeathEvent.EVENT, phase::onPlayerDeath);
+			activity.listen(GamePlayerEvents.REMOVE, phase::onPlayerRemove);
+			activity.listen(BlockUseEvent.EVENT, phase::onUseBlock);
 		});
 	}
 
-	private void open() {
-		this.opened = true;
+	private void enable() {
 		this.singleplayer = this.players.size() == 1;
 
  		for (PlayerEntry entry : this.players) {
-			entry.getPlayer().setGameMode(GameMode.SURVIVAL);
+			entry.getPlayer().changeGameMode(GameMode.SURVIVAL);
 			entry.getPlayer().closeHandledScreen();
 
-			entry.getPlayer().inventory.clear();
+			entry.getPlayer().getInventory().clear();
 			entry.updateInventory();
 
 			entry.initializeKit();
@@ -152,7 +148,7 @@ public class MicroBattleActivePhase {
 	}
 
 	private boolean isInVoid(ServerPlayerEntity player) {
-		return player.getY() < this.map.getFullBounds().getMin().getY();
+		return player.getY() < this.map.getFullBounds().min().getY();
 	}
 
 	private Text getCustomEliminatedMessage(ServerPlayerEntity player, String type) {
@@ -214,32 +210,30 @@ public class MicroBattleActivePhase {
 		return this.gameSpace;
 	}
 
+	public ServerWorld getWorld() {
+		return this.world;
+	}
+
 	public Set<PlayerEntry> getPlayers() {
 		return this.players;
+	}
+
+	public GameTeamConfig getTeamConfig(GameTeamKey teamKey) {
+		return this.teamManager.getTeamConfig(teamKey);
 	}
 
 	public boolean isSingleplayer() {
 		return this.singleplayer;
 	}
 
-	private void onClose() {
-		ServerScoreboard scoreboard = this.gameSpace.getWorld().getServer().getScoreboard();
-		for (Team team : this.teams) {
-			scoreboard.removeTeam(team);
-		}
-	}
-
 	private void setSpectator(ServerPlayerEntity player) {
-		player.setGameMode(GameMode.SPECTATOR);
+		player.changeGameMode(GameMode.SPECTATOR);
 	}
 
-	private void addPlayer(ServerPlayerEntity player) {
-		PlayerEntry entry = this.getEntryFromPlayer(player);
-		if (entry == null || !this.players.contains(entry)) {
-			this.setSpectator(player);
-		} else if (this.opened) {
-			this.eliminate(entry, true);
-		}
+	private PlayerOfferResult offerPlayer(PlayerOffer offer) {
+		return offer.accept(this.world, MicroBattleActivePhase.getSpawnPos(this.world, this.map, offer.player())).and(() -> {
+			this.setSpectator(offer.player());
+		});
 	}
 
 	private void eliminate(PlayerEntry entry, Text message, boolean remove) {
@@ -325,7 +319,7 @@ public class MicroBattleActivePhase {
 		return this.applyToKit(placer, kit -> kit.afterBlockPlace(pos, stack, state));
 	}
 
-	private ActionResult onBreakBlock(ServerPlayerEntity player, BlockPos pos) {
+	private ActionResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
 		PlayerEntry breaker = this.getEntryFromPlayer(player);
 		if (breaker == null) return ActionResult.PASS;
 
@@ -342,7 +336,7 @@ public class MicroBattleActivePhase {
 			RespawnerKit respawner = (RespawnerKit) breaker.getKit();
 
 			if (pos.equals(respawner.getRespawnPos())) {
-				this.gameSpace.getPlayers().sendSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 1, 1);
+				this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 1, 1);
 				this.gameSpace.getPlayers().sendMessage(new TranslatableText("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).formatted(Formatting.RED));
 				break;
 			}
@@ -388,32 +382,16 @@ public class MicroBattleActivePhase {
 		return this.config.isOldCombat();
 	}
 
-	private static Team createTeam(GameTeam gameTeam, MinecraftServer server) {
-		ServerScoreboard scoreboard = server.getScoreboard();
-		String key = RandomStringUtils.randomAlphanumeric(16);
-
-		Team team = scoreboard.getTeam(key);
-		if (team == null) {
-			team = scoreboard.addTeam(key);
-		}
-
-		// Display
-		team.setDisplayName(new LiteralText(gameTeam.getDisplay()));
-		team.setColor(gameTeam.getFormatting());
-
-		// Rules
-		team.setFriendlyFireAllowed(false);
-		team.setShowFriendlyInvisibles(true);
-		team.setCollisionRule(Team.CollisionRule.PUSH_OTHER_TEAMS);
-
-		return team;
-	}
-
-	public static void spawn(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
-		Vec3d center = map.getFloorBounds().getCenter();
+	public static Vec3d getSpawnPos(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
+		Vec3d center = map.getFloorBounds().center();
 		int xOffset = (map.getRiverRadius() + 2) * (world.getRandom().nextBoolean() ? 1 : -1);
 		int zOffset = (map.getRiverRadius() + 2) * (world.getRandom().nextBoolean() ? 1 : -1);
 
-		player.teleport(world, center.getX() + xOffset + 0.5, map.getFloorBounds().getMax().getY(), center.getZ() + zOffset + 0.5, 0, 0);
+		return new Vec3d(center.getX() + xOffset + 0.5, map.getFloorBounds().max().getY(), center.getZ() + zOffset + 0.5);
+	}
+
+	public static void spawn(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
+		Vec3d spawnPos = MicroBattleActivePhase.getSpawnPos(world, map, player);
+		player.teleport(world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), 0, 0);
 	}
 }

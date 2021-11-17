@@ -78,7 +78,7 @@ public class RespawnerKit extends PlayerKit {
 	}
 
 	private Vec3d getRespawnAroundPos(BlockPos beaconPos) {
-		Optional<Vec3d> spawnOptional = RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, this.phase.getGameSpace().getWorld(), beaconPos);
+		Optional<Vec3d> spawnOptional = RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, this.phase.getWorld(), beaconPos);
 		if (spawnOptional.isPresent()) {
 			Vec3d spawn = spawnOptional.get();
 			if (spawn.getY() <= 255) {
@@ -94,7 +94,7 @@ public class RespawnerKit extends PlayerKit {
 			return ActionResult.FAIL;
 		}
 
-		ServerWorld world = this.phase.getGameSpace().getWorld();
+		ServerWorld world = this.phase.getWorld();
 		BlockState respawnState = world.getBlockState(this.respawnPos);
 		if (!respawnState.isIn(Main.RESPAWN_BEACONS)) {
 			return ActionResult.FAIL;

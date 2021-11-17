@@ -1,6 +1,5 @@
 {
 	"type": "microbattle:micro_battle",
-	"name": "Old Combat Micro Battle",
 	"kits": "microbattle:standard",
 	"old_combat": true,
 	"map": {

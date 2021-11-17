@@ -6,16 +6,20 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.game.event.EventType;
+import xyz.nucleoid.stimuli.event.StimulusEvent;
 
 public interface AfterBlockPlaceListener {
-	public EventType<AfterBlockPlaceListener> EVENT = EventType.create(AfterBlockPlaceListener.class, listeners -> {
+	public StimulusEvent<AfterBlockPlaceListener> EVENT = StimulusEvent.create(AfterBlockPlaceListener.class, context -> {
 		return (pos, world, player, stack, state) -> {
-			for (AfterBlockPlaceListener listener : listeners) {
-				ActionResult result = listener.afterBlockPlace(pos, world, player, stack, state);
-				if (result != ActionResult.PASS) {
-					return result;
+			try {
+				for (AfterBlockPlaceListener listener : context.getListeners()) {
+					ActionResult result = listener.afterBlockPlace(pos, world, player, stack, state);
+					if (result != ActionResult.PASS) {
+						return result;
+					}
 				}
+			} catch (Throwable throwable) {
+				context.handleException(throwable);
 			}
 			return ActionResult.SUCCESS;
 		};

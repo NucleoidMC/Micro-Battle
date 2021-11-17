@@ -26,7 +26,7 @@ public class RestockEntry {
 	}
 
 	private boolean canSupplyTo(ServerPlayerEntity player) {
-		return this.maxCount < 0 || player.inventory.count(this.item) < this.maxCount;
+		return this.maxCount < 0 || player.getInventory().count(this.item) < this.maxCount;
 	}
 
 	public ItemStack supplyStack() {

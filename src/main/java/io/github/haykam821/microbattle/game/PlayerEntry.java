@@ -6,20 +6,21 @@ import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 
 public class PlayerEntry {
 	private final MicroBattleActivePhase phase;
 	private final ServerPlayerEntity player;
-	private final GameTeam team;
+	private final GameTeamKey teamKey;
 	private final Kit kit;
 	private int ticks = 0;
 	private int outOfBoundsTicks = 0;
 
-	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayerEntity player, GameTeam team, KitType<?> kitType) {
+	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayerEntity player, GameTeamKey teamKey, KitType<?> kitType) {
 		this.phase = phase;
 		this.player = player;
-		this.team = team;
+		this.teamKey = teamKey;
 		this.kit = kitType.create(this);
 	}
 
@@ -30,15 +31,19 @@ public class PlayerEntry {
 	public ServerPlayerEntity getPlayer() {
 		return this.player;
 	}
+
+	public GameTeamKey getTeamKey() {
+		return this.teamKey;
+	}
 	
-	public GameTeam getTeam() {
-		return this.team;
+	public GameTeamConfig getTeamConfig() {
+		return this.phase.getTeamConfig(this.teamKey);
 	}
 
 	public boolean isSameTeam(PlayerEntry other) {
-		if (this.team == null) return false;
-		if (other.team == null) return false;
-		return this.team == other.team;
+		if (this.teamKey == null) return false;
+		if (other.teamKey == null) return false;
+		return this.teamKey == other.teamKey;
 	}
 
 	public Kit getKit() {
@@ -70,14 +75,13 @@ public class PlayerEntry {
 	 */
 	public void updateInventory() {
 		this.player.currentScreenHandler.sendContentUpdates();
-		this.player.playerScreenHandler.onContentChanged(this.player.inventory);
-		this.player.updateCursorStack();
+		this.player.playerScreenHandler.onContentChanged(this.player.getInventory());
 	}
 
 	public void onEliminated() {
-		this.player.setGameMode(GameMode.SPECTATOR);
+		this.player.changeGameMode(GameMode.SPECTATOR);
 
-		this.player.inventory.clear();
+		this.player.getInventory().clear();
 		this.updateInventory();
 	}
 }

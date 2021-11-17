@@ -10,37 +10,38 @@ import io.github.haykam821.microbattle.game.map.MicroBattleMapBuilder;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import xyz.nucleoid.fantasy.BubbleWorldConfig;
+import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 import xyz.nucleoid.plasmid.game.GameOpenContext;
 import xyz.nucleoid.plasmid.game.GameOpenException;
 import xyz.nucleoid.plasmid.game.GameOpenProcedure;
+import xyz.nucleoid.plasmid.game.GameResult;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.GameWaitingLobby;
-import xyz.nucleoid.plasmid.game.StartResult;
-import xyz.nucleoid.plasmid.game.TeamSelectionLobby;
-import xyz.nucleoid.plasmid.game.config.PlayerConfig;
-import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.PlayerRemoveListener;
-import xyz.nucleoid.plasmid.game.event.RequestStartListener;
-import xyz.nucleoid.plasmid.game.player.JoinResult;
-import xyz.nucleoid.plasmid.game.rule.GameRule;
+import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
+import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
+import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.game.player.PlayerOffer;
+import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
+import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public class MicroBattleWaitingPhase {
 	private final GameSpace gameSpace;
+	private final ServerWorld world;
 	private final MicroBattleMap map;
 	private final TeamSelectionLobby teamSelection;
 	private final MicroBattleConfig config;
 	private final KitSelectionManager kitSelection;
 
-	public MicroBattleWaitingPhase(GameSpace gameSpace, MicroBattleMap map, TeamSelectionLobby teamSelection, MicroBattleConfig config) {
+	public MicroBattleWaitingPhase(GameSpace gameSpace, ServerWorld world, MicroBattleMap map, TeamSelectionLobby teamSelection, MicroBattleConfig config) {
 		this.gameSpace = gameSpace;
+		this.world = world;
 		this.map = map;
 		this.teamSelection = teamSelection;
 		this.config = config;
@@ -48,68 +49,55 @@ public class MicroBattleWaitingPhase {
 	}
 
 	public static GameOpenProcedure open(GameOpenContext<MicroBattleConfig> context) {
-		MicroBattleConfig config = context.getConfig();
-		if (context.getConfig().getKits().isEmpty()) {
+		MicroBattleConfig config = context.config();
+		if (context.config().getKits().isEmpty()) {
 			throw new GameOpenException(new TranslatableText("text.microbattle.not_enough_kits"));
 		}
 
-		MicroBattleMapBuilder mapBuilder = new MicroBattleMapBuilder(context.getConfig());
+		MicroBattleMapBuilder mapBuilder = new MicroBattleMapBuilder(context.config());
 		MicroBattleMap map = mapBuilder.create();
 
-		BubbleWorldConfig worldConfig = new BubbleWorldConfig()
-			.setGenerator(map.createGenerator(context.getServer()))
-			.setDefaultGameMode(GameMode.ADVENTURE);
+		RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
+			.setGenerator(map.createGenerator(context.server()));
 
-		return context.createOpenProcedure(worldConfig, game -> {
-			TeamSelectionLobby teamSelection = config.getTeams().isPresent() ? TeamSelectionLobby.applyTo(game, config.getTeams().get()) : null;
+		return context.openWithWorld(worldConfig, (activity, world) -> {
+			TeamSelectionLobby teamSelection = config.getTeams().isPresent() ? TeamSelectionLobby.addTo(activity, config.getTeams().get()) : null;
 
-			MicroBattleWaitingPhase phase = new MicroBattleWaitingPhase(game.getGameSpace(), map, teamSelection, config);
-			GameWaitingLobby.applyTo(game, config.getPlayerConfig());
+			MicroBattleWaitingPhase phase = new MicroBattleWaitingPhase(activity.getGameSpace(), world, map, teamSelection, config);
+			GameWaitingLobby.addTo(activity, config.getPlayerConfig());
 			
-			game.deny(GameRule.BLOCK_DROPS);
-			game.deny(GameRule.BREAK_BLOCKS);
-			game.deny(GameRule.CRAFTING);
-			game.deny(GameRule.FALL_DAMAGE);
-			game.deny(GameRule.FLUID_FLOW);
-			game.deny(GameRule.HUNGER);
-			game.deny(GameRule.INTERACTION);
-			game.deny(GameRule.MODIFY_ARMOR);
-			game.deny(GameRule.PLACE_BLOCKS);
-			game.deny(GameRule.PORTALS);
-			game.deny(GameRule.PVP);
-			game.deny(GameRule.THROW_ITEMS);
+			activity.deny(GameRuleType.BLOCK_DROPS);
+			activity.deny(GameRuleType.BREAK_BLOCKS);
+			activity.deny(GameRuleType.CRAFTING);
+			activity.deny(GameRuleType.FALL_DAMAGE);
+			activity.deny(GameRuleType.FLUID_FLOW);
+			activity.deny(GameRuleType.HUNGER);
+			activity.allow(GameRuleType.INTERACTION);
+			activity.deny(GameRuleType.USE_BLOCKS);
+			activity.deny(GameRuleType.USE_ENTITIES);
+			activity.deny(GameRuleType.MODIFY_ARMOR);
+			activity.deny(GameRuleType.PLACE_BLOCKS);
+			activity.deny(GameRuleType.PORTALS);
+			activity.deny(GameRuleType.PVP);
+			activity.deny(GameRuleType.THROW_ITEMS);
 
 			// Listeners
-			game.listen(PlayerAddListener.EVENT, phase::addPlayer);
-			game.listen(PlayerDeathListener.EVENT, phase::onPlayerDeath);
-			game.listen(PlayerRemoveListener.EVENT, phase::onRemovePlayer);
-			game.listen(OfferPlayerListener.EVENT, phase::offerPlayer);
-			game.listen(OpenKitSelectionListener.EVENT, phase::openKitSelection);
-			game.listen(RequestStartListener.EVENT, phase::requestStart);
+			activity.listen(GamePlayerEvents.OFFER, phase::offerPlayer);
+			activity.listen(PlayerDeathEvent.EVENT, phase::onPlayerDeath);
+			activity.listen(GamePlayerEvents.LEAVE, phase::onPlayerLeave);
+			activity.listen(OpenKitSelectionListener.EVENT, phase::openKitSelection);
+			activity.listen(GameActivityEvents.REQUEST_START, phase::requestStart);
 		});
 	}
 
-	private boolean isFull() {
-		return this.gameSpace.getPlayerCount() >= this.config.getPlayerConfig().getMaxPlayers();
-	}
-
-	private JoinResult offerPlayer(ServerPlayerEntity player) {
-		return this.isFull() ? JoinResult.gameFull() : JoinResult.ok();
-	}
-
 	public ActionResult openKitSelection(World world, ServerPlayerEntity user, Hand hand) {
-		user.openHandledScreen(KitSelectionUi.build(this.kitSelection, user));
+		KitSelectionUi.build(this.kitSelection, user).open();
 		return ActionResult.SUCCESS;
 	}
 
-	private StartResult requestStart() {
-		PlayerConfig playerConfig = this.config.getPlayerConfig();
-		if (this.gameSpace.getPlayerCount() < playerConfig.getMinPlayers()) {
-			return StartResult.NOT_ENOUGH_PLAYERS;
-		}
-
-		MicroBattleActivePhase.open(this.gameSpace, this.map, this.teamSelection, this.kitSelection, this.config);
-		return StartResult.OK;
+	private GameResult requestStart() {
+		MicroBattleActivePhase.open(this.gameSpace, this.world, this.map, this.teamSelection, this.kitSelection, this.config);
+		return GameResult.ok();
 	}
 
 	/**
@@ -120,24 +108,25 @@ public class MicroBattleWaitingPhase {
 			return;
 		}
 
-		player.inventory.setStack(8, new ItemStack(Main.KIT_SELECTOR));
+		player.getInventory().setStack(8, new ItemStack(Main.KIT_SELECTOR));
 
 		player.currentScreenHandler.sendContentUpdates();
-		player.playerScreenHandler.onContentChanged(player.inventory);
-		player.updateCursorStack();
+		player.playerScreenHandler.onContentChanged(player.getInventory());
 	}
 
-	private void addPlayer(ServerPlayerEntity player) {
-		this.giveKitSelector(player);
-		MicroBattleActivePhase.spawn(this.gameSpace.getWorld(), this.map, player);
+	private PlayerOfferResult offerPlayer(PlayerOffer offer) {
+		return offer.accept(this.world, MicroBattleActivePhase.getSpawnPos(this.world, this.map, offer.player())).and(() -> {
+			offer.player().changeGameMode(GameMode.ADVENTURE);
+			this.giveKitSelector(offer.player());
+		});
 	}
 
 	private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
-		MicroBattleActivePhase.spawn(this.gameSpace.getWorld(), this.map, player);
+		MicroBattleActivePhase.spawn(this.world, this.map, player);
 		return ActionResult.FAIL;
 	}
 
-	private void onRemovePlayer(ServerPlayerEntity player) {
+	private void onPlayerLeave(ServerPlayerEntity player) {
 		this.kitSelection.deselect(player);
 	}
 }

@@ -1,27 +1,30 @@
 {
 	"type": "microbattle:micro_battle",
-	"name": "Micro Battle: 4 Teams",
 	"kits": "microbattle:standard",
 	"teams": [
 		{
 			"key": "red",
-			"display": "Red",
-			"color": "red"
+			"name": "Red",
+			"color": "red",
+			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "green",
-			"display": "Green",
-			"color": "green"
+			"name": "Green",
+			"color": "green",
+			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "blue",
-			"display": "Blue",
-			"color": "blue"
+			"name": "Blue",
+			"color": "blue",
+			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "yellow",
-			"display": "Yellow",
-			"color": "yellow"
+			"name": "Yellow",
+			"color": "yellow",
+			"collision": "pushOtherTeams"
 		}
 	],
 	"map": {

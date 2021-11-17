@@ -65,8 +65,8 @@ public class ShulkerKit extends ArcherKit {
 		NbtList customPotionEffects = new NbtList();
 		customPotionEffects.add(potionEffect);
 
-		stack.putSubTag("CustomPotionEffects", customPotionEffects);
-		stack.getTag().putInt("CustomPotionColor", 0xCEFFFF);
+		stack.setSubNbt("CustomPotionEffects", customPotionEffects);
+		stack.getNbt().putInt("CustomPotionColor", 0xCEFFFF);
 
 		return stack;
 	}

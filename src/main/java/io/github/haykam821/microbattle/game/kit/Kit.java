@@ -29,7 +29,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
-import xyz.nucleoid.plasmid.logic.combat.OldCombat;
+import xyz.nucleoid.plasmid.game.common.OldCombat;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public abstract class Kit {
@@ -97,10 +97,10 @@ public abstract class Kit {
 	}
 
 	public MutableText getReceivedMessage() {
-		if (this.entry.getTeam() == null) {
+		if (this.entry.getTeamKey() == null) {
 			return new TranslatableText("text.microbattle.kit_received", this.getHoverableName()).formatted(Formatting.GRAY);
 		} else {
-			Text teamName = new LiteralText(this.entry.getTeam().getDisplay()).formatted(this.entry.getTeam().getFormatting());
+			Text teamName = this.entry.getTeamConfig().name();
 			return new TranslatableText("text.microbattle.team_kit_received", this.getHoverableName(), teamName).formatted(Formatting.GRAY);
 		}
 	}
@@ -111,7 +111,7 @@ public abstract class Kit {
 
 	protected ItemStack createArmorStack(Item item, String type, boolean secondary) {
 		return ItemStackBuilder.of(item)
-			.setColor(secondary ? this.getSecondaryColor() : this.getBaseColor())
+			.setDyeColor(secondary ? this.getSecondaryColor() : this.getBaseColor())
 			.setName(new TranslatableText("text.microbattle.team_armor." + type, this.getName()))
 			.setUnbreakable()
 			.build();
@@ -189,7 +189,7 @@ public abstract class Kit {
 	}
 
 	public final void applyInventory() {
-		entry.getPlayer().inventory.clear();
+		entry.getPlayer().getInventory().clear();
 
 		// Add status effects
 		for (StatusEffectInstance effect : this.getStatusEffects()) {
@@ -199,7 +199,7 @@ public abstract class Kit {
 		List<ItemStack> armorStacks = this.getArmorStacks();
 		int index = 3;
 		for (ItemStack stack : armorStacks) {
-			player.inventory.armor.set(index, stack);
+			player.getInventory().armor.set(index, stack);
 			index -= 1;
 		}
 	
@@ -207,7 +207,7 @@ public abstract class Kit {
 		this.appendInitialStacks(stacks);
 		int slot = 0;
 		for (ItemStack stack : stacks) {
-			player.inventory.setStack(slot, this.phase.isOldCombat() ? OldCombat.applyTo(stack) : stack);
+			player.getInventory().setStack(slot, this.phase.isOldCombat() ? OldCombat.applyTo(stack) : stack);
 			slot += 1;
 		}
 
@@ -297,7 +297,7 @@ public abstract class Kit {
 
 	protected static ItemStack potionLikeStack(ItemConvertible item, Potion potion) {
 		ItemStack stack = new ItemStack(item);
-		stack.getOrCreateTag().putString("Potion", Registry.POTION.getId(potion).toString());
+		stack.getOrCreateNbt().putString("Potion", Registry.POTION.getId(potion).toString());
 		return stack;
 	}
 }

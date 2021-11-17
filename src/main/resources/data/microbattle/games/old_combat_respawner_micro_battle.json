@@ -1,6 +1,5 @@
 {
 	"type": "microbattle:micro_battle",
-	"name": "Old Combat Respawner Micro Battle",
 	"kits": "microbattle:respawner",
 	"old_combat": true,
 	"map": {

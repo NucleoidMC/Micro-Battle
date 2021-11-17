@@ -1,17 +1,18 @@
 {
 	"type": "microbattle:micro_battle",
-	"name": "Soul Micro Battle: 2 Teams",
 	"kits": "microbattle:soul",
 	"teams": [
 		{
 			"key": "red",
-			"display": "Red",
-			"color": "red"
+			"name": "Red",
+			"color": "red",
+			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "blue",
-			"display": "Blue",
-			"color": "blue"
+			"name": "Blue",
+			"color": "blue",
+			"collision": "pushOtherTeams"
 		}
 	],
 	"map": {

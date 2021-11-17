@@ -8,7 +8,7 @@ public class PlayerKit extends Kit {
 
 	public PlayerKit(KitType<?> type, PlayerEntry entry) {
 		super(type, entry);
-		this.color = this.entry.getTeam() == null ? DyeColor.RED.getFireworkColor() : this.entry.getTeam().getFireworkColor();
+		this.color = this.entry.getTeamKey() == null ? DyeColor.RED.getFireworkColor() : this.entry.getTeamConfig().fireworkColor().getRgb();
 	}
 
 	public PlayerKit(PlayerEntry entry) {
