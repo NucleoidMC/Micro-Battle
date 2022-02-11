@@ -1,6 +1,6 @@
 package io.github.haykam821.microbattle.game.kit.selection;
 
-import eu.pb4.polymer.item.VirtualItem;
+import eu.pb4.polymer.api.item.PolymerItem;
 import io.github.haykam821.microbattle.game.event.OpenKitSelectionListener;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 import xyz.nucleoid.stimuli.EventInvokers;
 import xyz.nucleoid.stimuli.Stimuli;
 
-public class KitSelectorItem extends Item implements VirtualItem {
+public class KitSelectorItem extends Item implements PolymerItem {
 	public KitSelectorItem(Item.Settings settings) {
 		super(settings);
 	}
@@ -35,7 +35,7 @@ public class KitSelectorItem extends Item implements VirtualItem {
 	}
 
 	@Override
-	public Item getVirtualItem() {
+	public Item getPolymerItem(ItemStack stack, ServerPlayerEntity player) {
 		return Items.CHEST;
 	}
 }
