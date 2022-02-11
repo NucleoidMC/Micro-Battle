@@ -62,6 +62,7 @@ public class MicroBattleActivePhase {
 	private final MicroBattleMap map;
 	private final MicroBattleConfig config;
 	private final Set<PlayerEntry> players;
+	private final Set<PlayerEntry> eliminatedPlayers = new HashSet<>();
 	private final TeamManager teamManager;
 	private final WinManager winManager;
 	private boolean singleplayer;
@@ -172,13 +173,17 @@ public class MicroBattleActivePhase {
 					if (this.applyToKit(entry, kit -> kit.attemptRespawn()) == ActionResult.SUCCESS) {
 						break;
 					}
-					this.eliminate(entry, this.getCustomEliminatedMessage(player, "void"), false);
-					playerIterator.remove();
+					this.eliminate(entry, this.getCustomEliminatedMessage(player, "void"));
 				} else {
 					entry.tickOutOfBounds();
 				}
 			}
 		}
+
+		for (PlayerEntry entry : this.eliminatedPlayers) {
+			this.players.remove(entry);
+		}
+		this.eliminatedPlayers.clear();
 
 		// Attempt to determine a winner
 		if (this.winManager.checkForWinner()) {
@@ -236,21 +241,18 @@ public class MicroBattleActivePhase {
 		});
 	}
 
-	private void eliminate(PlayerEntry entry, Text message, boolean remove) {
+	private void eliminate(PlayerEntry entry, Text message) {
 		this.gameSpace.getPlayers().sendMessage(message);
-
-		if (remove) {
-			this.players.remove(entry);
-		}
+		this.eliminatedPlayers.add(entry);
 		entry.onEliminated();
 	}
 
-	private void eliminate(PlayerEntry entry, String suffix, boolean remove) {
-		this.eliminate(entry, new TranslatableText("text.microbattle.eliminated" + suffix, entry.getPlayer().getDisplayName()).formatted(Formatting.RED), remove);
+	private void eliminate(PlayerEntry entry, String suffix) {
+		this.eliminate(entry, new TranslatableText("text.microbattle.eliminated" + suffix, entry.getPlayer().getDisplayName()).formatted(Formatting.RED));
 	}
 
-	private void eliminate(PlayerEntry entry, boolean remove) {
-		this.eliminate(entry, "", remove);
+	private void eliminate(PlayerEntry entry) {
+		this.eliminate(entry, "");
 	}
 
 	private PlayerEntry getEntryFromPlayer(ServerPlayerEntity player) {
@@ -286,9 +288,9 @@ public class MicroBattleActivePhase {
 		if (entry == null) {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
 		} else if (!this.map.getFullBounds().contains(player.getBlockPos())) {
-			this.eliminate(entry, this.getCustomEliminatedMessage(player, "out_of_bounds"), true);
+			this.eliminate(entry, this.getCustomEliminatedMessage(player, "out_of_bounds"));
 		} else if (this.applyToKit(entry, kit -> kit.attemptRespawn()) != ActionResult.SUCCESS) {
-			this.eliminate(entry, source.getDeathMessage(player).shallowCopy().formatted(Formatting.RED), true);
+			this.eliminate(entry, source.getDeathMessage(player).shallowCopy().formatted(Formatting.RED));
 		}
 		
 		return ActionResult.FAIL;
@@ -374,7 +376,7 @@ public class MicroBattleActivePhase {
 	public void onPlayerRemove(ServerPlayerEntity player) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
 		if (entry != null) {
-			this.eliminate(entry, true);
+			this.eliminate(entry);
 		}
 	}
 
