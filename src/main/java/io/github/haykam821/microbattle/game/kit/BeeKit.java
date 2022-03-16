@@ -1,6 +1,9 @@
 package io.github.haykam821.microbattle.game.kit;
 
+import java.util.Random;
+
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.world.ServerWorld;
@@ -10,6 +13,8 @@ import net.minecraft.tag.BlockTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 
 public class BeeKit extends Kit {
 	public BeeKit(PlayerEntry entry) {
@@ -39,8 +44,8 @@ public class BeeKit extends Kit {
 	}
 
 	private void placeFlower(ServerWorld world, BlockPos pos) {
-		BlockState flower = BlockTags.SMALL_FLOWERS.getRandom(world.getRandom()).getDefaultState();
-		if (world.isAir(pos) && flower.canPlaceAt(world, pos)) {
+		BlockState flower = BeeKit.getFlower(world.getRandom());
+		if (flower != null && world.isAir(pos) && flower.canPlaceAt(world, pos)) {
 			world.setBlockState(pos, flower);
 		}
 	}
@@ -61,5 +66,13 @@ public class BeeKit extends Kit {
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
 		return SoundEvents.ENTITY_BEE_HURT;
+	}
+
+	private static BlockState getFlower(Random random) {
+		return Registry.BLOCK.getEntryList(BlockTags.FLOWERS)
+			.flatMap(flowers -> flowers.getRandom(random))
+			.map(RegistryEntry::value)
+			.map(Block::getDefaultState)
+			.orElse(null);
 	}
 }

@@ -2,6 +2,7 @@ package io.github.haykam821.microbattle.game.kit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -15,6 +16,7 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.HoverEvent;
@@ -28,7 +30,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import xyz.nucleoid.plasmid.game.common.OldCombat;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
@@ -295,9 +297,20 @@ public abstract class Kit {
 		}
 	}
 
+	protected static ItemStack potionLikeStack(ItemConvertible item, Optional<RegistryEntry<Potion>> maybePotion) {
+		ItemStack stack = new ItemStack(item);
+
+		if (maybePotion.isPresent()) {
+			Potion potion = maybePotion.get().value();
+			PotionUtil.setPotion(stack, potion);
+		}
+
+		return stack;
+	}
+
 	protected static ItemStack potionLikeStack(ItemConvertible item, Potion potion) {
 		ItemStack stack = new ItemStack(item);
-		stack.getOrCreateNbt().putString("Potion", Registry.POTION.getId(potion).toString());
+		PotionUtil.setPotion(stack, potion);
 		return stack;
 	}
 }

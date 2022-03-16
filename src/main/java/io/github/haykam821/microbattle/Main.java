@@ -6,10 +6,9 @@ import io.github.haykam821.microbattle.game.kit.KitTypes;
 import io.github.haykam821.microbattle.game.kit.selection.KitSelectorItem;
 import io.github.haykam821.microbattle.game.phase.MicroBattleWaitingPhase;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.tag.TagFactory;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.game.GameType;
@@ -24,7 +23,7 @@ public class Main implements ModInitializer {
 	public static final Item KIT_SELECTOR = new KitSelectorItem(new Item.Settings().maxCount(1));
 
 	private static final Identifier RESPAWN_BEACONS_ID = new Identifier(MOD_ID, "respawn_beacons");
-	public static final Tag<Block> RESPAWN_BEACONS = TagFactory.BLOCK.create(RESPAWN_BEACONS_ID);
+	public static final TagKey<Block> RESPAWN_BEACONS = TagKey.of(Registry.BLOCK_KEY, RESPAWN_BEACONS_ID);
 
 	@Override
 	public void onInitialize() {
