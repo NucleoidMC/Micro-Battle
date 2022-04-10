@@ -9,9 +9,10 @@ public class MicroBattleMapConfig {
 			Codec.INT.fieldOf("x").forGetter(MicroBattleMapConfig::getX),
 			Codec.INT.fieldOf("y").forGetter(MicroBattleMapConfig::getY),
 			Codec.INT.fieldOf("z").forGetter(MicroBattleMapConfig::getZ),
-			Codec.INT.optionalFieldOf("floor_height", 6).forGetter(MicroBattleMapConfig::getFloorHeight),
+			Codec.INT.optionalFieldOf("floor_height", 20).forGetter(MicroBattleMapConfig::getFloorHeight),
 			Codec.INT.optionalFieldOf("river_radius", 2).forGetter(MicroBattleMapConfig::getRiverRadius),
-			Codec.INT.optionalFieldOf("padding", 6).forGetter(MicroBattleMapConfig::getPadding)
+			Codec.INT.optionalFieldOf("padding", 8).forGetter(MicroBattleMapConfig::getPadding),
+			Codec.BOOL.optionalFieldOf("deepslate_lava", true).forGetter(MicroBattleMapConfig::hasDeepslateLava)
 		).apply(instance, MicroBattleMapConfig::new);
 	});
 
@@ -21,14 +22,16 @@ public class MicroBattleMapConfig {
 	private final int floorHeight;
 	private final int riverRadius;
 	private final int padding;
+	private final boolean deepslateLava;
 
-	public MicroBattleMapConfig(int x, int y, int z, int floorHeight, int riverRadius, int padding) {
+	public MicroBattleMapConfig(int x, int y, int z, int floorHeight, int riverRadius, int padding, boolean deepslateLava) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.floorHeight = floorHeight;
 		this.riverRadius = riverRadius;
 		this.padding = padding;
+		this.deepslateLava = deepslateLava;
 	}
 
 	public int getX() {
@@ -53,5 +56,9 @@ public class MicroBattleMapConfig {
 
 	public int getPadding() {
 		return this.padding;
+	}
+
+	public boolean hasDeepslateLava() {
+		return this.deepslateLava;
 	}
 }

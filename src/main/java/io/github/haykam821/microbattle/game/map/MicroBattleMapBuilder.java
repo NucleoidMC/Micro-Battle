@@ -13,9 +13,12 @@ import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 
 public class MicroBattleMapBuilder {
+	private static final BlockState DEEPSLATE = Blocks.DEEPSLATE.getDefaultState();
 	private static final BlockState STONE = Blocks.STONE.getDefaultState();
 	private static final BlockState DIRT = Blocks.DIRT.getDefaultState();
 	private static final BlockState GRASS = Blocks.GRASS_BLOCK.getDefaultState();
+
+	private static final BlockState LAVA = Blocks.LAVA.getDefaultState();
 	private static final BlockState WATER = Blocks.WATER.getDefaultState();
 
 	private final MicroBattleConfig config;
@@ -66,9 +69,19 @@ public class MicroBattleMapBuilder {
 		seBuilding.generate(template, maxX - seBuilding.getWidth(), minY, maxZ - seBuilding.getDepth());
 	}
 
-	private BlockState getBlockState(BlockPos pos, BlockBounds bounds, double centerX, int minRiverX, int maxRiverX, double centerZ, int minRiverZ, int maxRiverZ, MicroBattleMapConfig mapConfig) {
+	private BlockState getDeepslateBlockState(int layer, AbstractRandom random, boolean bottom, MicroBattleMapConfig mapConfig) {
+		if (mapConfig.hasDeepslateLava() && layer < mapConfig.getFloorHeight() - 9 && !bottom && random.nextInt(128) == 0) {
+			return LAVA;
+		} else {
+			return DEEPSLATE;
+		}
+	}
+
+	private BlockState getBlockState(BlockPos pos, BlockBounds bounds, AbstractRandom random, boolean bottom, double centerX, int minRiverX, int maxRiverX, double centerZ, int minRiverZ, int maxRiverZ, MicroBattleMapConfig mapConfig) {
 		int layer = pos.getY() - bounds.min().getY();
-		if (layer < mapConfig.getFloorHeight() - 3) {
+		if (layer < mapConfig.getFloorHeight() - 8) {
+			return this.getDeepslateBlockState(layer, random, bottom, mapConfig);
+		} else if (layer < mapConfig.getFloorHeight() - 3) {
 			return STONE;
 		} else if (layer < mapConfig.getFloorHeight() - 1) {
 			return DIRT;
@@ -114,7 +127,7 @@ public class MicroBattleMapBuilder {
 					pos.move(Direction.DOWN);
 					if (pos.getY() < minY) break;
 
-					BlockState state = this.getBlockState(pos, bounds, centerX, minRiverX, maxRiverX, centerZ, minRiverZ, maxRiverZ, mapConfig);
+					BlockState state = this.getBlockState(pos, bounds, random, y >= height - 4, centerX, minRiverX, maxRiverX, centerZ, minRiverZ, maxRiverZ, mapConfig);
 					if (state != null) {
 						template.setBlockState(pos, state);
 					}
