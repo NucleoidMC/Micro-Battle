@@ -6,6 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.collection.DataPool;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.gen.random.AbstractRandom;
 import xyz.nucleoid.map_templates.MapTemplate;
 
 public class Building {
@@ -66,5 +67,9 @@ public class Building {
 	public static Building randomizeHeight(Random random, int size) {
 		BlockState state = STATES.getDataOrEmpty(random).orElseThrow(IllegalStateException::new);
 		return new Building(size, random.nextInt(4) + 6, size, state);
+	}
+
+	public static Building randomizeHeight(AbstractRandom random, int size) {
+		return Building.randomizeHeight(new Random(random.nextLong()), size);
 	}
 }

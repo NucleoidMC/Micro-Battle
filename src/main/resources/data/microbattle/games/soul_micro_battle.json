@@ -2,9 +2,9 @@
 	"type": "microbattle:micro_battle",
 	"kits": "microbattle:soul",
 	"map": {
-		"x": 48,
-		"y": 48,
-		"z": 48
+		"x": 56,
+		"y": 64,
+		"z": 56
 	},
 	"players": {
 		"min": 1,
