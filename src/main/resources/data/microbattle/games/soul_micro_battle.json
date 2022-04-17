@@ -1,5 +1,6 @@
 {
 	"type": "microbattle:micro_battle",
+	"icon": "minecraft:piglin_spawn_egg",
 	"kits": "microbattle:soul",
 	"map": {
 		"x": 56,

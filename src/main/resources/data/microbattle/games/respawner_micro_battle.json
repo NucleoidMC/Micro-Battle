@@ -1,5 +1,6 @@
 {
 	"type": "microbattle:micro_battle",
+	"icon": "minecraft:beacon",
 	"kits": "microbattle:respawner",
 	"map": {
 		"x": 56,
