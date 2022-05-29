@@ -298,7 +298,7 @@ public class MicroBattleActivePhase {
 
 	public boolean placeBeacon(PlayerEntry entry, RespawnerKit respawner, BlockPos pos) {
 		if (respawner.getRespawnPos() != null) return true;
-		if (!this.map.getFullBounds().contains(pos)) {
+		if (!this.map.getBeaconBounds().contains(pos)) {
 			entry.getPlayer().sendMessage(new TranslatableText("text.microbattle.cannot_place_out_of_bounds_beacon").formatted(Formatting.RED), false);
 			return false;
 		}

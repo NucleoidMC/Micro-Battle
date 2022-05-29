@@ -1,6 +1,7 @@
 package io.github.haykam821.microbattle.game.map;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
@@ -11,6 +12,7 @@ public class MicroBattleMap {
 	private final MicroBattleMapConfig config;
 	private final BlockBounds floorBounds;
 	private final BlockBounds fullBounds;
+	private final BlockBounds beaconBounds;
 
 	public MicroBattleMap(MapTemplate template, MicroBattleMapConfig config, BlockBounds floorBounds, BlockBounds fullBounds) {
 		this.template = template;
@@ -18,6 +20,9 @@ public class MicroBattleMap {
 
 		this.floorBounds = floorBounds;
 		this.fullBounds = fullBounds;
+
+		BlockPos maxBeaconPos = fullBounds.max().withY(config.getBeaconMaxHeight());
+		this.beaconBounds = BlockBounds.of(fullBounds.min(), maxBeaconPos);
 	}
 
 	public int getRiverRadius() {
@@ -30,6 +35,10 @@ public class MicroBattleMap {
 
 	public BlockBounds getFullBounds() {
 		return this.fullBounds;
+	}
+
+	public BlockBounds getBeaconBounds() {
+		return this.beaconBounds;
 	}
 
 	public ChunkGenerator createGenerator(MinecraftServer server) {
