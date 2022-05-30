@@ -30,7 +30,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.RegistryEntry;
 import xyz.nucleoid.plasmid.game.common.OldCombat;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
@@ -297,11 +296,11 @@ public abstract class Kit {
 		}
 	}
 
-	protected static ItemStack potionLikeStack(ItemConvertible item, Optional<RegistryEntry<Potion>> maybePotion) {
+	protected static ItemStack potionLikeStack(ItemConvertible item, Optional<Potion> maybePotion) {
 		ItemStack stack = new ItemStack(item);
 
 		if (maybePotion.isPresent()) {
-			Potion potion = maybePotion.get().value();
+			Potion potion = maybePotion.get();
 			PotionUtil.setPotion(stack, potion);
 		}
 
