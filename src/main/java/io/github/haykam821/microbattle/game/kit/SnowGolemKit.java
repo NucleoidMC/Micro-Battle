@@ -4,16 +4,20 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.tag.FluidTags;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.util.math.Direction;
 
 public class SnowGolemKit extends Kit {
 	private static final BlockState SNOW = Blocks.SNOW.getDefaultState();
+	private static final BlockState FROSTED_ICE = Blocks.FROSTED_ICE.getDefaultState();
 	
 	public SnowGolemKit(PlayerEntry entry) {
 		super(KitTypes.SNOW_GOLEM, entry);
@@ -24,7 +28,7 @@ public class SnowGolemKit extends Kit {
 	protected String[] getAdvantages() {
 		return new String[] {
 			"You can quickly throw snowballs",
-			"You leave behind a trail of snow",
+			"You leave behind a trail of snow and ice",
 		};
 	}
 
@@ -59,7 +63,7 @@ public class SnowGolemKit extends Kit {
 	public void tick() {
 		super.tick();
 		
-		World world = this.player.getEntityWorld();
+		ServerWorld world = this.player.getWorld();
 
 		BlockPos.Mutable pos = new BlockPos.Mutable(0, Math.floor(this.player.getY()), 0);
 		for (int corner = 0; corner < 4; corner++) {
@@ -68,6 +72,8 @@ public class SnowGolemKit extends Kit {
 
 			if (world.getBlockState(pos).isAir() && SNOW.canPlaceAt(world, pos)) {
 				world.setBlockState(pos, SNOW);
+			} else if (SnowGolemKit.isStillWater(world, pos.move(Direction.DOWN))) {
+				world.setBlockState(pos, FROSTED_ICE);
 			}
 		}
 	}
@@ -80,5 +86,10 @@ public class SnowGolemKit extends Kit {
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
 		return SoundEvents.ENTITY_SNOW_GOLEM_HURT;
+	}
+
+	private static boolean isStillWater(ServerWorld world, BlockPos pos) {
+		FluidState state = world.getFluidState(pos);
+		return state.isStill() && state.isIn(FluidTags.WATER);
 	}
 }
