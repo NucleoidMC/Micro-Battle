@@ -63,6 +63,12 @@ public class SnowGolemKit extends Kit {
 	public void tick() {
 		super.tick();
 		
+		if (!this.player.isSneaking()) {
+			this.tickTrail();
+		}
+	}
+
+	private void tickTrail() {
 		ServerWorld world = this.player.getWorld();
 
 		BlockPos.Mutable pos = new BlockPos.Mutable(0, Math.floor(this.player.getY()), 0);
