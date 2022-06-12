@@ -55,7 +55,7 @@ public class MicroBattleWaitingPhase {
 		}
 
 		MicroBattleMapBuilder mapBuilder = new MicroBattleMapBuilder(context.config());
-		MicroBattleMap map = mapBuilder.create();
+		MicroBattleMap map = mapBuilder.create(context.server());
 
 		RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
 			.setGenerator(map.createGenerator(context.server()));

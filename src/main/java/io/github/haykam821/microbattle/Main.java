@@ -11,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
 import xyz.nucleoid.plasmid.game.GameType;
 
 public class Main implements ModInitializer {
@@ -24,6 +25,9 @@ public class Main implements ModInitializer {
 
 	private static final Identifier RESPAWN_BEACONS_ID = new Identifier(MOD_ID, "respawn_beacons");
 	public static final TagKey<Block> RESPAWN_BEACONS = TagKey.of(Registry.BLOCK_KEY, RESPAWN_BEACONS_ID);
+
+	private static final Identifier POTENTIAL_BIOMES_ID = new Identifier(MOD_ID, "potential_biomes");
+	public static final TagKey<Biome> POTENTIAL_BIOMES = TagKey.of(Registry.BIOME_KEY, POTENTIAL_BIOMES_ID);
 
 	@Override
 	public void onInitialize() {
