@@ -52,8 +52,12 @@ public class RespawnerKit extends PlayerKit {
 		}
 	}
 
-	public BlockPos getRespawnPos() {
-		return this.respawnPos;
+	public boolean hasRespawnPos() {
+		return this.respawnPos != null;
+	}
+
+	public boolean isRespawnPos(BlockPos pos) {
+		return pos.equals(this.respawnPos);
 	}
 
 	public void setRespawnPos(BlockPos respawnPos) {
@@ -69,7 +73,7 @@ public class RespawnerKit extends PlayerKit {
 	@Override
 	public ActionResult onBreakBlock(BlockPos pos) {
 		// Prevent breaking own beacon
-		if (pos.equals(this.getRespawnPos())) {
+		if (this.isRespawnPos(pos)) {
 			this.player.sendMessage(new TranslatableText("text.microbattle.cannot_break_own_beacon").formatted(Formatting.RED), false);
 			return ActionResult.FAIL;
 		}

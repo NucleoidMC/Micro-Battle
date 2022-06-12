@@ -297,7 +297,7 @@ public class MicroBattleActivePhase {
 	}
 
 	public boolean placeBeacon(PlayerEntry entry, RespawnerKit respawner, BlockPos pos) {
-		if (respawner.getRespawnPos() != null) return true;
+		if (respawner.hasRespawnPos()) return true;
 		if (!this.map.getBeaconBounds().contains(pos)) {
 			entry.getPlayer().sendMessage(new TranslatableText("text.microbattle.cannot_place_out_of_bounds_beacon").formatted(Formatting.RED), false);
 			return false;
@@ -334,10 +334,7 @@ public class MicroBattleActivePhase {
 
 		// Send message
 		for (PlayerEntry entry : this.players) {
-			if (!(breaker.getKit() instanceof RespawnerKit)) continue;
-			RespawnerKit respawner = (RespawnerKit) breaker.getKit();
-
-			if (pos.equals(respawner.getRespawnPos())) {
+			if (entry.getKit() instanceof RespawnerKit respawner && respawner.isRespawnPos(pos)) {
 				this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 1, 1);
 				this.gameSpace.getPlayers().sendMessage(new TranslatableText("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).formatted(Formatting.RED));
 				break;
