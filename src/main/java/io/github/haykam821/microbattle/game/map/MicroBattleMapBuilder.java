@@ -75,18 +75,18 @@ public class MicroBattleMapBuilder {
 		int maxZ = floorBounds.max().getZ() - padding + 1;
 
 		// North-west
-		Building.randomizeHeight(random, size).generate(template, minX, minY, minZ);
+		Building.randomize(random, size).generate(template, minX, minY, minZ);
 
 		// North-east
-		Building neBuilding = Building.randomizeHeight(random, size);
+		Building neBuilding = Building.randomize(random, size);
 		neBuilding.generate(template, maxX - neBuilding.getWidth(), minY, minZ);
 
 		// South-west
-		Building swBuilding = Building.randomizeHeight(random, size);
+		Building swBuilding = Building.randomize(random, size);
 		swBuilding.generate(template, minX, minY, maxZ - swBuilding.getDepth());
 
 		// South-east
-		Building seBuilding = Building.randomizeHeight(random, size);
+		Building seBuilding = Building.randomize(random, size);
 		seBuilding.generate(template, maxX - seBuilding.getWidth(), minY, maxZ - seBuilding.getDepth());
 	}
 
