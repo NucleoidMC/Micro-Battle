@@ -21,8 +21,18 @@ public class KitType<T extends Kit> {
 		this.icon = icon;
 	}
 	
-	public T create(PlayerEntry entry) {
+	private T create(PlayerEntry entry) {
 		return this.creator.apply(entry);
+	}
+
+	public Kit create(PlayerEntry entry, KitType<?> layer) {
+		T kit = this.create(entry);
+
+		if (layer == null){
+			return kit;
+		} else {
+			return new LayeredKit(kit, layer.create(entry), entry);
+		}
 	}
 
 	public ItemStack getIcon() {

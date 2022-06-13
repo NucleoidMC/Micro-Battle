@@ -87,7 +87,7 @@ public abstract class Kit {
 		return text;
 	}
 
-	private Text getName() {
+	protected Text getName() {
 		return this.type.getName();
 	}
 
@@ -143,14 +143,20 @@ public abstract class Kit {
 		return armorStacks;
 	}
 
-	public void tick() {
-		for (RestockEntry entry : this.restockEntries) {
+	protected void tick() {
+		return;
+	}
+
+	public final void baseTick() {
+		for (RestockEntry entry : this.getRestockEntries()) {
 			entry.tick(this.entry);
 		}
 
 		if (this.isDamagedByWater() && this.player.isWet()) {
 			this.player.damage(DamageSource.DROWN, 1.0F);
 		}
+
+		this.tick();
 	}
 
 	protected ItemStack getMainWeaponStack() {
@@ -173,16 +179,30 @@ public abstract class Kit {
 		return new ItemStack(Items.APPLE, 8);
 	}
 
-	protected void appendInitialStacks(List<ItemStack> stacks) {
+	protected void appendCustomInitialStacks(List<ItemStack> stacks) {
+		return;
+	}
+
+	protected final void appendInitialStacks(List<ItemStack> stacks) {
 		addIfNonNull(this::getMainWeaponStack, stacks);
 		addIfNonNull(this::getPickaxeToolStack, stacks);
 		addIfNonNull(this::getAxeToolStack, stacks);
 		addIfNonNull(this::getShovelToolStack, stacks);
 		addIfNonNull(this::getFoodStack, stacks);
 		
-		for (RestockEntry entry : this.restockEntries) {
+		for (RestockEntry entry : this.getRestockEntries()) {
 			addIfNonNull(entry::supplyStack, stacks);
 		}
+
+		this.appendCustomInitialStacks(stacks);
+	}
+
+	public boolean isRespawnPos(BlockPos pos) {
+		return false;
+	}
+
+	protected Iterable<RestockEntry> getRestockEntries() {
+		return this.restockEntries;
 	}
 
 	protected StatusEffectInstance[] getStatusEffects() {
@@ -254,7 +274,7 @@ public abstract class Kit {
 	}
 
 	public ActionResult attemptRespawn() {
-		return ActionResult.FAIL;
+		return ActionResult.PASS;
 	}
 
 	public ActionResult onKilledPlayer(PlayerEntry entry, DamageSource source) {

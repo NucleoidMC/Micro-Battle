@@ -17,6 +17,7 @@ public class MicroBattleConfig {
 	public static final Codec<MicroBattleConfig> CODEC = RecordCodecBuilder.create(instance -> {
 		return instance.group(
 			KitPreset.EITHER_CODEC.fieldOf("kits").forGetter(config -> Either.right(config.getKits())),
+			KitType.REGISTRY.optionalFieldOf("layer_kit").forGetter(MicroBattleConfig::getLayerKit),
 			GameTeamList.CODEC.optionalFieldOf("teams").forGetter(MicroBattleConfig::getTeams),
 			Codec.BOOL.optionalFieldOf("old_combat", false).forGetter(MicroBattleConfig::isOldCombat),
 			MicroBattleMapConfig.CODEC.fieldOf("map").forGetter(MicroBattleConfig::getMapConfig),
@@ -25,13 +26,15 @@ public class MicroBattleConfig {
 	});
 
 	private final List<KitType<?>> kits;
+	private final Optional<KitType<?>> layerKit;
 	private final Optional<GameTeamList> teams;
 	private final boolean oldCombat;
 	private final MicroBattleMapConfig mapConfig;
 	private final PlayerConfig playerConfig;
 
-	public MicroBattleConfig(Either<List<KitType<?>>, List<KitType<?>>> kits, Optional<GameTeamList> teams, boolean oldCombat, MicroBattleMapConfig mapConfig, PlayerConfig playerConfig) {
+	public MicroBattleConfig(Either<List<KitType<?>>, List<KitType<?>>> kits, Optional<KitType<?>> layerKit, Optional<GameTeamList> teams, boolean oldCombat, MicroBattleMapConfig mapConfig, PlayerConfig playerConfig) {
 		this.kits = kits.left().isPresent() ? kits.left().get() : kits.right().get();
+		this.layerKit = layerKit;
 		this.teams = teams;
 		this.oldCombat = oldCombat;
 		this.mapConfig = mapConfig;
@@ -40,6 +43,10 @@ public class MicroBattleConfig {
 
 	public List<KitType<?>> getKits() {
 		return this.kits;
+	}
+
+	public Optional<KitType<?>> getLayerKit() {
+		return this.layerKit;
 	}
 
 	public Optional<GameTeamList> getTeams() {

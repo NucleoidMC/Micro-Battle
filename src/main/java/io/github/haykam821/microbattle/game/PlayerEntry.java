@@ -21,7 +21,7 @@ public class PlayerEntry {
 		this.phase = phase;
 		this.player = player;
 		this.teamKey = teamKey;
-		this.kit = kitType.create(this);
+		this.kit = kitType.create(this, phase.getLayerKit());
 	}
 
 	public MicroBattleActivePhase getPhase() {
@@ -61,7 +61,7 @@ public class PlayerEntry {
 	public void tick() {
 		this.ticks += 1;
 		if (this.kit != null) {
-			this.kit.tick();
+			this.kit.baseTick();
 		}
 	}
 

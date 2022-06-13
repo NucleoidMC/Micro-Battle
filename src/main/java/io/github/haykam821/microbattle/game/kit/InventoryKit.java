@@ -14,8 +14,8 @@ public abstract class InventoryKit extends Kit {
 	}
 
 	@Override
-	protected void appendInitialStacks(List<ItemStack> stacks) {
-		super.appendInitialStacks(stacks);
+	protected void appendCustomInitialStacks(List<ItemStack> stacks) {
+		super.appendCustomInitialStacks(stacks);
 		for (ItemStack stack : this.stacks) {
 			stacks.add(stack.copy());
 		}

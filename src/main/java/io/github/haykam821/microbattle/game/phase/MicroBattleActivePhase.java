@@ -334,7 +334,7 @@ public class MicroBattleActivePhase {
 
 		// Send message
 		for (PlayerEntry entry : this.players) {
-			if (entry.getKit() instanceof RespawnerKit respawner && respawner.isRespawnPos(pos)) {
+			if (entry.getKit().isRespawnPos(pos)) {
 				this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 1, 1);
 				this.gameSpace.getPlayers().sendMessage(new TranslatableText("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).formatted(Formatting.RED));
 				break;
@@ -379,6 +379,10 @@ public class MicroBattleActivePhase {
 
 	public boolean isOldCombat() {
 		return this.config.isOldCombat();
+	}
+
+	public KitType<?> getLayerKit() {
+		return this.config.getLayerKit().orElse(null);
 	}
 
 	public static Vec3d getSpawnPos(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {

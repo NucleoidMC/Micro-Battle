@@ -45,8 +45,8 @@ public class RespawnerKit extends PlayerKit {
 	}
 
 	@Override
-	protected void appendInitialStacks(List<ItemStack> stacks) {
-		super.appendInitialStacks(stacks);
+	protected void appendCustomInitialStacks(List<ItemStack> stacks) {
+		super.appendCustomInitialStacks(stacks);
 		if (this.respawnPos == null) {
 			stacks.add(new ItemStack(Items.BEACON));
 		}
@@ -56,6 +56,7 @@ public class RespawnerKit extends PlayerKit {
 		return this.respawnPos != null;
 	}
 
+	@Override
 	public boolean isRespawnPos(BlockPos pos) {
 		return pos.equals(this.respawnPos);
 	}
@@ -67,7 +68,7 @@ public class RespawnerKit extends PlayerKit {
 	@Override
 	public ActionResult afterBlockPlace(BlockPos pos, ItemStack stack, BlockState state) {
 		if (!state.isIn(Main.RESPAWN_BEACONS)) return ActionResult.PASS;
-		return this.phase.placeBeacon(entry, (RespawnerKit) entry.getKit(), pos) ? ActionResult.SUCCESS : ActionResult.FAIL;
+		return this.phase.placeBeacon(entry, this, pos) ? ActionResult.SUCCESS : ActionResult.FAIL;
 	}
 
 	@Override
@@ -113,7 +114,7 @@ public class RespawnerKit extends PlayerKit {
 		// Teleport and spawn
 		Vec3d spawn = this.getRespawnAroundPos(respawnPos);
 		entry.getPlayer().teleport(world, spawn.getX(), spawn.getY(), spawn.getZ(), 0, 0);;
-		this.reinitialize();
+		entry.getKit().reinitialize();
 
 		return ActionResult.SUCCESS;
 	}
