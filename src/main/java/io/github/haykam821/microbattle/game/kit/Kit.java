@@ -211,6 +211,9 @@ public abstract class Kit {
 
 	public final void applyInventory() {
 		entry.getPlayer().getInventory().clear();
+		if (this.player.currentScreenHandler != null) {
+			this.player.currentScreenHandler.setCursorStack(ItemStack.EMPTY);
+		}
 
 		// Add status effects
 		for (StatusEffectInstance effect : this.getStatusEffects()) {

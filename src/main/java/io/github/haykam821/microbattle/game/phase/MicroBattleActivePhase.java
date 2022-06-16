@@ -141,9 +141,6 @@ public class MicroBattleActivePhase {
 			entry.getPlayer().changeGameMode(GameMode.SURVIVAL);
 			entry.getPlayer().closeHandledScreen();
 
-			entry.getPlayer().getInventory().clear();
-			entry.updateInventory();
-
 			entry.initializeKit();
 		}
 	}
