@@ -110,6 +110,7 @@ public class RespawnerKit extends PlayerKit {
 		entry.getPlayer().getHungerManager().setFoodLevel(20);
 		entry.getPlayer().extinguish();
 		entry.getPlayer().getDamageTracker().update();
+		entry.getPlayer().fallDistance = 0;
 
 		// Teleport and spawn
 		Vec3d spawn = this.getRespawnAroundPos(respawnPos);
