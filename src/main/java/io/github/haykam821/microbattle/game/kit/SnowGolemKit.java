@@ -10,10 +10,10 @@ import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 
 public class SnowGolemKit extends Kit {
 	private static final BlockState SNOW = Blocks.SNOW.getDefaultState();
@@ -76,10 +76,12 @@ public class SnowGolemKit extends Kit {
 			pos.setX((int) (this.player.getX() + (corner % 2 * 2 - 1) * 0.25));
 			pos.setZ((int) (this.player.getZ() + (corner / 2 % 2 * 2 - 1) * 0.25));
 
-			if (world.getBlockState(pos).isAir() && SNOW.canPlaceAt(world, pos)) {
+			BlockPos downPos = pos.down();
+
+			if (SnowGolemKit.canPlaceSnowAt(world, pos, downPos)) {
 				world.setBlockState(pos, SNOW);
-			} else if (SnowGolemKit.isStillWater(world, pos.move(Direction.DOWN))) {
-				world.setBlockState(pos, FROSTED_ICE);
+			} else if (SnowGolemKit.isStillWater(world, downPos)) {
+				world.setBlockState(downPos, FROSTED_ICE);
 			}
 		}
 	}
@@ -92,6 +94,14 @@ public class SnowGolemKit extends Kit {
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
 		return SoundEvents.ENTITY_SNOW_GOLEM_HURT;
+	}
+
+	private static boolean canPlaceSnowAt(ServerWorld world, BlockPos pos, BlockPos downPos) {
+		return (
+			world.getBlockState(pos).isAir()
+			&& SNOW.canPlaceAt(world, pos)
+			&& !world.getBlockState(downPos).isIn(BlockTags.ICE)
+		);
 	}
 
 	private static boolean isStillWater(ServerWorld world, BlockPos pos) {
