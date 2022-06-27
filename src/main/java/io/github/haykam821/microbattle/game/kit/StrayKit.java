@@ -7,7 +7,6 @@ import net.minecraft.item.Items;
 import net.minecraft.potion.Potions;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.DyeColor;
 
 public class StrayKit extends SkeletonKit {
 	public StrayKit(PlayerEntry entry) {
@@ -16,12 +15,12 @@ public class StrayKit extends SkeletonKit {
 
 	@Override
 	protected int getBaseColor() {
-		return DyeColor.LIGHT_GRAY.getFireworkColor();
+		return 0xD0DFEF;
 	}
 
 	@Override
 	protected int getSecondaryColor() {
-		return DyeColor.CYAN.getFireworkColor();
+		return 0x799B9E;
 	}
 
 	@Override
