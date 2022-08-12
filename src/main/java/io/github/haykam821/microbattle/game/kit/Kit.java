@@ -3,7 +3,6 @@ package io.github.haykam821.microbattle.game.kit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Supplier;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
@@ -20,21 +19,20 @@ import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.HoverEvent;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.plasmid.game.common.OldCombat;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public abstract class Kit {
-	protected static final Random RANDOM = new Random();
+	protected static final Random RANDOM = Random.createLocal();
 
 	private final KitType<?> type;
 	private final List<RestockEntry> restockEntries = new ArrayList<>();
@@ -71,17 +69,17 @@ public abstract class Kit {
 	}
 
 	private Text getTooltip(String linePrefix) {
-		MutableText text = new LiteralText(linePrefix);
-		text.append(new LiteralText("• Defeat the other players!").formatted(Formatting.GRAY));
+		MutableText text = Text.literal(linePrefix);
+		text.append(Text.literal("• Defeat the other players!").formatted(Formatting.GRAY));
 
 		for (String line : this.getNeutrals()) {
-			text.append(new LiteralText("\n" + linePrefix + "• " + line).formatted(Formatting.GRAY));
+			text.append(Text.literal("\n" + linePrefix + "• " + line).formatted(Formatting.GRAY));
 		}
 		for (String line : this.getAdvantages()) {
-			text.append(new LiteralText("\n" + linePrefix + "+ " + line).formatted(Formatting.GREEN));
+			text.append(Text.literal("\n" + linePrefix + "+ " + line).formatted(Formatting.GREEN));
 		}
 		for (String line : this.getDisadvantages()) {
-			text.append(new LiteralText("\n" + linePrefix + "- " + line).formatted(Formatting.RED));
+			text.append(Text.literal("\n" + linePrefix + "- " + line).formatted(Formatting.RED));
 		}
 
 		return text;
@@ -92,17 +90,17 @@ public abstract class Kit {
 	}
 
 	private Text getHoverableName() {
-		return this.getName().shallowCopy().styled(style -> {
+		return this.getName().copy().styled(style -> {
 			return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, this.getTooltip("")));
 		});
 	}
 
 	public MutableText getReceivedMessage() {
 		if (this.entry.getTeamKey() == null) {
-			return new TranslatableText("text.microbattle.kit_received", this.getHoverableName()).formatted(Formatting.GRAY);
+			return Text.translatable("text.microbattle.kit_received", this.getHoverableName()).formatted(Formatting.GRAY);
 		} else {
 			Text teamName = this.entry.getTeamConfig().name();
-			return new TranslatableText("text.microbattle.team_kit_received", this.getHoverableName(), teamName).formatted(Formatting.GRAY);
+			return Text.translatable("text.microbattle.team_kit_received", this.getHoverableName(), teamName).formatted(Formatting.GRAY);
 		}
 	}
 
@@ -113,7 +111,7 @@ public abstract class Kit {
 	protected ItemStack createArmorStack(Item item, String type, boolean secondary) {
 		return ItemStackBuilder.of(item)
 			.setDyeColor(secondary ? this.getSecondaryColor() : this.getBaseColor())
-			.setName(new TranslatableText("text.microbattle.team_armor." + type, this.getName()))
+			.setName(Text.translatable("text.microbattle.team_armor." + type, this.getName()))
 			.setUnbreakable()
 			.build();
 	}

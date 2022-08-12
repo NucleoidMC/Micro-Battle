@@ -1,14 +1,12 @@
 package io.github.haykam821.microbattle.game.map;
 
-import java.util.Random;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.VineBlock;
 import net.minecraft.util.collection.DataPool;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.gen.random.AbstractRandom;
+import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.map_templates.MapTemplate;
 
 public class Building {
@@ -43,9 +41,8 @@ public class Building {
 		this.state = state;
 	}
 	
-	public void generate(MapTemplate template, int startX, int startY, int startZ) {
+	public void generate(MapTemplate template, Random random, int startX, int startY, int startZ) {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
-		Random random = new Random();
 
 		for (int x = 0; x < this.width; x++) {
 			for (int z = 0; z < this.depth; z++) {
@@ -96,14 +93,20 @@ public class Building {
 		return "Building{width=" + this.width + ", height= " + this.height + ", depth=" + this.depth + ", state=" + this.state + "}";
 	}
 
-	public static Building randomize(Random random, int size) {
-		double vineDensity = random.nextInt(4) == 0 ? random.nextDouble(0.3, 0.9) : 0;
-
-		BlockState state = STATES.getDataOrEmpty(random).orElseThrow(IllegalStateException::new);
-		return new Building(size, random.nextInt(4) + 6, size, vineDensity, state);
+	private static int randomizeHeight(Random random) {
+		return random.nextInt(4) + 6;
 	}
 
-	public static Building randomize(AbstractRandom random, int size) {
-		return Building.randomize(new Random(random.nextLong()), size);
+	private static double randomizeVineDensity(Random random) {
+		if (random.nextInt(4) == 0) {
+			return (random.nextDouble() * 0.6) + 0.3;
+		}
+
+		return 0;
+	}
+
+	public static Building randomize(Random random, int size) {
+		BlockState state = STATES.getDataOrEmpty(random).orElseThrow(IllegalStateException::new);
+		return new Building(size, randomizeHeight(random), size, randomizeVineDensity(random), state);
 	}
 }

@@ -11,7 +11,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.GameMode;
@@ -51,7 +51,7 @@ public class MicroBattleWaitingPhase {
 	public static GameOpenProcedure open(GameOpenContext<MicroBattleConfig> context) {
 		MicroBattleConfig config = context.config();
 		if (context.config().getKits().isEmpty()) {
-			throw new GameOpenException(new TranslatableText("text.microbattle.not_enough_kits"));
+			throw new GameOpenException(Text.translatable("text.microbattle.not_enough_kits"));
 		}
 
 		MicroBattleMapBuilder mapBuilder = new MicroBattleMapBuilder(context.config());

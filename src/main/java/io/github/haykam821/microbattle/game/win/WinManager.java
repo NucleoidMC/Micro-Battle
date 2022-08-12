@@ -2,7 +2,6 @@ package io.github.haykam821.microbattle.game.win;
 
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public abstract class WinManager {
@@ -13,7 +12,7 @@ public abstract class WinManager {
 	}
 
 	protected Text getNoWinnersMessage() {
-		return new TranslatableText("text.microbattle.no_winners").formatted(Formatting.GOLD);
+		return Text.translatable("text.microbattle.no_winners").formatted(Formatting.GOLD);
 	}
 
 	public abstract boolean checkForWinner();

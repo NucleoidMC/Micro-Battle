@@ -56,7 +56,7 @@ public class LayeredKit extends Kit {
 
 	@Override
 	protected Text getName() {
-		return this.base.getName().shallowCopy().append(" ").append(this.layer.getName());
+		return this.base.getName().copy().append(" ").append(this.layer.getName());
 	}
 
 	@Override

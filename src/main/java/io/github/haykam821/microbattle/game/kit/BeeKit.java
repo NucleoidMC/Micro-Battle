@@ -1,7 +1,5 @@
 package io.github.haykam821.microbattle.game.kit;
 
-import java.util.Random;
-
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -13,6 +11,7 @@ import net.minecraft.tag.BlockTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 

@@ -5,7 +5,6 @@ import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 
@@ -19,7 +18,7 @@ public class TeamWinManager extends WinManager {
 
 	private Text getWinningTeamMessage(GameTeamKey teamKey) {
 		Text teamName = this.phase.getTeamConfig(teamKey).name();
-		return new TranslatableText("text.microbattle.team_win", teamName).formatted(Formatting.GOLD);
+		return Text.translatable("text.microbattle.team_win", teamName).formatted(Formatting.GOLD);
 	}
 
 	@Override
