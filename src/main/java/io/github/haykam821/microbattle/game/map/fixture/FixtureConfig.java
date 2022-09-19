@@ -5,14 +5,16 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record FixtureConfig(
 	int padding,
-	int buildings
+	int buildings,
+	int decorations
 ) {
-	public static final FixtureConfig DEFAULT = new FixtureConfig(6, 1);
+	public static final FixtureConfig DEFAULT = new FixtureConfig(6, 1, 50);
 
 	public static final Codec<FixtureConfig> CODEC = RecordCodecBuilder.create(instance -> {
 		return instance.group(
 			Codec.INT.optionalFieldOf("padding", DEFAULT.padding).forGetter(FixtureConfig::padding),
-			Codec.INT.optionalFieldOf("buildings", DEFAULT.buildings).forGetter(FixtureConfig::buildings)
+			Codec.INT.optionalFieldOf("buildings", DEFAULT.buildings).forGetter(FixtureConfig::buildings),
+			Codec.INT.optionalFieldOf("decorations", DEFAULT.decorations).forGetter(FixtureConfig::decorations)
 		).apply(instance, FixtureConfig::new);
 	});
 }

@@ -8,7 +8,6 @@ import net.minecraft.block.VineBlock;
 import net.minecraft.util.collection.DataPool;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.gen.random.AbstractRandom;
 import xyz.nucleoid.map_templates.MapTemplate;
 
 public class BuildingFixture extends Fixture {
@@ -96,9 +95,5 @@ public class BuildingFixture extends Fixture {
 
 		BlockState state = STATES.getDataOrEmpty(random).orElseThrow(IllegalStateException::new);
 		return new BuildingFixture(size, random.nextInt(4) + 6, size, vineDensity, state);
-	}
-
-	public static BuildingFixture randomize(AbstractRandom random) {
-		return BuildingFixture.randomize(new Random(random.nextLong()));
 	}
 }

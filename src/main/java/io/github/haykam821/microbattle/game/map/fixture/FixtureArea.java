@@ -1,6 +1,7 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import io.github.haykam821.microbattle.game.map.MicroBattleMapConfig;
@@ -20,7 +21,9 @@ public class FixtureArea {
 	private final int maxX;
 	private final int maxZ;
 
-	public FixtureArea(int minX, int minZ, int y, int maxX, int maxZ) {
+	private final int padding;
+
+	public FixtureArea(int minX, int minZ, int y, int maxX, int maxZ, int padding) {
 		this.minX = minX;
 		this.minZ = minZ;
 
@@ -28,13 +31,20 @@ public class FixtureArea {
 
 		this.maxX = maxX;
 		this.maxZ = maxZ;
+
+		this.padding = padding;
 	}
 
-	public FixturePlacement place(Fixture fixture, AbstractRandom random) {
-		int x = random.nextBetween(0, this.maxX - fixture.getWidth() - this.minX);
-		int z = random.nextBetween(0, this.maxZ - fixture.getDepth() - this.minZ);
+	public FixturePlacement place(Fixture fixture, AbstractRandom random, boolean padded) {
+		int padding = padded ? this.padding : 1;
+		
+		int minX = this.minX + padding;
+		int minZ = this.minZ + padding;
 
-		BlockPos start = new BlockPos(this.minX + x, this.y, this.minZ + z);
+		int x = random.nextBetween(0, this.maxX - padding - fixture.getWidth() - minX);
+		int z = random.nextBetween(0, this.maxZ - padding - fixture.getDepth() - minZ);
+
+		BlockPos start = new BlockPos(minX + x, this.y, minZ + z);
 
 		FixturePlacement placement = new FixturePlacement(fixture, start);
 
@@ -55,7 +65,8 @@ public class FixtureArea {
 		}
 	}
 
-	public static void generate(BlockBounds floorBounds, MapTemplate template, AbstractRandom random, MicroBattleMapConfig mapConfig) {
+	public static void generate(BlockBounds floorBounds, MapTemplate template, AbstractRandom abstractRandom, MicroBattleMapConfig mapConfig) {
+		Random random = new Random(abstractRandom.nextLong());
 		FixtureConfig config = mapConfig.getFixtureConfig();
 
 		// Calculate positioning
@@ -82,15 +93,19 @@ public class FixtureArea {
 		// Add areas
 		Set<FixtureArea> areas = new HashSet<>();
 
-		areas.add(new FixtureArea(minX + padding, minZ + padding, y, minRiverX - padding, minRiverZ - padding));
-		areas.add(new FixtureArea(maxRiverX + padding, minZ + padding, y, maxX - padding, minRiverZ - padding));
-		areas.add(new FixtureArea(minX + padding, maxRiverZ + padding, y, minRiverX - padding, maxZ - padding));
-		areas.add(new FixtureArea(maxRiverX + padding, maxRiverZ + padding, y, maxX - padding, maxZ - padding));
+		areas.add(new FixtureArea(minX, minZ, y, minRiverX, minRiverZ, padding));
+		areas.add(new FixtureArea(maxRiverX, minZ, y, maxX, minRiverZ, padding));
+		areas.add(new FixtureArea(minX, maxRiverZ, y, minRiverX, maxZ, padding));
+		areas.add(new FixtureArea(maxRiverX, maxRiverZ, y, maxX, maxZ, padding));
 
 		// Generate areas
 		for (FixtureArea area : areas) {
 			for (int index = 0; index < config.buildings(); index++) {
-				area.place(BuildingFixture.randomize(random), random);
+				area.place(Fixtures.building(random), abstractRandom, true);
+			}
+
+			for (int index = 0; index < config.decorations(); index++) {
+				area.place(Fixtures.decoration(random), abstractRandom, false);
 			}
 
 			area.generate(template);
