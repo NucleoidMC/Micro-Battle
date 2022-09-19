@@ -176,7 +176,7 @@ public abstract class Kit {
 	}
 
 	protected ItemStack getFoodStack() {
-		return new ItemStack(Items.APPLE, 8);
+		return new ItemStack(Items.BREAD, 8);
 	}
 
 	protected void appendCustomInitialStacks(List<ItemStack> stacks) {
