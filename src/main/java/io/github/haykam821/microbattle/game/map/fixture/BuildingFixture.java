@@ -32,7 +32,7 @@ public class BuildingFixture extends Fixture {
 	private final BlockState state;
 
 	private BuildingFixture(int width, int height, int depth, double vineDensity, BlockState state) {
-		super(width, depth);
+		super(width + 2, depth + 2);
 
 		this.height = height;
 
@@ -45,12 +45,12 @@ public class BuildingFixture extends Fixture {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		Random random = new Random();
 
-		int width = this.getWidth();
-		int depth = this.getDepth();
+		int width = this.getWidth() - 2;
+		int depth = this.getDepth() - 2;
 
-		int startX = start.getX();
+		int startX = start.getX() + 1;
 		int startY = start.getY();
-		int startZ = start.getZ();
+		int startZ = start.getZ() + 1;
 
 		for (int x = 0; x < width; x++) {
 			for (int z = 0; z < depth; z++) {

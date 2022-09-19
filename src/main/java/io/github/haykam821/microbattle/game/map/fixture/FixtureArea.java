@@ -37,6 +37,13 @@ public class FixtureArea {
 		BlockPos start = new BlockPos(this.minX + x, this.y, this.minZ + z);
 
 		FixturePlacement placement = new FixturePlacement(fixture, start);
+
+		for (FixturePlacement other : this.placements) {
+			if (placement.intersects(other)) {
+				return null;
+			}
+		}
+
 		this.placements.add(placement);
 
 		return placement;
@@ -48,7 +55,9 @@ public class FixtureArea {
 		}
 	}
 
-	public static void generate(BlockBounds floorBounds, MapTemplate template, AbstractRandom random, MicroBattleMapConfig config) {
+	public static void generate(BlockBounds floorBounds, MapTemplate template, AbstractRandom random, MicroBattleMapConfig mapConfig) {
+		FixtureConfig config = mapConfig.getFixtureConfig();
+
 		// Calculate positioning
 		BlockPos size = floorBounds.size();
 
@@ -56,16 +65,16 @@ public class FixtureArea {
 		double centerZ = size.getZ() / 2d;
 
 		int y = floorBounds.max().getY();
-		int padding = config.getPadding();
+		int padding = config.padding();
 
 		int minX = floorBounds.min().getX();
 		int minZ = floorBounds.min().getZ();
 
-		int minRiverX = (int) centerX - config.getRiverRadius() + 1;
-		int minRiverZ = (int) centerZ - config.getRiverRadius() + 1;
+		int minRiverX = (int) centerX - mapConfig.getRiverRadius() + 1;
+		int minRiverZ = (int) centerZ - mapConfig.getRiverRadius() + 1;
 
-		int maxRiverX = (int) centerX + config.getRiverRadius();
-		int maxRiverZ = (int) centerZ + config.getRiverRadius();
+		int maxRiverX = (int) centerX + mapConfig.getRiverRadius();
+		int maxRiverZ = (int) centerZ + mapConfig.getRiverRadius();
 
 		int maxX = floorBounds.max().getX();
 		int maxZ = floorBounds.max().getZ();
@@ -80,7 +89,10 @@ public class FixtureArea {
 
 		// Generate areas
 		for (FixtureArea area : areas) {
-			area.place(BuildingFixture.randomize(random), random);
+			for (int index = 0; index < config.buildings(); index++) {
+				area.place(BuildingFixture.randomize(random), random);
+			}
+
 			area.generate(template);
 		}
 	}
