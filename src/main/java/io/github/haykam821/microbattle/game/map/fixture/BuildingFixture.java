@@ -1,4 +1,4 @@
-package io.github.haykam821.microbattle.game.map;
+package io.github.haykam821.microbattle.game.map.fixture;
 
 import java.util.Random;
 
@@ -11,7 +11,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.gen.random.AbstractRandom;
 import xyz.nucleoid.map_templates.MapTemplate;
 
-public class Building {
+public class BuildingFixture extends Fixture {
 	private static final DataPool<BlockState> STATES = DataPool.<BlockState>builder()
 		.add(Blocks.STONE_BRICKS.getDefaultState(), 20)
 		.add(Blocks.COBBLESTONE.getDefaultState(), 5)
@@ -27,29 +27,34 @@ public class Building {
 
 	private static final BlockState VINE = Blocks.VINE.getDefaultState();
 
-	private final int width;
 	private final int height;
-	private final int depth;
-
 	private final double vineDensity;
 	private final BlockState state;
 
-	private Building(int width, int height, int depth, double vineDensity, BlockState state) {
-		this.width = width;
+	private BuildingFixture(int width, int height, int depth, double vineDensity, BlockState state) {
+		super(width, depth);
+
 		this.height = height;
-		this.depth = depth;
 
 		this.vineDensity = vineDensity;
 		this.state = state;
 	}
 	
-	public void generate(MapTemplate template, int startX, int startY, int startZ) {
+	@Override
+	public void generate(MapTemplate template, BlockPos start) {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		Random random = new Random();
 
-		for (int x = 0; x < this.width; x++) {
-			for (int z = 0; z < this.depth; z++) {
-				boolean border = x == 0 || x == this.width - 1 || z == 0 || z == this.depth - 1;
+		int width = this.getWidth();
+		int depth = this.getDepth();
+
+		int startX = start.getX();
+		int startY = start.getY();
+		int startZ = start.getZ();
+
+		for (int x = 0; x < width; x++) {
+			for (int z = 0; z < depth; z++) {
+				boolean border = x == 0 || x == width - 1 || z == 0 || z == depth - 1;
 				for (int y = 0; y < this.height; y++) {
 					if (y >= this.height - 2 && !border) continue;
 					if (y == this.height - 1 && (x + z) % 2 == 1) continue;
@@ -61,10 +66,10 @@ public class Building {
 		}
 
 		if (this.vineDensity > 0) {
-			this.generateVineSide(template, pos, random, Direction.NORTH, startX, startY, startZ + this.depth, startX + this.width - 1, startY + this.height - 2, startZ + this.depth);
-			this.generateVineSide(template, pos, random, Direction.EAST, startX - 1, startY, startZ, startX - 1, startY + this.height - 2, startZ + this.depth - 1);
-			this.generateVineSide(template, pos, random, Direction.SOUTH, startX, startY, startZ - 1, startX + this.width - 1, startY + this.height - 2, startZ - 1);
-			this.generateVineSide(template, pos, random, Direction.WEST, startX + this.width, startY, startZ, startX + this.width, startY + this.height - 2, startZ + this.depth - 1);
+			this.generateVineSide(template, pos, random, Direction.NORTH, startX, startY, startZ + depth, startX + width - 1, startY + this.height - 2, startZ + depth);
+			this.generateVineSide(template, pos, random, Direction.EAST, startX - 1, startY, startZ, startX - 1, startY + this.height - 2, startZ + depth - 1);
+			this.generateVineSide(template, pos, random, Direction.SOUTH, startX, startY, startZ - 1, startX + width - 1, startY + this.height - 2, startZ - 1);
+			this.generateVineSide(template, pos, random, Direction.WEST, startX + width, startY, startZ, startX + width, startY + this.height - 2, startZ + depth - 1);
 		}
 	}
 
@@ -83,27 +88,17 @@ public class Building {
 		}
 	}
 
-	public int getWidth() {
-		return this.width;
-	}
+	public static BuildingFixture randomize(Random random) {
+		int size = random.nextInt(8) + 4;
+		if (size % 2 == 0) size += 1;
 
-	public int getDepth() {
-		return this.depth;
-	}
-
-	@Override
-	public String toString() {
-		return "Building{width=" + this.width + ", height= " + this.height + ", depth=" + this.depth + ", state=" + this.state + "}";
-	}
-
-	public static Building randomize(Random random, int size) {
 		double vineDensity = random.nextInt(4) == 0 ? random.nextDouble(0.3, 0.9) : 0;
 
 		BlockState state = STATES.getDataOrEmpty(random).orElseThrow(IllegalStateException::new);
-		return new Building(size, random.nextInt(4) + 6, size, vineDensity, state);
+		return new BuildingFixture(size, random.nextInt(4) + 6, size, vineDensity, state);
 	}
 
-	public static Building randomize(AbstractRandom random, int size) {
-		return Building.randomize(new Random(random.nextLong()), size);
+	public static BuildingFixture randomize(AbstractRandom random) {
+		return BuildingFixture.randomize(new Random(random.nextLong()));
 	}
 }

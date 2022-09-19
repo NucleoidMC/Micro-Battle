@@ -12,7 +12,7 @@ public class MicroBattleMapConfig {
 			Codec.INT.optionalFieldOf("floor_height", 20).forGetter(MicroBattleMapConfig::getFloorHeight),
 			Codec.INT.optionalFieldOf("beacon_max_height", 40).forGetter(MicroBattleMapConfig::getFloorHeight),
 			Codec.INT.optionalFieldOf("river_radius", 2).forGetter(MicroBattleMapConfig::getRiverRadius),
-			Codec.INT.optionalFieldOf("padding", 8).forGetter(MicroBattleMapConfig::getPadding),
+			Codec.INT.optionalFieldOf("padding", 6).forGetter(MicroBattleMapConfig::getPadding),
 			Codec.BOOL.optionalFieldOf("deepslate_lava", true).forGetter(MicroBattleMapConfig::hasDeepslateLava)
 		).apply(instance, MicroBattleMapConfig::new);
 	});
