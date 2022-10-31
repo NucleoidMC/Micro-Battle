@@ -2,13 +2,12 @@ package io.github.haykam821.microbattle.game.map.fixture;
 
 import java.util.Random;
 
+import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.VineBlock;
 import net.minecraft.util.collection.DataPool;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import xyz.nucleoid.map_templates.MapTemplate;
 
 public class BuildingFixture extends Fixture {
 	private static final DataPool<BlockState> STATES = DataPool.<BlockState>builder()
@@ -40,16 +39,14 @@ public class BuildingFixture extends Fixture {
 	}
 	
 	@Override
-	public void generate(MapTemplate template, BlockPos start) {
-		BlockPos.Mutable pos = new BlockPos.Mutable();
+	public void generate(FixtureCanvas canvas) {
 		Random random = new Random();
 
 		int width = this.getWidth() - 2;
 		int depth = this.getDepth() - 2;
 
-		int startX = start.getX() + 1;
-		int startY = start.getY();
-		int startZ = start.getZ() + 1;
+		int startX = 1;
+		int startZ = 1;
 
 		for (int x = 0; x < width; x++) {
 			for (int z = 0; z < depth; z++) {
@@ -58,29 +55,28 @@ public class BuildingFixture extends Fixture {
 					if (y >= this.height - 2 && !border) continue;
 					if (y == this.height - 1 && (x + z) % 2 == 1) continue;
 
-					pos.set(startX + x, startY + y, startZ + z);
-					template.setBlockState(pos, this.state);
+					canvas.setBlockState(x + 1, y, z + 1, this.state);
 				}
 			}
 		}
 
 		if (this.vineDensity > 0) {
-			this.generateVineSide(template, pos, random, Direction.NORTH, startX, startY, startZ + depth, startX + width - 1, startY + this.height - 2, startZ + depth);
-			this.generateVineSide(template, pos, random, Direction.EAST, startX - 1, startY, startZ, startX - 1, startY + this.height - 2, startZ + depth - 1);
-			this.generateVineSide(template, pos, random, Direction.SOUTH, startX, startY, startZ - 1, startX + width - 1, startY + this.height - 2, startZ - 1);
-			this.generateVineSide(template, pos, random, Direction.WEST, startX + width, startY, startZ, startX + width, startY + this.height - 2, startZ + depth - 1);
+			this.generateVineSide(canvas, random, Direction.NORTH, startX, startZ + depth, startX + width - 1, startZ + depth);
+			this.generateVineSide(canvas, random, Direction.EAST, startX - 1, startZ, startX - 1, startZ + depth - 1);
+			this.generateVineSide(canvas, random, Direction.SOUTH, startX, startZ - 1, startX + width - 1, startZ - 1);
+			this.generateVineSide(canvas, random, Direction.WEST, startX + width, startZ, startX + width, startZ + depth - 1);
 		}
 	}
 
-	private void generateVineSide(MapTemplate template, BlockPos.Mutable pos, Random random, Direction facing, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+	private void generateVineSide(FixtureCanvas canvas, Random random, Direction facing, int minX, int minZ, int maxX, int maxZ) {
 		BlockState vine = VINE.with(VineBlock.getFacingProperty(facing), true);
+		int maxY = this.height - 2;
 
-		for (int y = minY; y <= maxY; y++) {
+		for (int y = 0; y <= maxY; y++) {
 			for (int x = minX; x <= maxX; x++) {
 				for (int z = minZ; z <= maxZ; z++) {
 					if (this.vineDensity == 1 || random.nextDouble() < this.vineDensity) {
-						pos.set(x, y, z);
-						template.setBlockState(pos, vine);
+						canvas.setBlockState(x, y, z, vine);
 					}
 				}
 			}

@@ -2,9 +2,8 @@ package io.github.haykam821.microbattle.game.map.fixture;
 
 import java.util.Random;
 
-import net.minecraft.util.math.BlockPos;
+import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
-import xyz.nucleoid.map_templates.MapTemplate;
 
 public class PatchFixture extends Fixture {
 	private final BlockStateProvider provider;
@@ -16,8 +15,7 @@ public class PatchFixture extends Fixture {
 	}
 
 	@Override
-	public void generate(MapTemplate template, BlockPos start) {
-		BlockPos.Mutable pos = new BlockPos.Mutable();
+	public void generate(FixtureCanvas canvas) {
 		Random random = new Random();
 
 		int radius = this.getWidth() / 2;
@@ -28,8 +26,7 @@ public class PatchFixture extends Fixture {
 				double distance2 = x * x + z * z;
 				
 				if (random.nextDouble() > distance2 / radius2 - 0.1) {
-					pos.set(start.getX() + radius + x, start.getY(), start.getZ() + radius + z);
-					template.setBlockState(pos, this.provider.getBlockState(random, pos));
+					canvas.setBlockState(radius + x, 0, radius + z, this.provider, random);
 				}
 			}
 		}

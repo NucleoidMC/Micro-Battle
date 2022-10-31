@@ -1,7 +1,6 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
-import net.minecraft.util.math.BlockPos;
-import xyz.nucleoid.map_templates.MapTemplate;
+import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
 
 public abstract class Fixture {
 	private final int width;
@@ -12,7 +11,7 @@ public abstract class Fixture {
 		this.depth = depth;
 	}
 
-	public abstract void generate(MapTemplate template, BlockPos start);
+	public abstract void generate(FixtureCanvas canvas);
 
 	public int getWidth() {
 		return this.width;

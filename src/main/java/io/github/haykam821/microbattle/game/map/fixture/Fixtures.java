@@ -7,12 +7,25 @@ import net.minecraft.util.collection.DataPool;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
 
 public final class Fixtures {
+	private static final DataPool<FixtureCreator> PRIMARY_FIXTURES = DataPool.<FixtureCreator>builder()
+		.add(Fixtures::building, 5)
+		.add(Fixtures::tower, 1)
+		.build();
+
 	private static final DataPool<FixtureCreator> DECORATION_FIXTURES = DataPool.<FixtureCreator>builder()
 		.add(Fixtures::grassPatch, 1)
 		.build();
 
 	protected static Fixture building(Random random) {
 		return BuildingFixture.randomize(random);
+	}
+
+	protected static Fixture tower(Random random) {
+		return TowerFixture.randomize(random);
+	}
+
+	protected static Fixture primary(Random random) {
+		return PRIMARY_FIXTURES.getDataOrEmpty(random).orElseThrow().get(random);
 	}
 
 	protected static Fixture grassPatch(Random random) {

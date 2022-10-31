@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.Set;
 
 import io.github.haykam821.microbattle.game.map.MicroBattleMapConfig;
+import io.github.haykam821.microbattle.game.map.fixture.canvas.TemplateFixtureCanvas;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.random.AbstractRandom;
 import xyz.nucleoid.map_templates.BlockBounds;
@@ -60,8 +61,11 @@ public class FixtureArea {
 	}
 
 	public void generate(MapTemplate template) {
+		TemplateFixtureCanvas canvas = new TemplateFixtureCanvas(template);
+
 		for (FixturePlacement placement : this.placements) {
-			placement.fixture().generate(template, placement.start());
+			canvas.setStart(placement.start());
+			placement.fixture().generate(canvas);
 		}
 	}
 
@@ -100,8 +104,8 @@ public class FixtureArea {
 
 		// Generate areas
 		for (FixtureArea area : areas) {
-			for (int index = 0; index < config.buildings(); index++) {
-				area.place(Fixtures.building(random), abstractRandom, true);
+			for (int index = 0; index < config.primary(); index++) {
+				area.place(Fixtures.primary(random), abstractRandom, true);
 			}
 
 			for (int index = 0; index < config.decorations(); index++) {
