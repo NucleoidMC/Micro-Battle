@@ -3,6 +3,8 @@ package io.github.haykam821.microbattle.game.map;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import io.github.haykam821.microbattle.game.map.fixture.FixtureConfig;
+
 public class MicroBattleMapConfig {
 	public static final Codec<MicroBattleMapConfig> CODEC = RecordCodecBuilder.create(instance -> {
 		return instance.group(
@@ -12,8 +14,8 @@ public class MicroBattleMapConfig {
 			Codec.INT.optionalFieldOf("floor_height", 20).forGetter(MicroBattleMapConfig::getFloorHeight),
 			Codec.INT.optionalFieldOf("beacon_max_height", 40).forGetter(MicroBattleMapConfig::getFloorHeight),
 			Codec.INT.optionalFieldOf("river_radius", 2).forGetter(MicroBattleMapConfig::getRiverRadius),
-			Codec.INT.optionalFieldOf("padding", 8).forGetter(MicroBattleMapConfig::getPadding),
-			Codec.BOOL.optionalFieldOf("deepslate_lava", true).forGetter(MicroBattleMapConfig::hasDeepslateLava)
+			Codec.BOOL.optionalFieldOf("deepslate_lava", true).forGetter(MicroBattleMapConfig::hasDeepslateLava),
+			FixtureConfig.CODEC.optionalFieldOf("fixtures", FixtureConfig.DEFAULT).forGetter(MicroBattleMapConfig::getFixtureConfig)
 		).apply(instance, MicroBattleMapConfig::new);
 	});
 
@@ -23,18 +25,18 @@ public class MicroBattleMapConfig {
 	private final int floorHeight;
 	private final int beaconMaxHeight;
 	private final int riverRadius;
-	private final int padding;
 	private final boolean deepslateLava;
+	private final FixtureConfig fixtureConfig;
 
-	public MicroBattleMapConfig(int x, int y, int z, int floorHeight, int beaconMaxHeight, int riverRadius, int padding, boolean deepslateLava) {
+	public MicroBattleMapConfig(int x, int y, int z, int floorHeight, int beaconMaxHeight, int riverRadius, boolean deepslateLava, FixtureConfig fixtureConfig) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.floorHeight = floorHeight;
 		this.beaconMaxHeight = beaconMaxHeight;
 		this.riverRadius = riverRadius;
-		this.padding = padding;
 		this.deepslateLava = deepslateLava;
+		this.fixtureConfig = fixtureConfig;
 	}
 
 	public int getX() {
@@ -61,11 +63,11 @@ public class MicroBattleMapConfig {
 		return this.riverRadius;
 	}
 
-	public int getPadding() {
-		return this.padding;
-	}
-
 	public boolean hasDeepslateLava() {
 		return this.deepslateLava;
+	}
+
+	public FixtureConfig getFixtureConfig() {
+		return this.fixtureConfig;
 	}
 }

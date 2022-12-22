@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import io.github.haykam821.microbattle.Main;
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
+import io.github.haykam821.microbattle.game.map.fixture.FixtureArea;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
@@ -54,39 +55,11 @@ public class MicroBattleMapBuilder {
 		}
 
 		BlockBounds floorBounds = BlockBounds.of(BlockPos.ORIGIN, new BlockPos(mapConfig.getX() - 1, mapConfig.getFloorHeight(), mapConfig.getZ() - 1));
-		this.build(floorBounds, template, mapConfig, random);
-		this.generateBuildings(floorBounds, template, random, mapConfig.getPadding());
+		this.buildTerrain(floorBounds, template, mapConfig, random);
+		FixtureArea.generate(floorBounds, template, random, mapConfig);
 
 		BlockBounds fullBounds = BlockBounds.of(floorBounds.min().add(-8, -4, -8), new BlockPos(floorBounds.max().add(8, mapConfig.getY() - mapConfig.getFloorHeight(), 8)));
 		return new MicroBattleMap(template, mapConfig, floorBounds, fullBounds);
-	}
-
-	private void generateBuildings(BlockBounds floorBounds, MapTemplate template, Random random, int padding) {
-		int size = random.nextInt(8) + 4;
-		if (size % 2 == 0) size += 1;
-
-		int minY = floorBounds.max().getY();
-
-		int minX = floorBounds.min().getX() + padding;
-		int minZ = floorBounds.min().getZ() + padding;
-
-		int maxX = floorBounds.max().getX() - padding + 1;
-		int maxZ = floorBounds.max().getZ() - padding + 1;
-
-		// North-west
-		Building.randomize(random, size).generate(template, random, minX, minY, minZ);
-
-		// North-east
-		Building neBuilding = Building.randomize(random, size);
-		neBuilding.generate(template, random, maxX - neBuilding.getWidth(), minY, minZ);
-
-		// South-west
-		Building swBuilding = Building.randomize(random, size);
-		swBuilding.generate(template, random, minX, minY, maxZ - swBuilding.getDepth());
-
-		// South-east
-		Building seBuilding = Building.randomize(random, size);
-		seBuilding.generate(template, random, maxX - seBuilding.getWidth(), minY, maxZ - seBuilding.getDepth());
 	}
 
 	private BlockState getDeepslateBlockState(int layer, Random random, boolean bottom, MicroBattleMapConfig mapConfig) {
@@ -112,7 +85,7 @@ public class MicroBattleMapBuilder {
 		return null;
 	}
 
-	public void build(BlockBounds bounds, MapTemplate template, MicroBattleMapConfig mapConfig, Random random) {
+	public void buildTerrain(BlockBounds bounds, MapTemplate template, MicroBattleMapConfig mapConfig, Random random) {
 		SimplexNoiseSampler noiseSampler = new SimplexNoiseSampler(random);
 
 		int minY = bounds.min().getY();
