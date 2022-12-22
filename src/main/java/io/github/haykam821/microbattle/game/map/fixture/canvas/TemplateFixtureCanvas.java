@@ -1,9 +1,8 @@
 package io.github.haykam821.microbattle.game.map.fixture.canvas;
 
-import java.util.Random;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
 import xyz.nucleoid.map_templates.MapTemplate;
 

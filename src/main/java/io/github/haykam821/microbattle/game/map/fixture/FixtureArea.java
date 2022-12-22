@@ -1,13 +1,12 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import io.github.haykam821.microbattle.game.map.MicroBattleMapConfig;
 import io.github.haykam821.microbattle.game.map.fixture.canvas.TemplateFixtureCanvas;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.random.AbstractRandom;
+import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 
@@ -36,7 +35,7 @@ public class FixtureArea {
 		this.padding = padding;
 	}
 
-	public FixturePlacement place(Fixture fixture, AbstractRandom random, boolean padded) {
+	public FixturePlacement place(Fixture fixture, Random random, boolean padded) {
 		int padding = padded ? this.padding : 1;
 		
 		int minX = this.minX + padding;
@@ -60,17 +59,16 @@ public class FixtureArea {
 		return placement;
 	}
 
-	public void generate(MapTemplate template) {
+	public void generate(MapTemplate template, Random random) {
 		TemplateFixtureCanvas canvas = new TemplateFixtureCanvas(template);
 
 		for (FixturePlacement placement : this.placements) {
 			canvas.setStart(placement.start());
-			placement.fixture().generate(canvas);
+			placement.fixture().generate(canvas, random);
 		}
 	}
 
-	public static void generate(BlockBounds floorBounds, MapTemplate template, AbstractRandom abstractRandom, MicroBattleMapConfig mapConfig) {
-		Random random = new Random(abstractRandom.nextLong());
+	public static void generate(BlockBounds floorBounds, MapTemplate template, Random random, MicroBattleMapConfig mapConfig) {
 		FixtureConfig config = mapConfig.getFixtureConfig();
 
 		// Calculate positioning
@@ -105,14 +103,14 @@ public class FixtureArea {
 		// Generate areas
 		for (FixtureArea area : areas) {
 			for (int index = 0; index < config.primary(); index++) {
-				area.place(Fixtures.primary(random), abstractRandom, true);
+				area.place(Fixtures.primary(random), random, true);
 			}
 
 			for (int index = 0; index < config.decorations(); index++) {
-				area.place(Fixtures.decoration(random), abstractRandom, false);
+				area.place(Fixtures.decoration(random), random, false);
 			}
 
-			area.generate(template);
+			area.generate(template, random);
 		}
 	}
 }

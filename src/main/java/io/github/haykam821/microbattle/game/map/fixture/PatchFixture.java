@@ -1,8 +1,7 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
-import java.util.Random;
-
 import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
 
 public class PatchFixture extends Fixture {
@@ -15,9 +14,7 @@ public class PatchFixture extends Fixture {
 	}
 
 	@Override
-	public void generate(FixtureCanvas canvas) {
-		Random random = new Random();
-
+	public void generate(FixtureCanvas canvas, Random random) {
 		int radius = this.getWidth() / 2;
 		int radius2 = radius * radius;
 

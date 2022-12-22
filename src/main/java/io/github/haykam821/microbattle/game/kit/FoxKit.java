@@ -1,7 +1,6 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import java.util.Optional;
-import java.util.Random;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.entity.damage.DamageSource;
@@ -16,6 +15,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.collection.DataPool;
+import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.plasmid.game.common.OldCombat;
 
 public class FoxKit extends Kit {

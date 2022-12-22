@@ -11,7 +11,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -75,7 +75,7 @@ public class RespawnerKit extends PlayerKit {
 	public ActionResult onBreakBlock(BlockPos pos) {
 		// Prevent breaking own beacon
 		if (this.isRespawnPos(pos)) {
-			this.player.sendMessage(new TranslatableText("text.microbattle.cannot_break_own_beacon").formatted(Formatting.RED), false);
+			this.player.sendMessage(Text.translatable("text.microbattle.cannot_break_own_beacon").formatted(Formatting.RED), false);
 			return ActionResult.FAIL;
 		}
 

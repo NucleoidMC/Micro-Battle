@@ -7,16 +7,15 @@ import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.shop.ShopEntry;
 
 public class KitSelectionUi {
-	private static final Text TITLE = new TranslatableText("text.microbattle.kit_selection.title");
-	private static final Text RANDOM_KIT = new TranslatableText("text.microbattle.kit_selection.random_kit").formatted(Formatting.LIGHT_PURPLE);
+	private static final Text TITLE = Text.translatable("text.microbattle.kit_selection.title");
+	private static final Text RANDOM_KIT = Text.translatable("text.microbattle.kit_selection.random_kit").formatted(Formatting.LIGHT_PURPLE);
 
 	private static void addKit(SimpleGuiBuilder builder, KitSelectionManager kitSelection, KitType<?> kitType) {
-		Text name = kitType.getName().shallowCopy().formatted(Formatting.GREEN);
+		Text name = kitType.getName().copy().formatted(Formatting.GREEN);
 
 		builder.addSlot(ShopEntry
 			.ofIcon(kitType.getIcon())

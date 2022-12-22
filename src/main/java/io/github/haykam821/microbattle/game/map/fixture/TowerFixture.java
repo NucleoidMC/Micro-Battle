@@ -1,13 +1,12 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
-import java.util.Random;
-
 import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.collection.DataPool;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.plasmid.util.WoodType;
 
 public class TowerFixture extends Fixture {
@@ -31,7 +30,7 @@ public class TowerFixture extends Fixture {
 	}
 	
 	@Override
-	public void generate(FixtureCanvas canvas) {
+	public void generate(FixtureCanvas canvas, Random random) {
 		BlockState planks = this.variant.getPlanks();
 
 		BlockState xAxisLog = this.variant.getLog(Direction.Axis.X);

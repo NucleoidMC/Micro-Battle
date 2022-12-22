@@ -1,9 +1,8 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
-import java.util.Random;
-
 import net.minecraft.block.Blocks;
 import net.minecraft.util.collection.DataPool;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
 
 public final class Fixtures {

@@ -1,8 +1,7 @@
 package io.github.haykam821.microbattle.game.map.fixture.canvas;
 
-import java.util.Random;
-
 import net.minecraft.block.BlockState;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
 
 public interface FixtureCanvas {

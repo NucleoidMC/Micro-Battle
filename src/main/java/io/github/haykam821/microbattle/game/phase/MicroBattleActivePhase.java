@@ -29,7 +29,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -151,9 +150,9 @@ public class MicroBattleActivePhase {
 
 	private Text getCustomEliminatedMessage(ServerPlayerEntity player, String type) {
 		if (player.getPrimeAdversary() == null) {
-			return new TranslatableText("text.microbattle.eliminated." + type, player.getDisplayName()).formatted(Formatting.RED);
+			return Text.translatable("text.microbattle.eliminated." + type, player.getDisplayName()).formatted(Formatting.RED);
 		} else {
-			return new TranslatableText("text.microbattle.eliminated." + type + ".by", player.getDisplayName(), player.getPrimeAdversary().getDisplayName()).formatted(Formatting.RED);
+			return Text.translatable("text.microbattle.eliminated." + type + ".by", player.getDisplayName(), player.getPrimeAdversary().getDisplayName()).formatted(Formatting.RED);
 		}
 	}
 
@@ -245,7 +244,7 @@ public class MicroBattleActivePhase {
 	}
 
 	private void eliminate(PlayerEntry entry, String suffix) {
-		this.eliminate(entry, new TranslatableText("text.microbattle.eliminated" + suffix, entry.getPlayer().getDisplayName()).formatted(Formatting.RED));
+		this.eliminate(entry, Text.translatable("text.microbattle.eliminated" + suffix, entry.getPlayer().getDisplayName()).formatted(Formatting.RED));
 	}
 
 	private void eliminate(PlayerEntry entry) {
@@ -287,7 +286,7 @@ public class MicroBattleActivePhase {
 		} else if (!this.map.getFullBounds().contains(player.getBlockPos())) {
 			this.eliminate(entry, this.getCustomEliminatedMessage(player, "out_of_bounds"));
 		} else if (this.applyToKit(entry, kit -> kit.attemptRespawn()) != ActionResult.SUCCESS) {
-			this.eliminate(entry, source.getDeathMessage(player).shallowCopy().formatted(Formatting.RED));
+			this.eliminate(entry, source.getDeathMessage(player).copy().formatted(Formatting.RED));
 		}
 		
 		return ActionResult.FAIL;
@@ -296,7 +295,7 @@ public class MicroBattleActivePhase {
 	public boolean placeBeacon(PlayerEntry entry, RespawnerKit respawner, BlockPos pos) {
 		if (respawner.hasRespawnPos()) return true;
 		if (!this.map.getBeaconBounds().contains(pos)) {
-			entry.getPlayer().sendMessage(new TranslatableText("text.microbattle.cannot_place_out_of_bounds_beacon").formatted(Formatting.RED), false);
+			entry.getPlayer().sendMessage(Text.translatable("text.microbattle.cannot_place_out_of_bounds_beacon").formatted(Formatting.RED), false);
 			return false;
 		}
 		respawner.setRespawnPos(pos);
@@ -333,7 +332,7 @@ public class MicroBattleActivePhase {
 		for (PlayerEntry entry : this.players) {
 			if (entry.getKit().isRespawnPos(pos)) {
 				this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 1, 1);
-				this.gameSpace.getPlayers().sendMessage(new TranslatableText("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).formatted(Formatting.RED));
+				this.gameSpace.getPlayers().sendMessage(Text.translatable("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).formatted(Formatting.RED));
 				break;
 			}
 		}
