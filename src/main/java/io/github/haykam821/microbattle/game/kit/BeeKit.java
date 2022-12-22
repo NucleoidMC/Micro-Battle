@@ -4,16 +4,16 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.tag.BlockTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 
 public class BeeKit extends Kit {
 	public BeeKit(PlayerEntry entry) {
@@ -68,7 +68,7 @@ public class BeeKit extends Kit {
 	}
 
 	private static BlockState getFlower(Random random) {
-		return Registry.BLOCK.getEntryList(BlockTags.FLOWERS)
+		return Registries.BLOCK.getEntryList(BlockTags.FLOWERS)
 			.flatMap(flowers -> flowers.getRandom(random))
 			.map(RegistryEntry::value)
 			.map(Block::getDefaultState)

@@ -8,9 +8,11 @@ import io.github.haykam821.microbattle.game.phase.MicroBattleWaitingPhase;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import xyz.nucleoid.plasmid.game.GameType;
 
@@ -24,16 +26,16 @@ public class Main implements ModInitializer {
 	public static final Item KIT_SELECTOR = new KitSelectorItem(new Item.Settings().maxCount(1));
 
 	private static final Identifier RESPAWN_BEACONS_ID = new Identifier(MOD_ID, "respawn_beacons");
-	public static final TagKey<Block> RESPAWN_BEACONS = TagKey.of(Registry.BLOCK_KEY, RESPAWN_BEACONS_ID);
+	public static final TagKey<Block> RESPAWN_BEACONS = TagKey.of(RegistryKeys.BLOCK, RESPAWN_BEACONS_ID);
 
 	private static final Identifier POTENTIAL_BIOMES_ID = new Identifier(MOD_ID, "potential_biomes");
-	public static final TagKey<Biome> POTENTIAL_BIOMES = TagKey.of(Registry.BIOME_KEY, POTENTIAL_BIOMES_ID);
+	public static final TagKey<Biome> POTENTIAL_BIOMES = TagKey.of(RegistryKeys.BIOME, POTENTIAL_BIOMES_ID);
 
 	@Override
 	public void onInitialize() {
 		KitTypes.initialize();
 		KitPresets.initialize();
 
-		Registry.register(Registry.ITEM, KIT_SELECTOR_ID, KIT_SELECTOR);
+		Registry.register(Registries.ITEM, KIT_SELECTOR_ID, KIT_SELECTOR);
 	}
 }

@@ -1,6 +1,6 @@
 package io.github.haykam821.microbattle.game.kit.selection;
 
-import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerItem;
 import io.github.haykam821.microbattle.game.event.OpenKitSelectionListener;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;

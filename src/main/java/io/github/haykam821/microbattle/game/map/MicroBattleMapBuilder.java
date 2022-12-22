@@ -7,6 +7,10 @@ import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import io.github.haykam821.microbattle.game.map.fixture.FixtureArea;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -14,10 +18,6 @@ import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.math.random.RandomSeed;
 import net.minecraft.util.math.random.Xoroshiro128PlusPlusRandom;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
@@ -43,7 +43,7 @@ public class MicroBattleMapBuilder {
 
 		Random random = new Xoroshiro128PlusPlusRandom(RandomSeed.getSeed());
 
-		Optional<RegistryEntryList.Named<Biome>> maybeBiomeList = server.getRegistryManager().get(Registry.BIOME_KEY).getEntryList(Main.POTENTIAL_BIOMES);
+		Optional<RegistryEntryList.Named<Biome>> maybeBiomeList = server.getRegistryManager().get(RegistryKeys.BIOME).getEntryList(Main.POTENTIAL_BIOMES);
 		if (maybeBiomeList.isPresent()) {
 			Optional<RegistryEntry<Biome>> maybeBiome = maybeBiomeList.get().getRandom(random);
 			if (maybeBiome.isPresent()) {

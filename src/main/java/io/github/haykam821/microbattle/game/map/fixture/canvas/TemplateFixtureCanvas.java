@@ -33,7 +33,7 @@ public class TemplateFixtureCanvas implements FixtureCanvas {
 	@Override
 	public void setBlockState(int x, int y, int z, BlockStateProvider provider, Random random) {
 		this.setPointer(x, y, z);
-		BlockState state = provider.getBlockState(random, this.pointer);
+		BlockState state = provider.get(random, this.pointer);
 		this.template.setBlockState(this.pointer, state);
 	}
 }
