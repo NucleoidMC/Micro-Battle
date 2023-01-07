@@ -66,6 +66,7 @@ public class MicroBattleActivePhase {
 	private final TeamManager teamManager;
 	private final WinManager winManager;
 	private boolean singleplayer;
+	private int ticksUntilClose = -1;
 
 	public MicroBattleActivePhase(GameSpace gameSpace, ServerWorld world, MicroBattleMap map, TeamManager teamManager, KitSelectionManager kitSelection, MicroBattleConfig config) {
 		this.world = world;
@@ -158,6 +159,16 @@ public class MicroBattleActivePhase {
 	}
 
 	private void tick() {
+		// Decrease ticks until game end to zero
+		if (this.isGameEnding()) {
+			if (this.ticksUntilClose == 0) {
+				this.gameSpace.close(GameCloseReason.FINISHED);
+			}
+
+			this.ticksUntilClose -= 1;
+			return;
+		}
+
 		// Eliminate players that are out of bounds or in the void
 		Iterator<PlayerEntry> playerIterator = this.players.iterator();
 		while (playerIterator.hasNext()) {
@@ -184,7 +195,7 @@ public class MicroBattleActivePhase {
 
 		// Attempt to determine a winner
 		if (this.winManager.checkForWinner()) {
-			gameSpace.close(GameCloseReason.FINISHED);
+			this.endGame();
 		}
 	}
 
@@ -228,6 +239,14 @@ public class MicroBattleActivePhase {
 		return this.singleplayer;
 	}
 
+	private void endGame() {
+		this.ticksUntilClose = this.config.getTicksUntilClose().get(this.world.getRandom());
+	}
+
+	private boolean isGameEnding() {
+		return this.ticksUntilClose >= 0;
+	}
+
 	private void setSpectator(ServerPlayerEntity player) {
 		player.changeGameMode(GameMode.SPECTATOR);
 	}
@@ -239,9 +258,11 @@ public class MicroBattleActivePhase {
 	}
 
 	private void eliminate(PlayerEntry entry, Text message) {
-		this.gameSpace.getPlayers().sendMessage(message);
-		this.eliminatedPlayers.add(entry);
-		entry.onEliminated();
+		if (!this.isGameEnding()) {
+			this.gameSpace.getPlayers().sendMessage(message);
+			this.eliminatedPlayers.add(entry);
+			entry.onEliminated();
+		}
 	}
 
 	private void eliminate(PlayerEntry entry, String suffix) {

@@ -10,6 +10,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.haykam821.microbattle.game.kit.KitPreset;
 import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.map.MicroBattleMapConfig;
+import net.minecraft.SharedConstants;
+import net.minecraft.util.math.intprovider.ConstantIntProvider;
+import net.minecraft.util.math.intprovider.IntProvider;
 import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamList;
 
@@ -21,7 +24,8 @@ public class MicroBattleConfig {
 			GameTeamList.CODEC.optionalFieldOf("teams").forGetter(MicroBattleConfig::getTeams),
 			Codec.BOOL.optionalFieldOf("old_combat", false).forGetter(MicroBattleConfig::isOldCombat),
 			MicroBattleMapConfig.CODEC.fieldOf("map").forGetter(MicroBattleConfig::getMapConfig),
-			PlayerConfig.CODEC.fieldOf("players").forGetter(MicroBattleConfig::getPlayerConfig)
+			PlayerConfig.CODEC.fieldOf("players").forGetter(MicroBattleConfig::getPlayerConfig),
+			IntProvider.NON_NEGATIVE_CODEC.optionalFieldOf("ticks_until_close", ConstantIntProvider.create(SharedConstants.TICKS_PER_SECOND * 5)).forGetter(MicroBattleConfig::getTicksUntilClose)
 		).apply(instance, MicroBattleConfig::new);
 	});
 
@@ -31,14 +35,16 @@ public class MicroBattleConfig {
 	private final boolean oldCombat;
 	private final MicroBattleMapConfig mapConfig;
 	private final PlayerConfig playerConfig;
+	private final IntProvider ticksUntilClose;
 
-	public MicroBattleConfig(Either<List<KitType<?>>, List<KitType<?>>> kits, Optional<KitType<?>> layerKit, Optional<GameTeamList> teams, boolean oldCombat, MicroBattleMapConfig mapConfig, PlayerConfig playerConfig) {
+	public MicroBattleConfig(Either<List<KitType<?>>, List<KitType<?>>> kits, Optional<KitType<?>> layerKit, Optional<GameTeamList> teams, boolean oldCombat, MicroBattleMapConfig mapConfig, PlayerConfig playerConfig, IntProvider ticksUntilClose) {
 		this.kits = kits.left().isPresent() ? kits.left().get() : kits.right().get();
 		this.layerKit = layerKit;
 		this.teams = teams;
 		this.oldCombat = oldCombat;
 		this.mapConfig = mapConfig;
 		this.playerConfig = playerConfig;
+		this.ticksUntilClose = ticksUntilClose;
 	}
 
 	public List<KitType<?>> getKits() {
@@ -63,5 +69,9 @@ public class MicroBattleConfig {
 
 	public PlayerConfig getPlayerConfig() {
 		return this.playerConfig;
+	}
+
+	public IntProvider getTicksUntilClose() {
+		return this.ticksUntilClose;
 	}
 }
