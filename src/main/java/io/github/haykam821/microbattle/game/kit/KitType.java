@@ -5,7 +5,6 @@ import java.util.function.Function;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.registry.TinyRegistry;
 
@@ -48,6 +47,6 @@ public class KitType<T extends Kit> {
 	}
 
 	public Text getName() {
-		return new TranslatableText(this.getTranslationKey());
+		return Text.translatable(this.getTranslationKey());
 	}
 }

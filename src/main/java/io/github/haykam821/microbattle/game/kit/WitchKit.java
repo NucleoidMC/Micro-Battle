@@ -9,11 +9,11 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
+import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
 
 public class WitchKit extends Kit {
 	public WitchKit(PlayerEntry entry) {
@@ -63,7 +63,7 @@ public class WitchKit extends Kit {
 	}
 
 	private Optional<Potion> getPotion() {
-		List<Potion> potions = Registry.POTION
+		List<Potion> potions = Registries.POTION
 			.stream()
 			.filter(this::isValidPotion)
 			.collect(Collectors.toUnmodifiableList());

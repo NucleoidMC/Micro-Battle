@@ -3,10 +3,10 @@ package io.github.haykam821.microbattle.game.kit.selection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import io.github.haykam821.microbattle.game.kit.KitType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.random.Random;
 
 public class KitSelectionManager {
 	private final List<KitType<?>> kits;

@@ -1,25 +1,24 @@
 package io.github.haykam821.microbattle.game.map;
 
 import java.util.Optional;
-import java.util.Random;
 
 import io.github.haykam821.microbattle.Main;
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import io.github.haykam821.microbattle.game.map.fixture.FixtureArea;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.math.random.RandomSeed;
+import net.minecraft.util.math.random.Xoroshiro128PlusPlusRandom;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.random.AbstractRandom;
-import net.minecraft.world.gen.random.RandomSeed;
-import net.minecraft.world.gen.random.Xoroshiro128PlusPlusRandom;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 
@@ -42,11 +41,11 @@ public class MicroBattleMapBuilder {
 		MapTemplate template = MapTemplate.createEmpty();
 		MicroBattleMapConfig mapConfig = this.config.getMapConfig();
 
-		AbstractRandom random = new Xoroshiro128PlusPlusRandom(RandomSeed.getSeed());
+		Random random = new Xoroshiro128PlusPlusRandom(RandomSeed.getSeed());
 
-		Optional<RegistryEntryList.Named<Biome>> maybeBiomeList = server.getRegistryManager().get(Registry.BIOME_KEY).getEntryList(Main.POTENTIAL_BIOMES);
+		Optional<RegistryEntryList.Named<Biome>> maybeBiomeList = server.getRegistryManager().get(RegistryKeys.BIOME).getEntryList(Main.POTENTIAL_BIOMES);
 		if (maybeBiomeList.isPresent()) {
-			Optional<RegistryEntry<Biome>> maybeBiome = maybeBiomeList.get().getRandom(new Random(random.nextLong()));
+			Optional<RegistryEntry<Biome>> maybeBiome = maybeBiomeList.get().getRandom(random);
 			if (maybeBiome.isPresent()) {
 				Optional<RegistryKey<Biome>> maybeKey = maybeBiome.get().getKey();
 				if (maybeKey.isPresent()) {
@@ -63,7 +62,7 @@ public class MicroBattleMapBuilder {
 		return new MicroBattleMap(template, mapConfig, floorBounds, fullBounds);
 	}
 
-	private BlockState getDeepslateBlockState(int layer, AbstractRandom random, boolean bottom, MicroBattleMapConfig mapConfig) {
+	private BlockState getDeepslateBlockState(int layer, Random random, boolean bottom, MicroBattleMapConfig mapConfig) {
 		if (mapConfig.hasDeepslateLava() && layer < mapConfig.getFloorHeight() - 9 && !bottom && random.nextInt(128) == 0) {
 			return LAVA;
 		} else {
@@ -71,7 +70,7 @@ public class MicroBattleMapBuilder {
 		}
 	}
 
-	private BlockState getBlockState(BlockPos pos, BlockBounds bounds, AbstractRandom random, boolean bottom, double centerX, int minRiverX, int maxRiverX, double centerZ, int minRiverZ, int maxRiverZ, MicroBattleMapConfig mapConfig) {
+	private BlockState getBlockState(BlockPos pos, BlockBounds bounds, Random random, boolean bottom, double centerX, int minRiverX, int maxRiverX, double centerZ, int minRiverZ, int maxRiverZ, MicroBattleMapConfig mapConfig) {
 		int layer = pos.getY() - bounds.min().getY();
 		if (layer < mapConfig.getFloorHeight() - 8) {
 			return this.getDeepslateBlockState(layer, random, bottom, mapConfig);
@@ -86,7 +85,7 @@ public class MicroBattleMapBuilder {
 		return null;
 	}
 
-	public void buildTerrain(BlockBounds bounds, MapTemplate template, MicroBattleMapConfig mapConfig, AbstractRandom random) {
+	public void buildTerrain(BlockBounds bounds, MapTemplate template, MicroBattleMapConfig mapConfig, Random random) {
 		SimplexNoiseSampler noiseSampler = new SimplexNoiseSampler(random);
 
 		int minY = bounds.min().getY();

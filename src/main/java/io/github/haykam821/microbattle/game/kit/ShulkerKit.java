@@ -8,7 +8,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
@@ -55,7 +55,7 @@ public class ShulkerKit extends ArcherKit {
 	@Override
 	protected ItemStack getArrowStack() {
 		ItemStack stack = ItemStackBuilder.of(Items.TIPPED_ARROW)
-			.setName(new TranslatableText("item.microbattle.shulker_arrow"))
+			.setName(Text.translatable("item.microbattle.shulker_arrow"))
 			.build();
 
 		NbtCompound potionEffect = new NbtCompound();

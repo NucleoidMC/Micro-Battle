@@ -1,6 +1,7 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
 import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
+import net.minecraft.util.math.random.Random;
 
 public abstract class Fixture {
 	private final int width;
@@ -11,7 +12,7 @@ public abstract class Fixture {
 		this.depth = depth;
 	}
 
-	public abstract void generate(FixtureCanvas canvas);
+	public abstract void generate(FixtureCanvas canvas, Random random);
 
 	public int getWidth() {
 		return this.width;
