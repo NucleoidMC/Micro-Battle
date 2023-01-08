@@ -90,7 +90,7 @@ public class RespawnerKit extends PlayerKit {
 				return spawn;
 			}
 		}
-		return new Vec3d(beaconPos.getX() + 0.5, beaconPos.getY(), beaconPos.getZ() + 0.5);
+		return new Vec3d(beaconPos.getX() + 0.5, beaconPos.getY() + 1, beaconPos.getZ() + 0.5);
 	}
 
 	@Override

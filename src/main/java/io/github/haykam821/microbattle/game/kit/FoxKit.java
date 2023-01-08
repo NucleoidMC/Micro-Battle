@@ -10,22 +10,23 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.collection.DataPool;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.collection.Weighted;
 import xyz.nucleoid.plasmid.game.common.OldCombat;
 
 public class FoxKit extends Kit {
-	private static final DataPool<ItemStack> DIG_ITEMS = DataPool.<ItemStack>builder()
-		.add(durabilityStack(Items.IRON_SWORD, 4), 500)
-		.add(durabilityStack(Items.IRON_PICKAXE, 32), 500)
-		.add(durabilityStack(Items.IRON_AXE, 4), 500)
-		.add(durabilityStack(Items.IRON_SHOVEL, 32), 500)
-		.add(new ItemStack(Items.EGG, 4), 500)
-		.add(new ItemStack(Items.TOTEM_OF_UNDYING), 1)
+	private static final DataPool<DigEntry> DIG_ITEMS = DataPool.<DigEntry>builder()
+		.add(new DigEntry(durabilityStack(Items.IRON_SWORD, 4), true), 500)
+		.add(new DigEntry(durabilityStack(Items.IRON_PICKAXE, 32), true), 500)
+		.add(new DigEntry(durabilityStack(Items.IRON_AXE, 4), true), 500)
+		.add(new DigEntry(durabilityStack(Items.IRON_SHOVEL, 32), true), 500)
+		.add(new DigEntry(new ItemStack(Items.EGG, 4), false), 500)
+		.add(new DigEntry(new ItemStack(Items.TOTEM_OF_UNDYING), false), 1)
 		.build();
 
 	private static final int IDLE_DIG_TICKS = 20 * 1;
@@ -97,15 +98,23 @@ public class FoxKit extends Kit {
 		this.digTicks = RESET_DIG_TICKS;
 		entry.getPlayer().playSound(SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1, 1);
 
-		ItemStack stack = this.getDigStack(this.player.getRandom());
+		ItemStack stack = this.getDigStack();
 		if (stack != null) {
 			entry.getPlayer().giveItemStack(entry.getPhase().isOldCombat() ? OldCombat.applyTo(stack) : stack);
 		}
 	}
 
-	private ItemStack getDigStack(Random random) {
-		Optional<ItemStack> optional = DIG_ITEMS.getDataOrEmpty(entry.getPlayer().getRandom());
-		return optional.isPresent() ? optional.get().copy() : null;
+	private ItemStack getDigStack() {
+		DataPool.Builder<DigEntry> builder = DataPool.builder();
+
+		for (Weighted.Present<DigEntry> entry : DIG_ITEMS.getEntries()) {
+			if (!entry.getData().isRestricted(this.player)) {
+				builder.add(entry.getData(), entry.getWeight().getValue());
+			}
+		}
+
+		Optional<DigEntry> optional = builder.build().getDataOrEmpty(entry.getPlayer().getRandom());
+		return optional.isPresent() ? optional.get().stack().copy() : null;
 	}
 
 	@Override
@@ -145,5 +154,11 @@ public class FoxKit extends Kit {
 
 	protected ItemStack getFoodStack() {
 		return new ItemStack(Items.COOKED_CHICKEN, 8);
+	}
+
+	private record DigEntry(ItemStack stack, boolean unique) {
+		private boolean isRestricted(ServerPlayerEntity player) {
+			return this.unique && player.getInventory().count(stack.getItem()) > 0;
+		}
 	}
 }
