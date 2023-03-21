@@ -11,6 +11,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -56,7 +57,7 @@ public class LayeredKit extends Kit {
 
 	@Override
 	protected Text getName() {
-		return this.base.getName().copy().append(" ").append(this.layer.getName());
+		return this.base.getName().copy().append(ScreenTexts.SPACE).append(this.layer.getName());
 	}
 
 	@Override

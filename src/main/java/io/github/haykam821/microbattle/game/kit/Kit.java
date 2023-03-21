@@ -151,7 +151,7 @@ public abstract class Kit {
 		}
 
 		if (this.isDamagedByWater() && this.player.isWet()) {
-			this.player.damage(DamageSource.DROWN, 1.0F);
+			this.player.damage(this.player.getDamageSources().drown(), 1.0F);
 		}
 
 		this.tick();

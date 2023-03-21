@@ -13,15 +13,15 @@ public class KitPreset {
 	public static final TinyRegistry<List<KitType<?>>> REGISTRY = TinyRegistry.create();
 	public static final Codec<List<KitType<?>>> CODEC = Codec.STRING.flatXmap(string -> {
 		Identifier id = Identifier.tryParse(string);
-		if (id == null) return DataResult.error("Invalid kit preset ID: '" + string + "'");
+		if (id == null) return DataResult.error(() -> "Invalid kit preset ID: '" + string + "'");
 
 		List<KitType<?>> preset = KitPreset.REGISTRY.get(id);
-		if (preset == null) return DataResult.error("Unknown kit preset: '" + id + "'");
+		if (preset == null) return DataResult.error(() -> "Unknown kit preset: '" + id + "'");
 
 		return DataResult.success(preset);
 	}, list -> {
 		Identifier id = KitPreset.REGISTRY.getIdentifier(list);
-		if (id == null) return DataResult.error("Unknown kit preset: " + list);
+		if (id == null) return DataResult.error(() -> "Unknown kit preset: " + list);
 		
 		return DataResult.success(id.toString());
 	});

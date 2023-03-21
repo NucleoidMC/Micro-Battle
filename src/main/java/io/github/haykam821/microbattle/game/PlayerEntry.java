@@ -3,7 +3,6 @@ package io.github.haykam821.microbattle.game;
 import io.github.haykam821.microbattle.game.kit.Kit;
 import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
@@ -67,7 +66,7 @@ public class PlayerEntry {
 
 	public void tickOutOfBounds() {
 		this.outOfBoundsTicks += 1;
-		player.damage(DamageSource.OUT_OF_WORLD, this.outOfBoundsTicks / 80);
+		player.damage(player.getDamageSources().outOfWorld(), this.outOfBoundsTicks / 80);
 	}
 
 	/**
