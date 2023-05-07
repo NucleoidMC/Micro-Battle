@@ -19,10 +19,13 @@ import io.github.haykam821.microbattle.game.map.MicroBattleMap;
 import io.github.haykam821.microbattle.game.win.FreeForAllWinManager;
 import io.github.haykam821.microbattle.game.win.TeamWinManager;
 import io.github.haykam821.microbattle.game.win.WinManager;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -53,6 +56,7 @@ import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
 import xyz.nucleoid.plasmid.game.rule.GameRuleType;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
+import xyz.nucleoid.stimuli.event.item.ItemThrowEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
@@ -132,6 +136,7 @@ public class MicroBattleActivePhase {
 			activity.listen(PlayerDeathEvent.EVENT, phase::onPlayerDeath);
 			activity.listen(GamePlayerEvents.REMOVE, phase::onPlayerRemove);
 			activity.listen(BlockUseEvent.EVENT, phase::onUseBlock);
+			activity.listen(ItemThrowEvent.EVENT, phase::onThrowItem);
 		});
 	}
 
@@ -393,6 +398,19 @@ public class MicroBattleActivePhase {
 		if (entry != null) {
 			this.eliminate(entry);
 		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private ActionResult onThrowItem(ServerPlayerEntity player, int slot, ItemStack stack) {
+		if (stack.getItem() instanceof BlockItem blockItem) {
+			RegistryEntry<Block> entry = blockItem.getBlock().getRegistryEntry();
+			
+			if (entry.isIn(Main.RESPAWN_BEACONS)) {
+				return ActionResult.FAIL;
+			}
+		}
+
+		return ActionResult.PASS;
 	}
 
 	public boolean isOldCombat() {
