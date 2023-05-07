@@ -26,6 +26,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -371,7 +372,7 @@ public class MicroBattleActivePhase {
 	private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
 		PlayerEntry target = this.getEntryFromPlayer(player);
 		if (target == null) return ActionResult.PASS;
-		if (source.isFire() && target.getKit() != null && !target.getKit().isDamagedByFire()) {
+		if (source.isIn(DamageTypeTags.IS_FIRE) && target.getKit() != null && !target.getKit().isDamagedByFire()) {
 			return ActionResult.FAIL;
 		}
 
