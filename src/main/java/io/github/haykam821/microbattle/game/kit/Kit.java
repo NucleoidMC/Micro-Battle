@@ -195,7 +195,7 @@ public abstract class Kit {
 		this.appendCustomInitialStacks(stacks);
 	}
 
-	public boolean isRespawnPos(BlockPos pos) {
+	public boolean isRespawnPos(BlockPos pos, boolean clear) {
 		return false;
 	}
 

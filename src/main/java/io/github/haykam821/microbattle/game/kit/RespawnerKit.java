@@ -19,6 +19,7 @@ import net.minecraft.util.math.Vec3d;
 
 public class RespawnerKit extends PlayerKit {
 	private BlockPos respawnPos;
+	private boolean beaconBroken = false;
 
 	public RespawnerKit(PlayerEntry entry) {
 		super(KitTypes.RESPAWNER, entry);
@@ -47,7 +48,7 @@ public class RespawnerKit extends PlayerKit {
 	@Override
 	protected void appendCustomInitialStacks(List<ItemStack> stacks) {
 		super.appendCustomInitialStacks(stacks);
-		if (this.respawnPos == null) {
+		if (this.respawnPos == null && !this.beaconBroken) {
 			stacks.add(new ItemStack(Items.BEACON));
 		}
 	}
@@ -57,8 +58,17 @@ public class RespawnerKit extends PlayerKit {
 	}
 
 	@Override
-	public boolean isRespawnPos(BlockPos pos) {
-		return pos.equals(this.respawnPos);
+	public boolean isRespawnPos(BlockPos pos, boolean clear) {
+		if (pos.equals(this.respawnPos) && !this.beaconBroken) {
+			if (clear) {
+				this.respawnPos = null;
+				this.beaconBroken = true;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public void setRespawnPos(BlockPos respawnPos) {
@@ -74,7 +84,7 @@ public class RespawnerKit extends PlayerKit {
 	@Override
 	public ActionResult onBreakBlock(BlockPos pos) {
 		// Prevent breaking own beacon
-		if (this.isRespawnPos(pos)) {
+		if (this.isRespawnPos(pos, false)) {
 			this.player.sendMessage(Text.translatable("text.microbattle.cannot_break_own_beacon").formatted(Formatting.RED), false);
 			return ActionResult.FAIL;
 		}
@@ -95,7 +105,7 @@ public class RespawnerKit extends PlayerKit {
 
 	@Override
 	public ActionResult attemptRespawn() {
-		if (this.respawnPos == null) {
+		if (this.respawnPos == null || this.beaconBroken) {
 			return ActionResult.FAIL;
 		}
 

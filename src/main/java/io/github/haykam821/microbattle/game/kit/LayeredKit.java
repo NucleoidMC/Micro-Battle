@@ -118,8 +118,8 @@ public class LayeredKit extends Kit {
 	}
 
 	@Override
-	public boolean isRespawnPos(BlockPos pos) {
-		return this.base.isRespawnPos(pos) || this.layer.isRespawnPos(pos);
+	public boolean isRespawnPos(BlockPos pos, boolean clear) {
+		return this.base.isRespawnPos(pos, clear) || this.layer.isRespawnPos(pos, clear);
 	}
 
 	@Override

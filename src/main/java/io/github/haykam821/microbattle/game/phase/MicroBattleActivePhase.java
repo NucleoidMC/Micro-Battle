@@ -357,7 +357,7 @@ public class MicroBattleActivePhase {
 
 		// Send message
 		for (PlayerEntry entry : this.players) {
-			if (entry.getKit().isRespawnPos(pos)) {
+			if (entry.getKit().isRespawnPos(pos, true)) {
 				this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 1, 1);
 				this.gameSpace.getPlayers().sendMessage(Text.translatable("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).formatted(Formatting.RED));
 				break;
