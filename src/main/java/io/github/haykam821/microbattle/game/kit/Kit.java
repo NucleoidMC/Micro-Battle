@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.HoverEvent;
@@ -263,6 +264,10 @@ public abstract class Kit {
 	}
 
 	public ActionResult onDamaged(PlayerEntry target, DamageSource source, float amount) {
+		if (source.isIn(DamageTypeTags.IS_FIRE) && !this.isDamagedByFire()) {
+			return ActionResult.FAIL;
+		}
+
 		return ActionResult.PASS;
 	}
 

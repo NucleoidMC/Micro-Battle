@@ -21,6 +21,7 @@ import io.github.haykam821.microbattle.game.win.TeamWinManager;
 import io.github.haykam821.microbattle.game.win.WinManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.BlockItem;
@@ -205,23 +206,17 @@ public class MicroBattleActivePhase {
 	}
 
 	private SoundEvent playDeathSound(LivingEntity entity, SoundEvent defaultSound) {
-		if (entity instanceof ServerPlayerEntity) {
-			PlayerEntry entry = this.getEntryFromPlayer((ServerPlayerEntity) entity);
-			if (entry != null) {
-				return entry.getKit().getDeathSound();
-			}
-		}
-		return null;
+		PlayerEntry entry = this.getEntryFromEntity(entity);
+		if (entry == null) return null;
+
+		return entry.getKit().getDeathSound();
 	}
 
 	private SoundEvent playHurtSound(LivingEntity entity, DamageSource source, SoundEvent defaultSound) {
-		if (entity instanceof ServerPlayerEntity) {
-			PlayerEntry entry = this.getEntryFromPlayer((ServerPlayerEntity) entity);
-			if (entry != null) {
-				return entry.getKit().getHurtSound(source);
-			}
-		}
-		return null;
+		PlayerEntry entry = this.getEntryFromEntity(entity);
+		if (entry == null) return null;
+
+		return entry.getKit().getHurtSound(source);
 	}
 
 	public GameSpace getGameSpace() {
@@ -287,6 +282,14 @@ public class MicroBattleActivePhase {
 		return null;
 	}
 
+	private PlayerEntry getEntryFromEntity(Entity entity) {
+		if (entity instanceof ServerPlayerEntity player) {
+			return this.getEntryFromPlayer(player);
+		}
+
+		return null;
+	}
+
 	private ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
 		if (entry != null) {
@@ -302,11 +305,9 @@ public class MicroBattleActivePhase {
 		ActionResult kitResult = this.applyToKit(entry, kit -> kit.onDeath(source));
 		if (kitResult != ActionResult.PASS) return kitResult;
 
-		if (source.getAttacker() instanceof ServerPlayerEntity) {
-			PlayerEntry killer = this.getEntryFromPlayer((ServerPlayerEntity) source.getAttacker());
-			ActionResult killerKitResult = this.applyToKit(killer, kit -> kit.onKilledPlayer(entry, source));
-			if (killerKitResult != ActionResult.PASS) return killerKitResult;
-		}
+		PlayerEntry killer = this.getEntryFromEntity(source.getAttacker());
+		ActionResult killerKitResult = this.applyToKit(killer, kit -> kit.onKilledPlayer(entry, source));
+		if (killerKitResult != ActionResult.PASS) return killerKitResult;
 
 		if (entry == null) {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
@@ -372,21 +373,21 @@ public class MicroBattleActivePhase {
 	private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
 		PlayerEntry target = this.getEntryFromPlayer(player);
 		if (target == null) return ActionResult.PASS;
-		if (source.isIn(DamageTypeTags.IS_FIRE) && target.getKit() != null && !target.getKit().isDamagedByFire()) {
-			return ActionResult.FAIL;
-		}
 
-		if (!(source.getAttacker() instanceof ServerPlayerEntity)) return ActionResult.PASS;
-		PlayerEntry attacker = this.getEntryFromPlayer((ServerPlayerEntity) source.getAttacker());
+		PlayerEntry attacker = this.getEntryFromEntity(source.getAttacker());
+
+		// Prevent attacks from teammates
 		if (attacker != null && target.isSameTeam(attacker)) {
 			return ActionResult.FAIL;
 		}
 
+		// Dispatch handling to kits
 		if (target.getKit() != null) {
-			ActionResult damagedResult = target.getKit().onDamaged(attacker, source, amount);
-			if (damagedResult != ActionResult.PASS) return damagedResult;
+			ActionResult result = target.getKit().onDamaged(attacker, source, amount);
+			if (result != ActionResult.PASS) return result;
 		}
-		if (attacker.getKit() != null) {
+
+		if (attacker != null && attacker.getKit() != null) {
 			return attacker.getKit().onDealDamage(target, source, amount);
 		}
 
