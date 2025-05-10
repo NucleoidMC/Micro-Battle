@@ -18,6 +18,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 public class LayeredKit extends Kit {
 	private final Kit base;
@@ -139,45 +140,45 @@ public class LayeredKit extends Kit {
 	}
 
 	@Override
-	public ActionResult afterBlockPlace(BlockPos pos, ItemStack stack, BlockState state) {
-		ActionResult result = this.base.afterBlockPlace(pos, stack, state);
-		return result == ActionResult.PASS ? this.layer.afterBlockPlace(pos, stack, state) : result;
+	public EventResult afterBlockPlace(BlockPos pos, ItemStack stack, BlockState state) {
+		EventResult result = this.base.afterBlockPlace(pos, stack, state);
+		return result == EventResult.PASS ? this.layer.afterBlockPlace(pos, stack, state) : result;
 	}
 
 	@Override
-	public ActionResult onBreakBlock(BlockPos pos) {
-		ActionResult result = this.base.onBreakBlock(pos);
-		return result == ActionResult.PASS ? this.layer.onBreakBlock(pos) : result;
+	public EventResult onBreakBlock(BlockPos pos) {
+		EventResult result = this.base.onBreakBlock(pos);
+		return result == EventResult.PASS ? this.layer.onBreakBlock(pos) : result;
 	}
 
 	@Override
-	public ActionResult onDamaged(PlayerEntry target, DamageSource source, float amount) {
-		ActionResult result = this.base.onDamaged(target, source, amount);
-		return result == ActionResult.PASS ? this.layer.onDamaged(target, source, amount) : result;
+	public EventResult onDamaged(PlayerEntry target, DamageSource source, float amount) {
+		EventResult result = this.base.onDamaged(target, source, amount);
+		return result == EventResult.PASS ? this.layer.onDamaged(target, source, amount) : result;
 	}
 
 	@Override
-	public ActionResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
-		ActionResult result = this.base.onDealDamage(target, source, amount);
-		return result == ActionResult.PASS ? this.layer.onDealDamage(target, source, amount) : result;
+	public EventResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
+		EventResult result = this.base.onDealDamage(target, source, amount);
+		return result == EventResult.PASS ? this.layer.onDealDamage(target, source, amount) : result;
 	}
 
 	@Override
-	public ActionResult onDeath(DamageSource source) {
-		ActionResult result = this.base.onDeath(source);
-		return result == ActionResult.PASS ? this.layer.onDeath(source) : result;
+	public EventResult onDeath(DamageSource source) {
+		EventResult result = this.base.onDeath(source);
+		return result == EventResult.PASS ? this.layer.onDeath(source) : result;
 	}
 
 	@Override
-	public ActionResult attemptRespawn() {
-		ActionResult result = this.base.attemptRespawn();
-		return result == ActionResult.PASS ? this.layer.attemptRespawn() : result;
+	public EventResult attemptRespawn() {
+		EventResult result = this.base.attemptRespawn();
+		return result == EventResult.PASS ? this.layer.attemptRespawn() : result;
 	}
 
 	@Override
-	public ActionResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
-		ActionResult result = this.base.onKilledPlayer(entry, source);
-		return result == ActionResult.PASS ? this.layer.onKilledPlayer(entry, source) : result;
+	public EventResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
+		EventResult result = this.base.onKilledPlayer(entry, source);
+		return result == EventResult.PASS ? this.layer.onKilledPlayer(entry, source) : result;
 	}
 
 	@Override

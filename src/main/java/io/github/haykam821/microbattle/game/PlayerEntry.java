@@ -5,8 +5,8 @@ import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 
 public class PlayerEntry {
 	private final MicroBattleActivePhase phase;
@@ -66,7 +66,7 @@ public class PlayerEntry {
 
 	public void tickOutOfBounds() {
 		this.outOfBoundsTicks += 1;
-		player.damage(player.getDamageSources().outOfWorld(), this.outOfBoundsTicks / 80);
+		this.player.damage(this.player.getServerWorld(), this.player.getDamageSources().outOfWorld(), this.outOfBoundsTicks / 80);
 	}
 
 	/**

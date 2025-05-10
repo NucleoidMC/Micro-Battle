@@ -1,18 +1,26 @@
 {
 	"type": "microbattle:micro_battle",
-	"icon": "minecraft:diamond_sword",
-	"kits": "microbattle:standard",
+	"icon": "minecraft:zombified_piglin_spawn_egg",
+	"kits": "microbattle:soul",
 	"teams": [
 		{
 			"key": "red",
-			"name": "Red",
 			"color": "red",
 			"collision": "pushOtherTeams"
 		},
 		{
+			"key": "green",
+			"color": "green",
+			"collision": "pushOtherTeams"
+		},
+		{
 			"key": "blue",
-			"name": "Blue",
 			"color": "blue",
+			"collision": "pushOtherTeams"
+		},
+		{
+			"key": "yellow",
+			"color": "yellow",
 			"collision": "pushOtherTeams"
 		}
 	],

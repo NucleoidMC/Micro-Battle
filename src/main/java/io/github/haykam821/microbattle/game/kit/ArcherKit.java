@@ -3,12 +3,14 @@ package io.github.haykam821.microbattle.game.kit;
 import java.util.List;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 
 public abstract class ArcherKit extends Kit {
 	private final Item arrowItem = this.getArrowStack().getItem();
@@ -54,7 +56,7 @@ public abstract class ArcherKit extends Kit {
 		}
 	}
 
-	protected static ItemStack potionArrowStack(Potion potion) {
-		return potionLikeStack(Items.TIPPED_ARROW, potion);
+	protected static ItemStack potionArrowStack(RegistryEntry<Potion> potion) {
+		return PotionContentsComponent.createStack(Items.TIPPED_ARROW, potion);
 	}
 }

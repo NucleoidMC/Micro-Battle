@@ -15,6 +15,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 public class SheepKit extends Kit {
 	private static final BlockState DIRT = Blocks.DIRT.getDefaultState();
@@ -79,8 +80,8 @@ public class SheepKit extends Kit {
 	}
 
 	@Override
-	public ActionResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
-		if (this.grassEaten < WOOL_COAT_REQUIRED_GRASS) return ActionResult.PASS;
+	public EventResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
+		if (this.grassEaten < WOOL_COAT_REQUIRED_GRASS) return EventResult.PASS;
 
 		this.grassEaten = 0;
 		this.updateExperienceBarForWoolCoat();
@@ -93,7 +94,7 @@ public class SheepKit extends Kit {
 
 		world.playSoundFromEntity(null, this.player, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1, 1);
 
-		return ActionResult.PASS;
+		return EventResult.PASS;
 	}
 
 	@Override

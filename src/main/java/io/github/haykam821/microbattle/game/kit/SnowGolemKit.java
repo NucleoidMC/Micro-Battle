@@ -21,7 +21,7 @@ public class SnowGolemKit extends Kit {
 	
 	public SnowGolemKit(PlayerEntry entry) {
 		super(KitTypes.SNOW_GOLEM, entry);
-		this.addRestockEntry(new RestockEntry.Builder(Items.SNOWBALL, 10).maxCount(16).build());
+		this.addRestockEntry(new RestockEntry.Builder(Items.SNOWBALL, 10).maxCount(16).build(entry.getPlayer().getRegistryManager()));
 	}
 
 	@Override

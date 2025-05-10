@@ -7,7 +7,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.EitherCodec;
 
 import net.minecraft.util.Identifier;
-import xyz.nucleoid.plasmid.registry.TinyRegistry;
+import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 
 public class KitPreset {
 	public static final TinyRegistry<List<KitType<?>>> REGISTRY = TinyRegistry.create();

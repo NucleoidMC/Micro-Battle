@@ -27,7 +27,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -42,19 +41,22 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.game.common.team.TeamChat;
-import xyz.nucleoid.plasmid.game.common.team.TeamManager;
-import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.GameCloseReason;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamChat;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamManager;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamSelectionLobby;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptor;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
+import xyz.nucleoid.plasmid.api.game.player.JoinOffer;
+import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
 import xyz.nucleoid.stimuli.event.item.ItemThrowEvent;
@@ -79,16 +81,18 @@ public class MicroBattleActivePhase {
 		this.map = map;
 		this.config = config;
 
-		this.players = new HashSet<>(gameSpace.getPlayers().size());
-		for (ServerPlayerEntity player : gameSpace.getPlayers()) {
+		PlayerSet participants = this.gameSpace.getPlayers().participants();
+		this.players = new HashSet<>(participants.size());
+
+		this.teamManager = teamManager;
+		this.winManager = teamManager == null ? new FreeForAllWinManager(this) : new TeamWinManager(this);
+
+		for (ServerPlayerEntity player : participants) {
 			GameTeamKey team = teamManager == null ? null : teamManager.teamFor(player);
 			KitType<?> kitType = kitSelection.get(player, this.world.getRandom());
 
 			this.players.add(new PlayerEntry(this, player, team, kitType));
 		}
-
-		this.teamManager = teamManager;
-		this.winManager = teamManager == null ? new FreeForAllWinManager(this) : new TeamWinManager(this);
 	}
 
 	public static void open(GameSpace gameSpace, ServerWorld world, MicroBattleMap map, TeamSelectionLobby teamSelection, KitSelectionManager kitSelection, MicroBattleConfig config) {
@@ -104,7 +108,7 @@ public class MicroBattleActivePhase {
 					teamManager.addTeam(team);
 				}
 
-				teamSelection.allocate(gameSpace.getPlayers(), (team, player) -> {
+				teamSelection.allocate(gameSpace.getPlayers().participants(), (team, player) -> {
 					teamManager.addPlayerTo(player, team);
 				});
 
@@ -132,7 +136,8 @@ public class MicroBattleActivePhase {
 			activity.listen(GameActivityEvents.TICK, phase::tick);
 			activity.listen(PlayDeathSoundListener.EVENT, phase::playDeathSound);
 			activity.listen(PlayHurtSoundListener.EVENT, phase::playHurtSound);
-			activity.listen(GamePlayerEvents.OFFER, phase::offerPlayer);
+			activity.listen(GamePlayerEvents.ACCEPT, phase::onAcceptPlayers);
+			activity.listen(GamePlayerEvents.OFFER, JoinOffer::acceptSpectators);
 			activity.listen(PlayerDamageEvent.EVENT, phase::onPlayerDamage);
 			activity.listen(PlayerDeathEvent.EVENT, phase::onPlayerDeath);
 			activity.listen(GamePlayerEvents.REMOVE, phase::onPlayerRemove);
@@ -149,6 +154,11 @@ public class MicroBattleActivePhase {
 			entry.getPlayer().closeHandledScreen();
 
 			entry.initializeKit();
+		}
+
+		for (ServerPlayerEntity player : this.gameSpace.getPlayers().spectators()) {
+			MicroBattleActivePhase.spawn(this.world, this.map, player);
+			this.setSpectator(player);
 		}
 	}
 
@@ -184,7 +194,7 @@ public class MicroBattleActivePhase {
 			ServerPlayerEntity player = entry.getPlayer();
 			if (!this.map.getFullBounds().contains(player.getBlockPos())) {
 				if (this.isInVoid(player)) {
-					if (this.applyToKit(entry, kit -> kit.attemptRespawn()) == ActionResult.SUCCESS) {
+					if (this.applyToKit(entry, kit -> kit.attemptRespawn()) == EventResult.ALLOW) {
 						break;
 					}
 					this.eliminate(entry, this.getCustomEliminatedMessage(player, "void"));
@@ -251,9 +261,9 @@ public class MicroBattleActivePhase {
 		player.changeGameMode(GameMode.SPECTATOR);
 	}
 
-	private PlayerOfferResult offerPlayer(PlayerOffer offer) {
-		return offer.accept(this.world, MicroBattleActivePhase.getSpawnPos(this.world, this.map, offer.player())).and(() -> {
-			this.setSpectator(offer.player());
+	private JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
+		return acceptor.teleport(this.world, MicroBattleActivePhase.getSpawnPos(this.world, this.map)).thenRunForEach(player -> {
+			this.setSpectator(player);
 		});
 	}
 
@@ -299,25 +309,25 @@ public class MicroBattleActivePhase {
 		return ActionResult.PASS;
 	}
 
-	private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+	private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
 
-		ActionResult kitResult = this.applyToKit(entry, kit -> kit.onDeath(source));
-		if (kitResult != ActionResult.PASS) return kitResult;
+		EventResult kitResult = this.applyToKit(entry, kit -> kit.onDeath(source));
+		if (kitResult != EventResult.PASS) return kitResult;
 
 		PlayerEntry killer = this.getEntryFromEntity(source.getAttacker());
-		ActionResult killerKitResult = this.applyToKit(killer, kit -> kit.onKilledPlayer(entry, source));
-		if (killerKitResult != ActionResult.PASS) return killerKitResult;
+		EventResult killerKitResult = this.applyToKit(killer, kit -> kit.onKilledPlayer(entry, source));
+		if (killerKitResult != EventResult.PASS) return killerKitResult;
 
 		if (entry == null) {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
 		} else if (!this.map.getFullBounds().contains(player.getBlockPos())) {
 			this.eliminate(entry, this.getCustomEliminatedMessage(player, "out_of_bounds"));
-		} else if (this.applyToKit(entry, kit -> kit.attemptRespawn()) != ActionResult.SUCCESS) {
+		} else if (this.applyToKit(entry, kit -> kit.attemptRespawn()) != EventResult.ALLOW) {
 			this.eliminate(entry, source.getDeathMessage(player).copy().formatted(Formatting.RED));
 		}
 		
-		return ActionResult.FAIL;
+		return EventResult.DENY;
 	}
 
 	public boolean placeBeacon(PlayerEntry entry, RespawnerKit respawner, BlockPos pos) {
@@ -333,28 +343,28 @@ public class MicroBattleActivePhase {
 	/**
 	 * Applies a function on a player's kit if they have one.
 	 */
-	private ActionResult applyToKit(PlayerEntry entry, Function<Kit, ActionResult> function) {
-		if (entry == null || entry.getKit() == null) return ActionResult.PASS;
+	private EventResult applyToKit(PlayerEntry entry, Function<Kit, EventResult> function) {
+		if (entry == null || entry.getKit() == null) return EventResult.PASS;
 		return function.apply(entry.getKit());
 	}
 
-	private ActionResult afterBlockPlace(BlockPos pos, World world, ServerPlayerEntity player, ItemStack stack, BlockState state) {
+	private EventResult afterBlockPlace(BlockPos pos, World world, ServerPlayerEntity player, ItemStack stack, BlockState state) {
 		PlayerEntry placer = this.getEntryFromPlayer(player);
-		if (placer == null) return ActionResult.PASS;
+		if (placer == null) return EventResult.PASS;
 
 		return this.applyToKit(placer, kit -> kit.afterBlockPlace(pos, stack, state));
 	}
 
-	private ActionResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
+	private EventResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
 		PlayerEntry breaker = this.getEntryFromPlayer(player);
-		if (breaker == null) return ActionResult.PASS;
+		if (breaker == null) return EventResult.PASS;
 
-		ActionResult kitResult = this.applyToKit(breaker, kit -> kit.onBreakBlock(pos));
-		if (kitResult != ActionResult.PASS) return kitResult;
+		EventResult kitResult = this.applyToKit(breaker, kit -> kit.onBreakBlock(pos));
+		if (kitResult != EventResult.PASS) return kitResult;
 
 		// Prevent breaking non-beacons
 		BlockState state = player.getEntityWorld().getBlockState(pos);
-		if (!state.isIn(Main.RESPAWN_BEACONS)) return ActionResult.SUCCESS;
+		if (!state.isIn(Main.RESPAWN_BEACONS)) return EventResult.ALLOW;
 
 		// Send message
 		for (PlayerEntry entry : this.players) {
@@ -367,31 +377,31 @@ public class MicroBattleActivePhase {
 
 		// Remove beacon
 		player.getEntityWorld().setBlockState(pos, state.getFluidState().getBlockState());
-		return ActionResult.FAIL;
+		return EventResult.DENY;
 	}
 
-	private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+	private EventResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
 		PlayerEntry target = this.getEntryFromPlayer(player);
-		if (target == null) return ActionResult.PASS;
+		if (target == null) return EventResult.PASS;
 
 		PlayerEntry attacker = this.getEntryFromEntity(source.getAttacker());
 
 		// Prevent attacks from teammates
 		if (attacker != null && target.isSameTeam(attacker)) {
-			return ActionResult.FAIL;
+			return EventResult.DENY;
 		}
 
 		// Dispatch handling to kits
 		if (target.getKit() != null) {
-			ActionResult result = target.getKit().onDamaged(attacker, source, amount);
-			if (result != ActionResult.PASS) return result;
+			EventResult result = target.getKit().onDamaged(attacker, source, amount);
+			if (result != EventResult.PASS) return result;
 		}
 
 		if (attacker != null && attacker.getKit() != null) {
 			return attacker.getKit().onDealDamage(target, source, amount);
 		}
 
-		return ActionResult.PASS;
+		return EventResult.PASS;
 	}
 	
 	public void onPlayerRemove(ServerPlayerEntity player) {
@@ -402,16 +412,16 @@ public class MicroBattleActivePhase {
 	}
 
 	@SuppressWarnings("deprecation")
-	private ActionResult onThrowItem(ServerPlayerEntity player, int slot, ItemStack stack) {
+	private EventResult onThrowItem(ServerPlayerEntity player, int slot, ItemStack stack) {
 		if (stack.getItem() instanceof BlockItem blockItem) {
 			RegistryEntry<Block> entry = blockItem.getBlock().getRegistryEntry();
 			
 			if (entry.isIn(Main.RESPAWN_BEACONS)) {
-				return ActionResult.FAIL;
+				return EventResult.DENY;
 			}
 		}
 
-		return ActionResult.PASS;
+		return EventResult.PASS;
 	}
 
 	public boolean isOldCombat() {
@@ -422,7 +432,7 @@ public class MicroBattleActivePhase {
 		return this.config.getLayerKit().orElse(null);
 	}
 
-	public static Vec3d getSpawnPos(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
+	public static Vec3d getSpawnPos(ServerWorld world, MicroBattleMap map) {
 		Vec3d center = map.getFloorBounds().center();
 		int xOffset = (map.getRiverRadius() + 2) * (world.getRandom().nextBoolean() ? 1 : -1);
 		int zOffset = (map.getRiverRadius() + 2) * (world.getRandom().nextBoolean() ? 1 : -1);
@@ -431,7 +441,7 @@ public class MicroBattleActivePhase {
 	}
 
 	public static void spawn(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
-		Vec3d spawnPos = MicroBattleActivePhase.getSpawnPos(world, map, player);
-		player.teleport(world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), 0, 0);
+		Vec3d spawnPos = MicroBattleActivePhase.getSpawnPos(world, map);
+		player.teleport(world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), Set.of(), 0, 0, true);
 	}
 }

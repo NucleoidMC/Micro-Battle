@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.github.haykam821.microbattle.Main;
-import net.minecraft.util.Identifier;
 
 public class KitPresets {
 	public static final List<KitType<?>> RESPAWNER = register("respawner", KitTypes.RESPAWNER);
@@ -23,7 +22,7 @@ public class KitPresets {
 	public static final List<KitType<?>> STANDARD = register("standard", KitTypes.PLAYER);
 
 	private static List<KitType<?>> register(String path, List<KitType<?>> types) {
-		KitPreset.REGISTRY.register(new Identifier(Main.MOD_ID, path), types);
+		KitPreset.REGISTRY.register(Main.identifier(path), types);
 		return types;
 	}
 

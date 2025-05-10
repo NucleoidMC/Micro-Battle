@@ -4,8 +4,8 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 public class BlazeKit extends Kit {
 	public BlazeKit(PlayerEntry entry) {
@@ -58,11 +58,11 @@ public class BlazeKit extends Kit {
 	}
 
 	@Override
-	public ActionResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
+	public EventResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
 		if (this.player.isOnFire()) {
 			target.getPlayer().setOnFireFor((int) amount);
 		}
-		return ActionResult.PASS;
+		return EventResult.PASS;
 	}
 
 	@Override

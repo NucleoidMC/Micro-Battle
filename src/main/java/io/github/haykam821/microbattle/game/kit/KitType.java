@@ -6,7 +6,7 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import xyz.nucleoid.plasmid.registry.TinyRegistry;
+import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 
 public class KitType<T extends Kit> {
 	public static final TinyRegistry<KitType<?>> REGISTRY = TinyRegistry.create();

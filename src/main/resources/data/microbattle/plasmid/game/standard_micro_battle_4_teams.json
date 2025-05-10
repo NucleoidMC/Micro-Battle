@@ -1,34 +1,29 @@
 {
 	"type": "microbattle:micro_battle",
-	"icon": "minecraft:zombified_piglin_spawn_egg",
-	"kits": "microbattle:soul",
+	"icon": "minecraft:netherite_sword",
+	"kits": "microbattle:standard",
 	"teams": [
 		{
 			"key": "red",
-			"name": "Red",
 			"color": "red",
 			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "green",
-			"name": "Green",
 			"color": "green",
 			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "blue",
-			"name": "Blue",
 			"color": "blue",
 			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "yellow",
-			"name": "Yellow",
 			"color": "yellow",
 			"collision": "pushOtherTeams"
 		}
 	],
-	"old_combat": true,
 	"map": {
 		"x": 56,
 		"y": 64,

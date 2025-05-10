@@ -1,21 +1,20 @@
 {
 	"type": "microbattle:micro_battle",
-	"icon": "minecraft:netherite_sword",
+	"icon": "minecraft:diamond_sword",
 	"kits": "microbattle:standard",
 	"teams": [
 		{
 			"key": "red",
-			"name": "Red",
 			"color": "red",
 			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "blue",
-			"name": "Blue",
 			"color": "blue",
 			"collision": "pushOtherTeams"
 		}
 	],
+	"old_combat": true,
 	"map": {
 		"x": 56,
 		"y": 64,

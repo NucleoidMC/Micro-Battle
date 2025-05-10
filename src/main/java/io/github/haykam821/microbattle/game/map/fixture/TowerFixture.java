@@ -7,7 +7,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.collection.DataPool;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
-import xyz.nucleoid.plasmid.util.WoodType;
+import xyz.nucleoid.plasmid.api.util.WoodType;
 
 public class TowerFixture extends Fixture {
 	private static final DataPool<Variant> STATES = DataPool.<Variant>builder()

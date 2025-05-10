@@ -3,11 +3,13 @@ package io.github.haykam821.microbattle.game.kit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.block.BlockState;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
@@ -15,7 +17,8 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionUtil;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
@@ -29,8 +32,9 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
-import xyz.nucleoid.plasmid.game.common.OldCombat;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.game.common.OldCombat;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 public abstract class Kit {
 	protected static final Random RANDOM = Random.createLocal();
@@ -152,7 +156,7 @@ public abstract class Kit {
 		}
 
 		if (this.isDamagedByWater() && this.player.isWet()) {
-			this.player.damage(this.player.getDamageSources().drown(), 1.0F);
+			this.player.damage(this.player.getServerWorld(), this.player.getDamageSources().drown(), 1.0F);
 		}
 
 		this.tick();
@@ -190,7 +194,7 @@ public abstract class Kit {
 		addIfNonNull(this::getFoodStack, stacks);
 		
 		for (RestockEntry entry : this.getRestockEntries()) {
-			addIfNonNull(entry::supplyStack, stacks);
+			addIfNonNull(this.player.getRegistryManager(), entry::supplyStack, stacks);
 		}
 
 		this.appendCustomInitialStacks(stacks);
@@ -255,36 +259,36 @@ public abstract class Kit {
 		return ActionResult.PASS;
 	}
 
-	public ActionResult afterBlockPlace(BlockPos pos, ItemStack stack, BlockState state) {
-		return ActionResult.PASS;
+	public EventResult afterBlockPlace(BlockPos pos, ItemStack stack, BlockState state) {
+		return EventResult.PASS;
 	}
 
-	public ActionResult onBreakBlock(BlockPos pos) {
-		return ActionResult.PASS;
+	public EventResult onBreakBlock(BlockPos pos) {
+		return EventResult.PASS;
 	}
 
-	public ActionResult onDamaged(PlayerEntry target, DamageSource source, float amount) {
+	public EventResult onDamaged(PlayerEntry target, DamageSource source, float amount) {
 		if (source.isIn(DamageTypeTags.IS_FIRE) && !this.isDamagedByFire()) {
-			return ActionResult.FAIL;
+			return EventResult.DENY;
 		}
 
-		return ActionResult.PASS;
+		return EventResult.PASS;
 	}
 
-	public ActionResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
-		return ActionResult.PASS;
+	public EventResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
+		return EventResult.PASS;
 	}
 
-	public ActionResult onDeath(DamageSource source) {
-		return ActionResult.PASS;
+	public EventResult onDeath(DamageSource source) {
+		return EventResult.PASS;
 	}
 
-	public ActionResult attemptRespawn() {
-		return ActionResult.PASS;
+	public EventResult attemptRespawn() {
+		return EventResult.PASS;
 	}
 
-	public ActionResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
-		return ActionResult.PASS;
+	public EventResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
+		return EventResult.PASS;
 	}
 
 	protected static ItemStack unbreakableStack(ItemConvertible item) {
@@ -315,6 +319,10 @@ public abstract class Kit {
 		return null;
 	}
 
+	private static void addIfNonNull(RegistryWrapper.WrapperLookup registries, Function<RegistryWrapper.WrapperLookup, ItemStack> supplier, List<ItemStack> stacks) {
+		addIfNonNull(() -> supplier.apply(registries), stacks);
+	}
+
 	private static void addIfNonNull(Supplier<ItemStack> supplier, List<ItemStack> stacks) {
 		ItemStack stack = supplier.get();
 		if (stack != null) {
@@ -322,20 +330,9 @@ public abstract class Kit {
 		}
 	}
 
-	protected static ItemStack potionLikeStack(ItemConvertible item, Optional<Potion> maybePotion) {
-		ItemStack stack = new ItemStack(item);
-
-		if (maybePotion.isPresent()) {
-			Potion potion = maybePotion.get();
-			PotionUtil.setPotion(stack, potion);
-		}
-
-		return stack;
-	}
-
-	protected static ItemStack potionLikeStack(ItemConvertible item, Potion potion) {
-		ItemStack stack = new ItemStack(item);
-		PotionUtil.setPotion(stack, potion);
-		return stack;
+	protected static ItemStack createPotionStack(ItemConvertible item, Optional<RegistryEntry<Potion>> maybePotion) {
+		return maybePotion
+			.map(potion -> PotionContentsComponent.createStack(item.asItem(), potion))
+			.orElseGet(() -> new ItemStack(item));
 	}
 }

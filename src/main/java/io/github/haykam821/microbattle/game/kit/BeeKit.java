@@ -4,16 +4,17 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 public class BeeKit extends Kit {
 	public BeeKit(PlayerEntry entry) {
@@ -43,18 +44,18 @@ public class BeeKit extends Kit {
 	}
 
 	private void placeFlower(ServerWorld world, BlockPos pos) {
-		BlockState flower = BeeKit.getFlower(world.getRandom());
+		BlockState flower = BeeKit.getFlower(world.getRegistryManager(), world.getRandom());
 		if (flower != null && world.isAir(pos) && flower.canPlaceAt(world, pos)) {
 			world.setBlockState(pos, flower);
 		}
 	}
 	
 	@Override
-	public ActionResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
+	public EventResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
 		if (entry.getPlayer().isOnGround()) {
 			this.placeFlower(entry.getPlayer().getServerWorld(), entry.getPlayer().getBlockPos());
 		}
-		return ActionResult.PASS;
+		return EventResult.PASS;
 	}
 
 	@Override
@@ -67,8 +68,10 @@ public class BeeKit extends Kit {
 		return SoundEvents.ENTITY_BEE_HURT;
 	}
 
-	private static BlockState getFlower(Random random) {
-		return Registries.BLOCK.getEntryList(BlockTags.FLOWERS)
+	private static BlockState getFlower(RegistryWrapper.WrapperLookup registries, Random random) {
+		return registries
+			.getOptional(RegistryKeys.BLOCK)
+			.flatMap(blocks -> blocks.getOptional(BlockTags.FLOWERS))
 			.flatMap(flowers -> flowers.getRandom(random))
 			.map(RegistryEntry::value)
 			.map(Block::getDefaultState)

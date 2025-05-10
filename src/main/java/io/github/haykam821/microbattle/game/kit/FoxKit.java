@@ -16,7 +16,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.collection.DataPool;
 import net.minecraft.util.collection.Weighted;
-import xyz.nucleoid.plasmid.game.common.OldCombat;
+import xyz.nucleoid.plasmid.api.game.common.OldCombat;
 
 public class FoxKit extends Kit {
 	private static final DataPool<DigEntry> DIG_ITEMS = DataPool.<DigEntry>builder()
@@ -95,7 +95,7 @@ public class FoxKit extends Kit {
 
 	private void dig() {
 		this.digTicks = RESET_DIG_TICKS;
-		entry.getPlayer().playSound(SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1, 1);
+		entry.getPlayer().playSoundToPlayer(SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1, 1);
 
 		ItemStack stack = this.getDigStack();
 		if (stack != null) {
@@ -107,8 +107,8 @@ public class FoxKit extends Kit {
 		DataPool.Builder<DigEntry> builder = DataPool.builder();
 
 		for (Weighted.Present<DigEntry> entry : DIG_ITEMS.getEntries()) {
-			if (!entry.getData().isRestricted(this.player)) {
-				builder.add(entry.getData(), entry.getWeight().getValue());
+			if (!entry.data().isRestricted(this.player)) {
+				builder.add(entry.data(), entry.getWeight().getValue());
 			}
 		}
 

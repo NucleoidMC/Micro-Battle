@@ -5,25 +5,21 @@
 	"teams": [
 		{
 			"key": "red",
-			"name": "Red",
 			"color": "red",
 			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "green",
-			"name": "Green",
 			"color": "green",
 			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "blue",
-			"name": "Blue",
 			"color": "blue",
 			"collision": "pushOtherTeams"
 		},
 		{
 			"key": "yellow",
-			"name": "Yellow",
 			"color": "yellow",
 			"collision": "pushOtherTeams"
 		}

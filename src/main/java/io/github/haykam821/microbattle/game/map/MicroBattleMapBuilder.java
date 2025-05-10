@@ -43,7 +43,7 @@ public class MicroBattleMapBuilder {
 
 		Random random = new Xoroshiro128PlusPlusRandom(RandomSeed.getSeed());
 
-		Optional<RegistryEntryList.Named<Biome>> maybeBiomeList = server.getRegistryManager().get(RegistryKeys.BIOME).getEntryList(Main.POTENTIAL_BIOMES);
+		Optional<RegistryEntryList.Named<Biome>> maybeBiomeList = server.getRegistryManager().getOrThrow(RegistryKeys.BIOME).getOptional(Main.POTENTIAL_BIOMES);
 		if (maybeBiomeList.isPresent()) {
 			Optional<RegistryEntry<Biome>> maybeBiome = maybeBiomeList.get().getRandom(random);
 			if (maybeBiome.isPresent()) {
