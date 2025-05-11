@@ -1,17 +1,17 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
 import net.minecraft.block.Blocks;
-import net.minecraft.util.collection.DataPool;
+import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
 
 public final class Fixtures {
-	private static final DataPool<FixtureCreator> PRIMARY_FIXTURES = DataPool.<FixtureCreator>builder()
+	private static final Pool<FixtureCreator> PRIMARY_FIXTURES = Pool.<FixtureCreator>builder()
 		.add(Fixtures::building, 5)
 		.add(Fixtures::tower, 1)
 		.build();
 
-	private static final DataPool<FixtureCreator> DECORATION_FIXTURES = DataPool.<FixtureCreator>builder()
+	private static final Pool<FixtureCreator> DECORATION_FIXTURES = Pool.<FixtureCreator>builder()
 		.add(Fixtures::grassPatch, 1)
 		.build();
 
@@ -24,7 +24,7 @@ public final class Fixtures {
 	}
 
 	protected static Fixture primary(Random random) {
-		return PRIMARY_FIXTURES.getDataOrEmpty(random).orElseThrow().get(random);
+		return PRIMARY_FIXTURES.getOrEmpty(random).orElseThrow().get(random);
 	}
 
 	protected static Fixture grassPatch(Random random) {
@@ -33,7 +33,7 @@ public final class Fixtures {
 	}
 
 	protected static Fixture decoration(Random random) {
-		return DECORATION_FIXTURES.getDataOrEmpty(random).orElseThrow().get(random);
+		return DECORATION_FIXTURES.getOrEmpty(random).orElseThrow().get(random);
 	}
 
 	@FunctionalInterface
