@@ -363,7 +363,7 @@ public class MicroBattleActivePhase {
 		if (kitResult != EventResult.PASS) return kitResult;
 
 		// Prevent breaking non-beacons
-		BlockState state = player.getEntityWorld().getBlockState(pos);
+		BlockState state = player.getWorld().getBlockState(pos);
 		if (!state.isIn(Main.RESPAWN_BEACONS)) return EventResult.ALLOW;
 
 		// Send message
@@ -376,7 +376,7 @@ public class MicroBattleActivePhase {
 		}
 
 		// Remove beacon
-		player.getEntityWorld().setBlockState(pos, state.getFluidState().getBlockState());
+		player.getWorld().setBlockState(pos, state.getFluidState().getBlockState());
 		return EventResult.DENY;
 	}
 

@@ -2,6 +2,7 @@ package io.github.haykam821.microbattle.game.kit;
 
 import java.util.Optional;
 
+import io.github.haykam821.microbattle.PoolHelper;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -14,12 +15,11 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.collection.DataPool;
-import net.minecraft.util.collection.Weighted;
+import net.minecraft.util.collection.Pool;
 import xyz.nucleoid.plasmid.api.game.common.OldCombat;
 
 public class FoxKit extends Kit {
-	private static final DataPool<DigEntry> DIG_ITEMS = DataPool.<DigEntry>builder()
+	private static final Pool<DigEntry> DIG_ITEMS = Pool.<DigEntry>builder()
 		.add(new DigEntry(durabilityStack(Items.IRON_SWORD, 4), true), 500)
 		.add(new DigEntry(durabilityStack(Items.IRON_PICKAXE, 32), true), 500)
 		.add(new DigEntry(durabilityStack(Items.IRON_AXE, 4), true), 500)
@@ -104,15 +104,9 @@ public class FoxKit extends Kit {
 	}
 
 	private ItemStack getDigStack() {
-		DataPool.Builder<DigEntry> builder = DataPool.builder();
+		Pool<DigEntry> pool = PoolHelper.filter(DIG_ITEMS, entry -> !entry.isRestricted(this.player));
 
-		for (Weighted.Present<DigEntry> entry : DIG_ITEMS.getEntries()) {
-			if (!entry.data().isRestricted(this.player)) {
-				builder.add(entry.data(), entry.getWeight().getValue());
-			}
-		}
-
-		Optional<DigEntry> optional = builder.build().getDataOrEmpty(entry.getPlayer().getRandom());
+		Optional<DigEntry> optional = pool.getOrEmpty(entry.getPlayer().getRandom());
 		return optional.isPresent() ? optional.get().stack().copy() : null;
 	}
 
