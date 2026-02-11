@@ -54,7 +54,7 @@ public class SheepKit extends Kit {
 	public ActionResult onUseBlock(Hand hand, BlockHitResult hitResult) {
 		if (hitResult.getSide() != Direction.DOWN) {
 			BlockPos pos = hitResult.getBlockPos();
-			World world = this.player.getWorld();
+			World world = this.player.getEntityWorld();
 			BlockState state = world.getBlockState(pos);
 
 			boolean grassBlock = state.isOf(Blocks.GRASS_BLOCK);
@@ -86,7 +86,7 @@ public class SheepKit extends Kit {
 		this.grassEaten = 0;
 		this.updateExperienceBarForWoolCoat();
 
-		World world = this.player.getWorld();
+		World world = this.player.getEntityWorld();
 		BlockPos pos = target.getPlayer().getBlockPos();
 
 		world.setBlockState(pos, WOOL_COAT);

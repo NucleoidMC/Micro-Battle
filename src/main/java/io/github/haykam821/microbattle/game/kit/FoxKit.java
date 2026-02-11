@@ -10,12 +10,15 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.collection.Pool;
+import net.minecraft.util.math.Vec3d;
 import xyz.nucleoid.plasmid.api.game.common.OldCombat;
 
 public class FoxKit extends Kit {
@@ -95,7 +98,8 @@ public class FoxKit extends Kit {
 
 	private void dig() {
 		this.digTicks = RESET_DIG_TICKS;
-		entry.getPlayer().playSoundToPlayer(SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1, 1);
+		Vec3d pos = entry.getPlayer().getEntityPos();
+		entry.getPlayer().networkHandler.sendPacket(new PlaySoundS2CPacket(RegistryEntry.of(SoundEvents.BLOCK_GRASS_BREAK), SoundCategory.BLOCKS, pos.getX(), pos.getY(), pos.getZ(), 1, 1, entry.getPlayer().getEntityWorld().getRandom().nextLong()));
 
 		ItemStack stack = this.getDigStack();
 		if (stack != null) {

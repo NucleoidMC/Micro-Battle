@@ -21,7 +21,7 @@ import xyz.nucleoid.stimuli.event.EventResult;
 public class BlockItemMixin {
 	@Inject(method = "postPlacement", at = @At("HEAD"))
 	private void invokeAfterBlockPlaceListeners(BlockPos pos, World world, PlayerEntity player, ItemStack stack, BlockState state, CallbackInfoReturnable<Boolean> ci) {
-		if (world.isClient) return;
+		if (world.isClient()) return;
 		
 		try (EventInvokers invokers = Stimuli.select().forEntity(player)) {
 			ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;

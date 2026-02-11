@@ -11,12 +11,13 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 import xyz.nucleoid.plasmid.api.game.GameType;
+import xyz.nucleoid.plasmid.api.game.GameTypes;
 
 public class Main implements ModInitializer {
 	private static final String MOD_ID = "microbattle";
 
 	private static final Identifier MICRO_BATTLE_ID = identifier("micro_battle");
-	public static final GameType<MicroBattleConfig> MICRO_BATTLE_TYPE = GameType.register(MICRO_BATTLE_ID, MicroBattleConfig.CODEC, MicroBattleWaitingPhase::open);
+	public static final GameType<MicroBattleConfig> MICRO_BATTLE_TYPE = GameTypes.register(MICRO_BATTLE_ID, MicroBattleConfig.CODEC, MicroBattleWaitingPhase::open);
 
 	private static final Identifier RESPAWN_BEACONS_ID = identifier("respawn_beacons");
 	public static final TagKey<Block> RESPAWN_BEACONS = TagKey.of(RegistryKeys.BLOCK, RESPAWN_BEACONS_ID);

@@ -157,7 +157,7 @@ public abstract class Kit {
 		}
 
 		if (this.isDamagedByWater() && this.player.isTouchingWaterOrRain()) {
-			this.player.damage(this.player.getWorld(), this.player.getDamageSources().drown(), 1.0F);
+			this.player.damage(this.player.getEntityWorld(), this.player.getDamageSources().drown(), 1.0F);
 		}
 
 		this.tick();
