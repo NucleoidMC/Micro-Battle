@@ -1,27 +1,27 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 
 public class SnowGolemKit extends Kit {
-	private static final BlockState SNOW = Blocks.SNOW.getDefaultState();
-	private static final BlockState FROSTED_ICE = Blocks.FROSTED_ICE.getDefaultState();
+	private static final BlockState SNOW = Blocks.SNOW.defaultBlockState();
+	private static final BlockState FROSTED_ICE = Blocks.FROSTED_ICE.defaultBlockState();
 	
 	public SnowGolemKit(PlayerEntry entry) {
 		super(KitTypes.SNOW_GOLEM, entry);
-		this.addRestockEntry(new RestockEntry.Builder(Items.SNOWBALL, 10).maxCount(16).build(entry.getPlayer().getRegistryManager()));
+		this.addRestockEntry(new RestockEntry.Builder(Items.SNOWBALL, 10).maxCount(16).build(entry.getPlayer().registryAccess()));
 	}
 
 	@Override
@@ -63,49 +63,49 @@ public class SnowGolemKit extends Kit {
 	public void tick() {
 		super.tick();
 		
-		if (!this.player.isSneaking()) {
+		if (!this.player.isShiftKeyDown()) {
 			this.tickTrail();
 		}
 	}
 
 	private void tickTrail() {
-		ServerWorld world = this.player.getEntityWorld();
+		ServerLevel world = this.player.level();
 
-		BlockPos.Mutable pos = new BlockPos.Mutable(0, Math.floor(this.player.getY()), 0);
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, Math.floor(this.player.getY()), 0);
 		for (int corner = 0; corner < 4; corner++) {
 			pos.setX((int) (this.player.getX() + (corner % 2 * 2 - 1) * 0.25));
 			pos.setZ((int) (this.player.getZ() + (corner / 2 % 2 * 2 - 1) * 0.25));
 
-			BlockPos downPos = pos.down();
+			BlockPos downPos = pos.below();
 
 			if (SnowGolemKit.canPlaceSnowAt(world, pos, downPos)) {
-				world.setBlockState(pos, SNOW);
+				world.setBlockAndUpdate(pos, SNOW);
 			} else if (SnowGolemKit.isStillWater(world, downPos)) {
-				world.setBlockState(downPos, FROSTED_ICE);
+				world.setBlockAndUpdate(downPos, FROSTED_ICE);
 			}
 		}
 	}
 
 	@Override
 	public SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_SNOW_GOLEM_DEATH;
+		return SoundEvents.SNOW_GOLEM_DEATH;
 	}
 
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_SNOW_GOLEM_HURT;
+		return SoundEvents.SNOW_GOLEM_HURT;
 	}
 
-	private static boolean canPlaceSnowAt(ServerWorld world, BlockPos pos, BlockPos downPos) {
+	private static boolean canPlaceSnowAt(ServerLevel world, BlockPos pos, BlockPos downPos) {
 		return (
 			world.getBlockState(pos).isAir()
-			&& SNOW.canPlaceAt(world, pos)
-			&& !world.getBlockState(downPos).isIn(BlockTags.ICE)
+			&& SNOW.canSurvive(world, pos)
+			&& !world.getBlockState(downPos).is(BlockTags.ICE)
 		);
 	}
 
-	private static boolean isStillWater(ServerWorld world, BlockPos pos) {
+	private static boolean isStillWater(ServerLevel world, BlockPos pos) {
 		FluidState state = world.getFluidState(pos);
-		return state.isStill() && state.isIn(FluidTags.WATER);
+		return state.isSource() && state.is(FluidTags.WATER);
 	}
 }

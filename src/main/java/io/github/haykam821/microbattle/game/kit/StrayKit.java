@@ -1,12 +1,12 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potions;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potions;
 
 public class StrayKit extends SkeletonKit {
 	public StrayKit(PlayerEntry entry) {
@@ -57,11 +57,11 @@ public class StrayKit extends SkeletonKit {
 
 	@Override
 	public SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_STRAY_DEATH;
+		return SoundEvents.STRAY_DEATH;
 	}
 
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_STRAY_HURT;
+		return SoundEvents.STRAY_HURT;
 	}
 }

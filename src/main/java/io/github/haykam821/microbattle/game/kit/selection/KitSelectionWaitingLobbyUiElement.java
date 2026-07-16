@@ -1,13 +1,13 @@
 package io.github.haykam821.microbattle.game.kit.selection;
 
+import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Items;
 import xyz.nucleoid.plasmid.api.game.common.ui.WaitingLobbyUiElement;
 
 public class KitSelectionWaitingLobbyUiElement implements WaitingLobbyUiElement {
-	private static final Text NAME = Text.translatable("text.microbattle.kit_selector");
+	private static final Component NAME = Component.translatable("text.microbattle.kit_selector");
 
 	private final KitSelectionManager kitSelection;
 
@@ -16,7 +16,7 @@ public class KitSelectionWaitingLobbyUiElement implements WaitingLobbyUiElement 
 	}
 
 	@Override
-	public GuiElementInterface createMainElement() {
+	public GuiElement createMainElement() {
 		return new GuiElementBuilder(Items.CHEST)
 			.setItemName(NAME)
 			.setCallback((index, type, action, ui) -> {

@@ -3,20 +3,20 @@ package io.github.haykam821.microbattle.game;
 import io.github.haykam821.microbattle.game.kit.Kit;
 import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.GameMode;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamConfig;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 
 public class PlayerEntry {
 	private final MicroBattleActivePhase phase;
-	private final ServerPlayerEntity player;
+	private final ServerPlayer player;
 	private final GameTeamKey teamKey;
 	private final Kit kit;
 	private int ticks = 0;
 	private int outOfBoundsTicks = 0;
 
-	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayerEntity player, GameTeamKey teamKey, KitType<?> kitType) {
+	public PlayerEntry(MicroBattleActivePhase phase, ServerPlayer player, GameTeamKey teamKey, KitType<?> kitType) {
 		this.phase = phase;
 		this.player = player;
 		this.teamKey = teamKey;
@@ -27,7 +27,7 @@ public class PlayerEntry {
 		return this.phase;
 	}
 
-	public ServerPlayerEntity getPlayer() {
+	public ServerPlayer getPlayer() {
 		return this.player;
 	}
 
@@ -66,21 +66,21 @@ public class PlayerEntry {
 
 	public void tickOutOfBounds() {
 		this.outOfBoundsTicks += 1;
-		this.player.damage(this.player.getEntityWorld(), this.player.getDamageSources().outOfWorld(), this.outOfBoundsTicks / 80);
+		this.player.hurtServer(this.player.level(), this.player.damageSources().fellOutOfWorld(), this.outOfBoundsTicks / 80);
 	}
 
 	/**
 	 * Sends inventory updates to the player's client.
 	 */
 	public void updateInventory() {
-		this.player.currentScreenHandler.sendContentUpdates();
-		this.player.playerScreenHandler.onContentChanged(this.player.getInventory());
+		this.player.containerMenu.broadcastChanges();
+		this.player.inventoryMenu.slotsChanged(this.player.getInventory());
 	}
 
 	public void onEliminated() {
-		this.player.changeGameMode(GameMode.SPECTATOR);
+		this.player.setGameMode(GameType.SPECTATOR);
 
-		this.player.getInventory().clear();
+		this.player.getInventory().clearContent();
 		this.updateInventory();
 	}
 }

@@ -1,43 +1,43 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.util.collection.Pool;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.gen.stateprovider.BlockStateProvider;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
 public final class Fixtures {
-	private static final Pool<FixtureCreator> PRIMARY_FIXTURES = Pool.<FixtureCreator>builder()
+	private static final WeightedList<FixtureCreator> PRIMARY_FIXTURES = WeightedList.<FixtureCreator>builder()
 		.add(Fixtures::building, 5)
 		.add(Fixtures::tower, 1)
 		.build();
 
-	private static final Pool<FixtureCreator> DECORATION_FIXTURES = Pool.<FixtureCreator>builder()
+	private static final WeightedList<FixtureCreator> DECORATION_FIXTURES = WeightedList.<FixtureCreator>builder()
 		.add(Fixtures::grassPatch, 1)
 		.build();
 
-	protected static Fixture building(Random random) {
+	protected static Fixture building(RandomSource random) {
 		return BuildingFixture.randomize(random);
 	}
 
-	protected static Fixture tower(Random random) {
+	protected static Fixture tower(RandomSource random) {
 		return TowerFixture.randomize(random);
 	}
 
-	protected static Fixture primary(Random random) {
-		return PRIMARY_FIXTURES.getOrEmpty(random).orElseThrow().get(random);
+	protected static Fixture primary(RandomSource random) {
+		return PRIMARY_FIXTURES.getRandom(random).orElseThrow().get(random);
 	}
 
-	protected static Fixture grassPatch(Random random) {
+	protected static Fixture grassPatch(RandomSource random) {
 		int radius = random.nextInt(3) + 2;
-		return new PatchFixture(radius, BlockStateProvider.of(Blocks.SHORT_GRASS));
+		return new PatchFixture(radius, BlockStateProvider.simple(Blocks.SHORT_GRASS));
 	}
 
-	protected static Fixture decoration(Random random) {
-		return DECORATION_FIXTURES.getOrEmpty(random).orElseThrow().get(random);
+	protected static Fixture decoration(RandomSource random) {
+		return DECORATION_FIXTURES.getRandom(random).orElseThrow().get(random);
 	}
 
 	@FunctionalInterface
 	private interface FixtureCreator {
-		public Fixture get(Random random);
+		public Fixture get(RandomSource random);
 	}
 }

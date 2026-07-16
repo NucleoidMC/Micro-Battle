@@ -2,11 +2,10 @@ package io.github.haykam821.microbattle.game.map.fixture;
 
 import java.util.HashSet;
 import java.util.Set;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import io.github.haykam821.microbattle.game.map.MicroBattleMapConfig;
 import io.github.haykam821.microbattle.game.map.fixture.canvas.TemplateFixtureCanvas;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 
@@ -35,14 +34,14 @@ public class FixtureArea {
 		this.padding = padding;
 	}
 
-	public FixturePlacement place(Fixture fixture, Random random, boolean padded) {
+	public FixturePlacement place(Fixture fixture, RandomSource random, boolean padded) {
 		int padding = padded ? this.padding : 1;
 		
 		int minX = this.minX + padding;
 		int minZ = this.minZ + padding;
 
-		int x = random.nextBetween(0, this.maxX - padding - fixture.getWidth() - minX);
-		int z = random.nextBetween(0, this.maxZ - padding - fixture.getDepth() - minZ);
+		int x = random.nextIntBetweenInclusive(0, this.maxX - padding - fixture.getWidth() - minX);
+		int z = random.nextIntBetweenInclusive(0, this.maxZ - padding - fixture.getDepth() - minZ);
 
 		BlockPos start = new BlockPos(minX + x, this.y, minZ + z);
 
@@ -59,7 +58,7 @@ public class FixtureArea {
 		return placement;
 	}
 
-	public void generate(MapTemplate template, Random random) {
+	public void generate(MapTemplate template, RandomSource random) {
 		TemplateFixtureCanvas canvas = new TemplateFixtureCanvas(template);
 
 		for (FixturePlacement placement : this.placements) {
@@ -68,7 +67,7 @@ public class FixtureArea {
 		}
 	}
 
-	public static void generate(BlockBounds floorBounds, MapTemplate template, Random random, MicroBattleMapConfig mapConfig) {
+	public static void generate(BlockBounds floorBounds, MapTemplate template, RandomSource random, MicroBattleMapConfig mapConfig) {
 		FixtureConfig config = mapConfig.getFixtureConfig();
 
 		// Calculate positioning

@@ -1,23 +1,23 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
 import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.collection.Pool;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import xyz.nucleoid.plasmid.api.util.WoodType;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import xyz.nucleoid.plasmid.api.util.WoodTypeContent;
 
 public class TowerFixture extends Fixture {
-	private static final Pool<Variant> STATES = Pool.<Variant>builder()
-		.add(new Variant(WoodType.OAK, Blocks.SPRUCE_SLAB.getDefaultState()), 20)
-		.add(new Variant(WoodType.DARK_OAK, Blocks.COBBLED_DEEPSLATE_SLAB.getDefaultState()), 10)
-		.add(new Variant(WoodType.ACACIA, Blocks.SMOOTH_STONE_SLAB.getDefaultState()), 5)
-		.add(new Variant(WoodType.JUNGLE, Blocks.WAXED_CUT_COPPER_SLAB.getDefaultState()), 1)
+	private static final WeightedList<Variant> STATES = WeightedList.<Variant>builder()
+		.add(new Variant(WoodTypeContent.OAK, Blocks.SPRUCE_SLAB.defaultBlockState()), 20)
+		.add(new Variant(WoodTypeContent.DARK_OAK, Blocks.COBBLED_DEEPSLATE_SLAB.defaultBlockState()), 10)
+		.add(new Variant(WoodTypeContent.ACACIA, Blocks.SMOOTH_STONE_SLAB.defaultBlockState()), 5)
+		.add(new Variant(WoodTypeContent.JUNGLE, Blocks.CUT_COPPER_SLAB.waxed().unaffected().defaultBlockState()), 1)
 		.build();
 
-	private static final BlockState LADDER = Blocks.LADDER.getDefaultState();
+	private static final BlockState LADDER = Blocks.LADDER.defaultBlockState();
 
 	private final Variant variant;
 	private final int height;
@@ -30,7 +30,7 @@ public class TowerFixture extends Fixture {
 	}
 	
 	@Override
-	public void generate(FixtureCanvas canvas, Random random) {
+	public void generate(FixtureCanvas canvas, RandomSource random) {
 		BlockState planks = this.variant.getPlanks();
 
 		BlockState xAxisLog = this.variant.getLog(Direction.Axis.X);
@@ -76,12 +76,12 @@ public class TowerFixture extends Fixture {
 		}
 	}
 
-	private static int randomizeSize(Random random) {
+	private static int randomizeSize(RandomSource random) {
 		return random.nextInt(5) + 5;
 	}
 
-	public static TowerFixture randomize(Random random) {
-		Variant variant = STATES.getOrEmpty(random).orElseThrow(IllegalStateException::new);
+	public static TowerFixture randomize(RandomSource random) {
+		Variant variant = STATES.getRandom(random).orElseThrow(IllegalStateException::new);
 		int depth = TowerFixture.randomizeSize(random);
 		
 		int width = TowerFixture.randomizeSize(random);
@@ -90,22 +90,22 @@ public class TowerFixture extends Fixture {
 		return new TowerFixture(variant, 5, random.nextInt(4) + 6, depth);
 	}
 
-	private static record Variant(WoodType wood, BlockState slab) {
+	private static record Variant(WoodTypeContent wood, BlockState slab) {
 		public BlockState getPlanks() {
-			return this.wood.getPlanks().getDefaultState();
+			return this.wood.getPlanks().defaultBlockState();
 		}
 
 		public BlockState getLog(Direction.Axis axis) {
-			return this.wood.getLog().getDefaultState()
-				.with(Properties.AXIS, axis);
+			return this.wood.getLog().defaultBlockState()
+				.setValue(BlockStateProperties.AXIS, axis);
 		}
 
 		public BlockState getFence(boolean xAxis) {
-			return this.wood.getFence().getDefaultState()
-				.with(Properties.NORTH, !xAxis)
-				.with(Properties.EAST, xAxis)
-				.with(Properties.SOUTH, !xAxis)
-				.with(Properties.WEST, xAxis);
+			return this.wood.getFence().defaultBlockState()
+				.setValue(BlockStateProperties.NORTH, !xAxis)
+				.setValue(BlockStateProperties.EAST, xAxis)
+				.setValue(BlockStateProperties.SOUTH, !xAxis)
+				.setValue(BlockStateProperties.WEST, xAxis);
 		}
 	}
 }

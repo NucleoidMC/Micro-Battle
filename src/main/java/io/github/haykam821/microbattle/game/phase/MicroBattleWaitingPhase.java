@@ -5,12 +5,12 @@ import io.github.haykam821.microbattle.game.kit.selection.KitSelectionManager;
 import io.github.haykam821.microbattle.game.kit.selection.KitSelectionWaitingLobbyUiElement;
 import io.github.haykam821.microbattle.game.map.MicroBattleMap;
 import io.github.haykam821.microbattle.game.map.MicroBattleMapBuilder;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.world.GameMode;
-import xyz.nucleoid.fantasy.RuntimeWorldConfig;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.level.GameType;
+import xyz.nucleoid.fantasy.RuntimeLevelConfig;
 import xyz.nucleoid.plasmid.api.game.GameOpenContext;
 import xyz.nucleoid.plasmid.api.game.GameOpenException;
 import xyz.nucleoid.plasmid.api.game.GameOpenProcedure;
@@ -31,13 +31,13 @@ import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public class MicroBattleWaitingPhase {
 	private final GameSpace gameSpace;
-	private final ServerWorld world;
+	private final ServerLevel world;
 	private final MicroBattleMap map;
 	private final TeamSelectionLobby teamSelection;
 	private final MicroBattleConfig config;
 	private final KitSelectionManager kitSelection;
 
-	public MicroBattleWaitingPhase(GameSpace gameSpace, ServerWorld world, MicroBattleMap map, TeamSelectionLobby teamSelection, MicroBattleConfig config) {
+	public MicroBattleWaitingPhase(GameSpace gameSpace, ServerLevel world, MicroBattleMap map, TeamSelectionLobby teamSelection, MicroBattleConfig config) {
 		this.gameSpace = gameSpace;
 		this.world = world;
 		this.map = map;
@@ -49,16 +49,16 @@ public class MicroBattleWaitingPhase {
 	public static GameOpenProcedure open(GameOpenContext<MicroBattleConfig> context) {
 		MicroBattleConfig config = context.config();
 		if (context.config().getKits().isEmpty()) {
-			throw new GameOpenException(Text.translatable("text.microbattle.not_enough_kits"));
+			throw new GameOpenException(Component.translatable("text.microbattle.not_enough_kits"));
 		}
 
 		MicroBattleMapBuilder mapBuilder = new MicroBattleMapBuilder(context.config());
 		MicroBattleMap map = mapBuilder.create(context.server());
 
-		RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
+		RuntimeLevelConfig worldConfig = new RuntimeLevelConfig()
 			.setGenerator(map.createGenerator(context.server()));
 
-		return context.openWithWorld(worldConfig, (activity, world) -> {
+		return context.openWithLevel(worldConfig, (activity, world) -> {
 			TeamSelectionLobby teamSelection = config.getTeams().isPresent() ? TeamSelectionLobby.addTo(activity, config.getTeams().get()) : null;
 
 			MicroBattleWaitingPhase phase = new MicroBattleWaitingPhase(activity.getGameSpace(), world, map, teamSelection, config);
@@ -89,7 +89,7 @@ public class MicroBattleWaitingPhase {
 		});
 	}
 
-	public void buildUiLayout(WaitingLobbyUiLayout layout, ServerPlayerEntity player) {
+	public void buildUiLayout(WaitingLobbyUiLayout layout, ServerPlayer player) {
 		if (this.gameSpace.getPlayers().participants().contains(player) && this.kitSelection.isKitSelectorNecessary()) {
 			layout.addTrailing(new KitSelectionWaitingLobbyUiElement(this.kitSelection));
 		}
@@ -102,16 +102,16 @@ public class MicroBattleWaitingPhase {
 
 	private JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
 		return acceptor.teleport(this.world, MicroBattleActivePhase.getSpawnPos(this.world, this.map)).thenRunForEach(player -> {
-			player.changeGameMode(GameMode.ADVENTURE);
+			player.setGameMode(GameType.ADVENTURE);
 		});
 	}
 
-	private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+	private EventResult onPlayerDeath(ServerPlayer player, DamageSource source) {
 		MicroBattleActivePhase.spawn(this.world, this.map, player);
 		return EventResult.DENY;
 	}
 
-	private void onPlayerLeave(ServerPlayerEntity player) {
+	private void onPlayerLeave(ServerPlayer player) {
 		this.kitSelection.deselect(player);
 	}
 }

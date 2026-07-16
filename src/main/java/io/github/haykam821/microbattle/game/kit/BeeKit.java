@@ -1,19 +1,19 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.stimuli.event.EventResult;
 
 public class BeeKit extends Kit {
@@ -43,38 +43,38 @@ public class BeeKit extends Kit {
 		return true;
 	}
 
-	private void placeFlower(ServerWorld world, BlockPos pos) {
-		BlockState flower = BeeKit.getFlower(world.getRegistryManager(), world.getRandom());
-		if (flower != null && world.isAir(pos) && flower.canPlaceAt(world, pos)) {
-			world.setBlockState(pos, flower);
+	private void placeFlower(ServerLevel world, BlockPos pos) {
+		BlockState flower = BeeKit.getFlower(world.registryAccess(), world.getRandom());
+		if (flower != null && world.isEmptyBlock(pos) && flower.canSurvive(world, pos)) {
+			world.setBlockAndUpdate(pos, flower);
 		}
 	}
 	
 	@Override
 	public EventResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
-		if (entry.getPlayer().isOnGround()) {
-			this.placeFlower(entry.getPlayer().getEntityWorld(), entry.getPlayer().getBlockPos());
+		if (entry.getPlayer().onGround()) {
+			this.placeFlower(entry.getPlayer().level(), entry.getPlayer().blockPosition());
 		}
 		return EventResult.PASS;
 	}
 
 	@Override
 	public SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_BEE_DEATH;
+		return SoundEvents.BEE_DEATH;
 	}
 
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_BEE_HURT;
+		return SoundEvents.BEE_HURT;
 	}
 
-	private static BlockState getFlower(RegistryWrapper.WrapperLookup registries, Random random) {
+	private static BlockState getFlower(HolderLookup.Provider registries, RandomSource random) {
 		return registries
-			.getOptional(RegistryKeys.BLOCK)
-			.flatMap(blocks -> blocks.getOptional(BlockTags.FLOWERS))
-			.flatMap(flowers -> flowers.getRandom(random))
-			.map(RegistryEntry::value)
-			.map(Block::getDefaultState)
+			.lookup(Registries.BLOCK)
+			.flatMap(blocks -> blocks.get(BlockTags.FLOWERS))
+			.flatMap(flowers -> flowers.getRandomElement(random))
+			.map(Holder::value)
+			.map(Block::defaultBlockState)
 			.orElse(null);
 	}
 }

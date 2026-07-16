@@ -1,23 +1,22 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.collect.Iterables;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
 import xyz.nucleoid.stimuli.event.EventResult;
 
 public class LayeredKit extends Kit {
@@ -57,8 +56,8 @@ public class LayeredKit extends Kit {
 	}
 
 	@Override
-	protected Text getName() {
-		return this.base.getName().copy().append(ScreenTexts.SPACE).append(this.layer.getName());
+	protected Component getName() {
+		return this.base.getName().copy().append(CommonComponents.SPACE).append(this.layer.getName());
 	}
 
 	@Override
@@ -129,14 +128,14 @@ public class LayeredKit extends Kit {
 	}
 
 	@Override
-	protected StatusEffectInstance[] getStatusEffects() {
+	protected MobEffectInstance[] getStatusEffects() {
 		return ArrayUtils.addAll(this.base.getStatusEffects(), this.layer.getStatusEffects());
 	}
 
 	@Override
-	public ActionResult onUseBlock(Hand hand, BlockHitResult hitResult) {
-		ActionResult result = this.base.onUseBlock(hand, hitResult);
-		return result == ActionResult.PASS ? this.layer.onUseBlock(hand, hitResult) : result;
+	public InteractionResult onUseBlock(InteractionHand hand, BlockHitResult hitResult) {
+		InteractionResult result = this.base.onUseBlock(hand, hitResult);
+		return result == InteractionResult.PASS ? this.layer.onUseBlock(hand, hitResult) : result;
 	}
 
 	@Override

@@ -1,15 +1,14 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import java.util.List;
-
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potion;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
 import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 
 public abstract class ArcherKit extends Kit {
@@ -44,19 +43,19 @@ public abstract class ArcherKit extends Kit {
 		stacks.add(this.getArrowStack());
 	}
 
-	private boolean canRestock(ServerPlayerEntity player) {
-		return player.getInventory().count(this.arrowItem) < this.getMaxArrows();
+	private boolean canRestock(ServerPlayer player) {
+		return player.getInventory().countItem(this.arrowItem) < this.getMaxArrows();
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
 		if (this.entry.getTicks() % this.getArrowRestockDelay() == 0 && this.canRestock(this.player)) {
-			this.player.giveItemStack(this.getArrowStack());
+			this.player.addItem(this.getArrowStack());
 		}
 	}
 
-	protected static ItemStack potionArrowStack(RegistryEntry<Potion> potion) {
-		return PotionContentsComponent.createStack(Items.TIPPED_ARROW, potion);
+	protected static ItemStack potionArrowStack(Holder<Potion> potion) {
+		return PotionContents.createItemStack(Items.TIPPED_ARROW, potion);
 	}
 }

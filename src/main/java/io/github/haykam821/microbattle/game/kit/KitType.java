@@ -1,21 +1,21 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import java.util.function.Function;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.item.ItemStackTemplate;
 import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 
 public class KitType<T extends Kit> {
 	public static final TinyRegistry<KitType<?>> REGISTRY = TinyRegistry.create();
 
 	private final Function<PlayerEntry, T> creator;
-	private final ItemStack icon;
+	private final ItemStackTemplate icon;
 	private String translationKey;
 
-	public KitType(Function<PlayerEntry, T> creator, ItemStack icon) {
+	public KitType(Function<PlayerEntry, T> creator, ItemStackTemplate icon) {
 		this.creator = creator;
 		this.icon = icon;
 	}
@@ -35,7 +35,7 @@ public class KitType<T extends Kit> {
 	}
 
 	public ItemStack getIcon() {
-		return this.icon;
+		return this.icon.create();
 	}
 
 	private String getTranslationKey() {
@@ -46,7 +46,7 @@ public class KitType<T extends Kit> {
 		return this.translationKey;
 	}
 
-	public Text getName() {
-		return Text.translatable(this.getTranslationKey());
+	public Component getName() {
+		return Component.translatable(this.getTranslationKey());
 	}
 }

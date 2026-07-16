@@ -1,8 +1,8 @@
 package io.github.haykam821.microbattle.game.event;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import xyz.nucleoid.stimuli.event.StimulusEvent;
 
 public interface PlayHurtSoundListener {

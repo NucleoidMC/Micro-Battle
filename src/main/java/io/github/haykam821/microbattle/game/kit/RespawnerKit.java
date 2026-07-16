@@ -3,20 +3,20 @@ package io.github.haykam821.microbattle.game.kit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.RespawnAnchorBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import io.github.haykam821.microbattle.Main;
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RespawnAnchorBlock;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import xyz.nucleoid.stimuli.event.EventResult;
 
 public class RespawnerKit extends PlayerKit {
@@ -79,7 +79,7 @@ public class RespawnerKit extends PlayerKit {
 
 	@Override
 	public EventResult afterBlockPlace(BlockPos pos, ItemStack stack, BlockState state) {
-		if (!state.isIn(Main.RESPAWN_BEACONS)) return EventResult.PASS;
+		if (!state.is(Main.RESPAWN_BEACONS)) return EventResult.PASS;
 		return this.phase.placeBeacon(entry, this, pos) ? EventResult.ALLOW : EventResult.DENY;
 	}
 
@@ -87,22 +87,22 @@ public class RespawnerKit extends PlayerKit {
 	public EventResult onBreakBlock(BlockPos pos) {
 		// Prevent breaking own beacon
 		if (this.isRespawnPos(pos, false)) {
-			this.player.sendMessage(Text.translatable("text.microbattle.cannot_break_own_beacon").formatted(Formatting.RED), false);
+			this.player.sendSystemMessage(Component.translatable("text.microbattle.cannot_break_own_beacon").withStyle(ChatFormatting.RED), false);
 			return EventResult.DENY;
 		}
 
 		return EventResult.PASS;
 	}
 
-	private Vec3d getRespawnAroundPos(BlockPos beaconPos) {
-		Optional<Vec3d> spawnOptional = RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, this.phase.getWorld(), beaconPos);
+	private Vec3 getRespawnAroundPos(BlockPos beaconPos) {
+		Optional<Vec3> spawnOptional = RespawnAnchorBlock.findStandUpPosition(EntityTypes.PLAYER, this.phase.getWorld(), beaconPos);
 		if (spawnOptional.isPresent()) {
-			Vec3d spawn = spawnOptional.get();
-			if (spawn.getY() <= 255) {
+			Vec3 spawn = spawnOptional.get();
+			if (spawn.y() <= 255) {
 				return spawn;
 			}
 		}
-		return new Vec3d(beaconPos.getX() + 0.5, beaconPos.getY() + 1, beaconPos.getZ() + 0.5);
+		return new Vec3(beaconPos.getX() + 0.5, beaconPos.getY() + 1, beaconPos.getZ() + 0.5);
 	}
 
 	@Override
@@ -111,26 +111,26 @@ public class RespawnerKit extends PlayerKit {
 			return EventResult.DENY;
 		}
 
-		ServerWorld world = this.phase.getWorld();
+		ServerLevel world = this.phase.getWorld();
 		BlockState respawnState = world.getBlockState(this.respawnPos);
-		if (!respawnState.isIn(Main.RESPAWN_BEACONS)) {
+		if (!respawnState.is(Main.RESPAWN_BEACONS)) {
 			return EventResult.DENY;
 		}
 
 		// Reset state
-		ServerPlayerEntity player = this.entry.getPlayer();
+		ServerPlayer player = this.entry.getPlayer();
 
 		player.setHealth(player.getMaxHealth());
-		player.getHungerManager().setFoodLevel(20);
-		player.setAir(player.getMaxAir());
+		player.getFoodData().setFoodLevel(20);
+		player.setAirSupply(player.getMaxAirSupply());
 
-		player.extinguish();
-		player.getDamageTracker().update();
+		player.clearFire();
+		player.getCombatTracker().recheckStatus();
 		player.fallDistance = 0;
 
 		// Teleport and spawn
-		Vec3d spawn = this.getRespawnAroundPos(respawnPos);
-		player.teleport(world, spawn.getX(), spawn.getY(), spawn.getZ(), Set.of(), 0, 0, true);
+		Vec3 spawn = this.getRespawnAroundPos(respawnPos);
+		player.teleportTo(world, spawn.x(), spawn.y(), spawn.z(), Set.of(), 0, 0, true);
 		this.entry.getKit().reinitialize();
 
 		return EventResult.ALLOW;

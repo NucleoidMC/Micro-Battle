@@ -6,32 +6,32 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import io.github.haykam821.microbattle.game.event.AfterBlockPlaceListener;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.stimuli.EventInvokers;
 import xyz.nucleoid.stimuli.Stimuli;
 import xyz.nucleoid.stimuli.event.EventResult;
 
 @Mixin(BlockItem.class)
 public class BlockItemMixin {
-	@Inject(method = "postPlacement", at = @At("HEAD"))
-	private void invokeAfterBlockPlaceListeners(BlockPos pos, World world, PlayerEntity player, ItemStack stack, BlockState state, CallbackInfoReturnable<Boolean> ci) {
-		if (world.isClient()) return;
+	@Inject(method = "updateCustomBlockEntityTag(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/block/state/BlockState;)Z", at = @At("HEAD"))
+	private void invokeAfterBlockPlaceListeners(BlockPos pos, Level world, Player player, ItemStack stack, BlockState state, CallbackInfoReturnable<Boolean> ci) {
+		if (world.isClientSide()) return;
 		
 		try (EventInvokers invokers = Stimuli.select().forEntity(player)) {
-			ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+			ServerPlayer serverPlayer = (ServerPlayer) player;
 			if (invokers.get(AfterBlockPlaceListener.EVENT).afterBlockPlace(pos, world, serverPlayer, stack, state) == EventResult.DENY) {
-				world.setBlockState(pos, state.getFluidState().getBlockState());
-				stack.increment(1);
+				world.setBlockAndUpdate(pos, state.getFluidState().createLegacyBlock());
+				stack.grow(1);
 
 				// Update inventory
-				player.currentScreenHandler.sendContentUpdates();
-				player.playerScreenHandler.onContentChanged(player.getInventory());
+				player.containerMenu.broadcastChanges();
+				player.inventoryMenu.slotsChanged(player.getInventory());
 			}
 		}
 	}

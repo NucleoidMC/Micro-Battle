@@ -4,8 +4,8 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 
 public class TeamWinManager extends WinManager {
@@ -16,9 +16,9 @@ public class TeamWinManager extends WinManager {
 		this.playerCounts.defaultReturnValue(0);
 	}
 
-	private Text getWinningTeamMessage(GameTeamKey teamKey) {
-		Text teamName = this.phase.getTeamConfig(teamKey).name();
-		return Text.translatable("text.microbattle.team_win", teamName).formatted(Formatting.GOLD);
+	private Component getWinningTeamMessage(GameTeamKey teamKey) {
+		Component teamName = this.phase.getTeamConfig(teamKey).name();
+		return Component.translatable("text.microbattle.team_win", teamName).withStyle(ChatFormatting.GOLD);
 	}
 
 	@Override

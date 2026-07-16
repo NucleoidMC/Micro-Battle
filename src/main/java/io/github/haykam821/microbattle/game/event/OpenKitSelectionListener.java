@@ -1,9 +1,9 @@
 package io.github.haykam821.microbattle.game.event;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.Level;
 import xyz.nucleoid.stimuli.event.StimulusEvent;
 
 public interface OpenKitSelectionListener {
@@ -11,17 +11,17 @@ public interface OpenKitSelectionListener {
 		return (world, user, hand) -> {
 			try {
 				for (OpenKitSelectionListener listener : context.getListeners()) {
-					ActionResult result = listener.openKitSelection(world, user, hand);
-					if (result != ActionResult.PASS) {
+					InteractionResult result = listener.openKitSelection(world, user, hand);
+					if (result != InteractionResult.PASS) {
 						return result;
 					}
 				}
 			} catch (Throwable throwable) {
 				context.handleException(throwable);
 			}
-			return ActionResult.PASS;
+			return InteractionResult.PASS;
 		};
 	});
 
-	public ActionResult openKitSelection(World world, ServerPlayerEntity user, Hand hand);
+	public InteractionResult openKitSelection(Level world, ServerPlayer user, InteractionHand hand);
 }

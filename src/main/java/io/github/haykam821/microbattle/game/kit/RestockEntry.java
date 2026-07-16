@@ -1,22 +1,21 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import java.util.function.Function;
-
+import net.minecraft.core.HolderLookup;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 public class RestockEntry {
-	private final Function<RegistryWrapper.WrapperLookup, ItemStack> supplier;
+	private final Function<HolderLookup.Provider, ItemStack> supplier;
 	private final Item item;
 	private final int maxTicks;
 	private int ticks;
 	private final int maxCount;
 
-	private RestockEntry(RegistryWrapper.WrapperLookup registries, Function<RegistryWrapper.WrapperLookup, ItemStack> supplier, int maxTicks, int maxCount) {
+	private RestockEntry(HolderLookup.Provider registries, Function<HolderLookup.Provider, ItemStack> supplier, int maxTicks, int maxCount) {
 		this.supplier = supplier;
 		this.item = this.supplyStack(registries).getItem();
 
@@ -26,11 +25,11 @@ public class RestockEntry {
 		this.maxCount = maxCount;
 	}
 
-	private boolean canSupplyTo(ServerPlayerEntity player) {
-		return this.maxCount < 0 || player.getInventory().count(this.item) < this.maxCount;
+	private boolean canSupplyTo(ServerPlayer player) {
+		return this.maxCount < 0 || player.getInventory().countItem(this.item) < this.maxCount;
 	}
 
-	public ItemStack supplyStack(RegistryWrapper.WrapperLookup registries) {
+	public ItemStack supplyStack(HolderLookup.Provider registries) {
 		return this.supplier.apply(registries);
 	}
 
@@ -38,21 +37,21 @@ public class RestockEntry {
 		this.ticks -= 1;
 		if (this.ticks <= 0 && this.canSupplyTo(entry.getPlayer())) {
 			this.ticks = this.maxTicks;
-			entry.getPlayer().giveItemStack(this.supplyStack(entry.getPlayer().getRegistryManager()));
+			entry.getPlayer().addItem(this.supplyStack(entry.getPlayer().registryAccess()));
 		}
 	}
 	
 	public static class Builder {
-		private final Function<RegistryWrapper.WrapperLookup, ItemStack> supplier;
+		private final Function<HolderLookup.Provider, ItemStack> supplier;
 		private final int maxTicks;
 		private int maxCount = -1;
 
-		public Builder(Function<RegistryWrapper.WrapperLookup, ItemStack> supplier, int maxTicks) {
+		public Builder(Function<HolderLookup.Provider, ItemStack> supplier, int maxTicks) {
 			this.supplier = supplier;
 			this.maxTicks = maxTicks;
 		}
 
-		public Builder(ItemConvertible item, int maxTicks) {
+		public Builder(ItemLike item, int maxTicks) {
 			this(registries -> new ItemStack(item), maxTicks);
 		}
 
@@ -61,7 +60,7 @@ public class RestockEntry {
 			return this;
 		}
 
-		public RestockEntry build(RegistryWrapper.WrapperLookup registries) {
+		public RestockEntry build(HolderLookup.Provider registries) {
 			return new RestockEntry(registries, this.supplier, this.maxTicks, this.maxCount);
 		}
 	}

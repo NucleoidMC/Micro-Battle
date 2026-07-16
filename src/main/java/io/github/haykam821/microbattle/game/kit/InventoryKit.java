@@ -1,9 +1,8 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import java.util.List;
-
+import net.minecraft.world.item.ItemStack;
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.item.ItemStack;
 
 public abstract class InventoryKit extends Kit {
 	private final ItemStack[] stacks;

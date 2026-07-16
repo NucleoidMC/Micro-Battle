@@ -1,39 +1,39 @@
 package io.github.haykam821.microbattle.game.kit.selection;
 
-import eu.pb4.sgui.api.GuiHelpers;
-import eu.pb4.sgui.api.gui.GuiInterface;
+import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.api.gui.GuiLike;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import eu.pb4.sgui.api.gui.SlotGuiInterface;
+import eu.pb4.sgui.api.gui.SlotBasedGui;
 import io.github.haykam821.microbattle.game.kit.KitType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.TooltipDisplayComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.TooltipDisplay;
 import xyz.nucleoid.plasmid.api.shop.ShopEntry;
 
 public class KitSelectionUi {
-	private static final Text TITLE = Text.translatable("text.microbattle.kit_selection.title");
-	private static final Text RANDOM_KIT = Text.translatable("text.microbattle.kit_selection.random_kit").formatted(Formatting.LIGHT_PURPLE);
+	private static final Component TITLE = Component.translatable("text.microbattle.kit_selection.title");
+	private static final Component RANDOM_KIT = Component.translatable("text.microbattle.kit_selection.random_kit").withStyle(ChatFormatting.LIGHT_PURPLE);
 
-	private static void addKit(SlotGuiInterface builder, KitSelectionManager kitSelection, KitType<?> kitType) {
-		Text name = kitType.getName().copy().formatted(Formatting.GREEN);
+	private static void addKit(SlotBasedGui builder, KitSelectionManager kitSelection, KitType<?> kitType) {
+		Component name = kitType.getName().copy().withStyle(ChatFormatting.GREEN);
 
 		ItemStack icon = kitType.getIcon();
 
-		icon.apply(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT, display -> {
+		icon.update(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT, display -> {
 			return display
-				.with(DataComponentTypes.ATTRIBUTE_MODIFIERS, true)
-				.with(DataComponentTypes.BEES, true)
-				.with(DataComponentTypes.BLOCK_STATE, true)
-				.with(DataComponentTypes.POTION_CONTENTS, true);
+				.withHidden(DataComponents.ATTRIBUTE_MODIFIERS, true)
+				.withHidden(DataComponents.BEES, true)
+				.withHidden(DataComponents.BLOCK_STATE, true)
+				.withHidden(DataComponents.POTION_CONTENTS, true);
 		});
 
-		if (icon.contains(DataComponentTypes.POTION_CONTENTS)) {
-			icon.set(DataComponentTypes.CUSTOM_NAME, name.copy().styled(GuiHelpers.STYLE_CLEARER));
+		if (icon.has(DataComponents.POTION_CONTENTS)) {
+			icon.set(DataComponents.CUSTOM_NAME, name.copy().withStyle(SguiUtils.STYLE_CLEARER));
 		}
 
 		builder.addSlot(ShopEntry
@@ -45,11 +45,10 @@ public class KitSelectionUi {
 			}));
 	}
 
-	public static GuiInterface build(KitSelectionManager kitSelection, GuiInterface ui, ServerPlayerEntity player) {
-		SlotGuiInterface gui = new SimpleGui(ScreenHandlerType.GENERIC_9X5, player, false) {
+	public static GuiLike build(KitSelectionManager kitSelection, GuiLike ui, ServerPlayer player) {
+		var gui = new SimpleGui(MenuType.GENERIC_9x5, player, false) {
 			@Override
-			public void onClose() {
-				super.onClose();
+			public void onRemoved() {
 				ui.open();
 			}
 		};

@@ -1,19 +1,19 @@
 package io.github.haykam821.microbattle.game.win;
 
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 public class FreeForAllWinManager extends WinManager {
 	public FreeForAllWinManager(MicroBattleActivePhase phase) {
 		super(phase);
 	}
 
-	private Text getEndingMessage() {
+	private Component getEndingMessage() {
 		if (this.phase.getPlayers().size() == 1) {
-			PlayerEntity winner = this.phase.getPlayers().iterator().next().getPlayer();
-			return Text.translatable("text.microbattle.win", winner.getDisplayName()).formatted(Formatting.GOLD);
+			Player winner = this.phase.getPlayers().iterator().next().getPlayer();
+			return Component.translatable("text.microbattle.win", winner.getDisplayName()).withStyle(ChatFormatting.GOLD);
 		}
 		return this.getNoWinnersMessage();
 	}

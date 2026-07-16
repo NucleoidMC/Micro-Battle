@@ -1,28 +1,28 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
 import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.VineBlock;
-import net.minecraft.util.collection.Pool;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.VineBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BuildingFixture extends Fixture {
-	private static final Pool<BlockState> STATES = Pool.<BlockState>builder()
-		.add(Blocks.STONE_BRICKS.getDefaultState(), 20)
-		.add(Blocks.COBBLESTONE.getDefaultState(), 5)
-		.add(Blocks.BRICKS.getDefaultState(), 5)
-		.add(Blocks.PRISMARINE_BRICKS.getDefaultState(), 1)
-		.add(Blocks.END_STONE_BRICKS.getDefaultState(), 1)
-		.add(Blocks.NETHER_BRICKS.getDefaultState(), 1)
-		.add(Blocks.RED_NETHER_BRICKS.getDefaultState(), 1)
-		.add(Blocks.QUARTZ_BRICKS.getDefaultState(), 1)
-		.add(Blocks.POLISHED_BLACKSTONE_BRICKS.getDefaultState(), 1)
-		.add(Blocks.DEEPSLATE_BRICKS.getDefaultState(), 1)
+	private static final WeightedList<BlockState> STATES = WeightedList.<BlockState>builder()
+		.add(Blocks.STONE_BRICKS.defaultBlockState(), 20)
+		.add(Blocks.COBBLESTONE.defaultBlockState(), 5)
+		.add(Blocks.BRICKS.defaultBlockState(), 5)
+		.add(Blocks.PRISMARINE_BRICKS.defaultBlockState(), 1)
+		.add(Blocks.END_STONE_BRICKS.defaultBlockState(), 1)
+		.add(Blocks.NETHER_BRICKS.defaultBlockState(), 1)
+		.add(Blocks.RED_NETHER_BRICKS.defaultBlockState(), 1)
+		.add(Blocks.QUARTZ_BRICKS.defaultBlockState(), 1)
+		.add(Blocks.POLISHED_BLACKSTONE_BRICKS.defaultBlockState(), 1)
+		.add(Blocks.DEEPSLATE_BRICKS.defaultBlockState(), 1)
 		.build();
 
-	private static final BlockState VINE = Blocks.VINE.getDefaultState();
+	private static final BlockState VINE = Blocks.VINE.defaultBlockState();
 
 	private final int height;
 	private final double vineDensity;
@@ -38,7 +38,7 @@ public class BuildingFixture extends Fixture {
 	}
 	
 	@Override
-	public void generate(FixtureCanvas canvas, Random random) {
+	public void generate(FixtureCanvas canvas, RandomSource random) {
 		int width = this.getWidth() - 2;
 		int depth = this.getDepth() - 2;
 
@@ -65,8 +65,8 @@ public class BuildingFixture extends Fixture {
 		}
 	}
 
-	private void generateVineSide(FixtureCanvas canvas, Random random, Direction facing, int minX, int minZ, int maxX, int maxZ) {
-		BlockState vine = VINE.with(VineBlock.getFacingProperty(facing), true);
+	private void generateVineSide(FixtureCanvas canvas, RandomSource random, Direction facing, int minX, int minZ, int maxX, int maxZ) {
+		BlockState vine = VINE.setValue(VineBlock.getPropertyForFace(facing), true);
 		int maxY = this.height - 2;
 
 		for (int y = 0; y <= maxY; y++) {
@@ -80,7 +80,7 @@ public class BuildingFixture extends Fixture {
 		}
 	}
 
-	private static double getVineDensity(Random random) {
+	private static double getVineDensity(RandomSource random) {
 		if (random.nextInt(4) == 0) {
 			return random.nextDouble() * 0.6 + 0.3;
 		}
@@ -88,13 +88,13 @@ public class BuildingFixture extends Fixture {
 		return 0;
 	}
 
-	public static BuildingFixture randomize(Random random) {
+	public static BuildingFixture randomize(RandomSource random) {
 		int size = random.nextInt(8) + 4;
 		if (size % 2 == 0) size += 1;
 
 		double vineDensity = getVineDensity(random);
 
-		BlockState state = STATES.getOrEmpty(random).orElseThrow(IllegalStateException::new);
+		BlockState state = STATES.getRandom(random).orElseThrow(IllegalStateException::new);
 		return new BuildingFixture(size, random.nextInt(4) + 6, size, vineDensity, state);
 	}
 }

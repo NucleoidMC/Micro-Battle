@@ -1,10 +1,10 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.DyeColor;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.DyeColor;
 import xyz.nucleoid.stimuli.event.EventResult;
 
 public class BlazeKit extends Kit {
@@ -49,18 +49,18 @@ public class BlazeKit extends Kit {
 
 	@Override
 	public SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_BLAZE_DEATH;
+		return SoundEvents.BLAZE_DEATH;
 	}
 
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_BLAZE_HURT;
+		return SoundEvents.BLAZE_HURT;
 	}
 
 	@Override
 	public EventResult onDealDamage(PlayerEntry target, DamageSource source, float amount) {
 		if (this.player.isOnFire()) {
-			target.getPlayer().setOnFireFor((int) amount);
+			target.getPlayer().igniteForSeconds((int) amount);
 		}
 		return EventResult.PASS;
 	}
@@ -68,8 +68,8 @@ public class BlazeKit extends Kit {
 	@Override
 	public void tick() {
 		super.tick();
-		if (this.player.getHealth() < this.player.getMaxHealth() / 2 && this.player.getFireTicks() < 5) {
-			this.player.setFireTicks(5);
+		if (this.player.getHealth() < this.player.getMaxHealth() / 2 && this.player.getRemainingFireTicks() < 5) {
+			this.player.setRemainingFireTicks(5);
 		}
 	}
 }

@@ -5,45 +5,44 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
-import net.minecraft.block.BlockState;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potion;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
 import xyz.nucleoid.plasmid.api.game.common.OldCombat;
 import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 import xyz.nucleoid.stimuli.event.EventResult;
 
 public abstract class Kit {
-	protected static final Random RANDOM = Random.createLocal();
+	protected static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
 
 	private final KitType<?> type;
 	private final List<RestockEntry> restockEntries = new ArrayList<>();
 	protected final PlayerEntry entry;
-	protected final ServerPlayerEntity player;
+	protected final ServerPlayer player;
 	protected final MicroBattleActivePhase phase;
 
 	public Kit(KitType<?> type, PlayerEntry entry) {
@@ -74,50 +73,50 @@ public abstract class Kit {
 		return new String[0];
 	}
 
-	private Text getTooltip(String linePrefix) {
-		MutableText text = Text.literal(linePrefix);
-		text.append(Text.literal("• Defeat the other players!").formatted(Formatting.GRAY));
+	private Component getTooltip(String linePrefix) {
+		MutableComponent text = Component.literal(linePrefix);
+		text.append(Component.literal("• Defeat the other players!").withStyle(ChatFormatting.GRAY));
 
 		for (String line : this.getNeutrals()) {
-			text.append(Text.literal("\n" + linePrefix + "• " + line).formatted(Formatting.GRAY));
+			text.append(Component.literal("\n" + linePrefix + "• " + line).withStyle(ChatFormatting.GRAY));
 		}
 		for (String line : this.getAdvantages()) {
-			text.append(Text.literal("\n" + linePrefix + "+ " + line).formatted(Formatting.GREEN));
+			text.append(Component.literal("\n" + linePrefix + "+ " + line).withStyle(ChatFormatting.GREEN));
 		}
 		for (String line : this.getDisadvantages()) {
-			text.append(Text.literal("\n" + linePrefix + "- " + line).formatted(Formatting.RED));
+			text.append(Component.literal("\n" + linePrefix + "- " + line).withStyle(ChatFormatting.RED));
 		}
 
 		return text;
 	}
 
-	protected Text getName() {
+	protected Component getName() {
 		return this.type.getName();
 	}
 
-	private Text getHoverableName() {
-		return this.getName().copy().styled(style -> {
+	private Component getHoverableName() {
+		return this.getName().copy().withStyle(style -> {
 			return style.withHoverEvent(new HoverEvent.ShowText(this.getTooltip("")));
 		});
 	}
 
-	public MutableText getReceivedMessage() {
+	public MutableComponent getReceivedMessage() {
 		if (this.entry.getTeamKey() == null) {
-			return Text.translatable("text.microbattle.kit_received", this.getHoverableName()).formatted(Formatting.GRAY);
+			return Component.translatable("text.microbattle.kit_received", this.getHoverableName()).withStyle(ChatFormatting.GRAY);
 		} else {
-			Text teamName = this.entry.getTeamConfig().name();
-			return Text.translatable("text.microbattle.team_kit_received", this.getHoverableName(), teamName).formatted(Formatting.GRAY);
+			Component teamName = this.entry.getTeamConfig().name();
+			return Component.translatable("text.microbattle.team_kit_received", this.getHoverableName(), teamName).withStyle(ChatFormatting.GRAY);
 		}
 	}
 
-	public Text getInitialMessage() {
+	public Component getInitialMessage() {
 		return this.getReceivedMessage().append("\n").append(this.getTooltip("  "));
 	}
 
 	protected ItemStack createArmorStack(Item item, String type, boolean secondary) {
 		return ItemStackBuilder.of(item)
 			.setDyeColor(secondary ? this.getSecondaryColor() : this.getBaseColor())
-			.setName(Text.translatable("text.microbattle.team_armor." + type, this.getName()))
+			.setName(Component.translatable("text.microbattle.team_armor." + type, this.getName()))
 			.setUnbreakable()
 			.build();
 	}
@@ -156,8 +155,8 @@ public abstract class Kit {
 			entry.tick(this.entry);
 		}
 
-		if (this.isDamagedByWater() && this.player.isTouchingWaterOrRain()) {
-			this.player.damage(this.player.getEntityWorld(), this.player.getDamageSources().drown(), 1.0F);
+		if (this.isDamagedByWater() && this.player.isInWaterOrRain()) {
+			this.player.hurtServer(this.player.level(), this.player.damageSources().drown(), 1.0F);
 		}
 
 		this.tick();
@@ -195,7 +194,7 @@ public abstract class Kit {
 		addIfNonNull(this::getFoodStack, stacks);
 		
 		for (RestockEntry entry : this.getRestockEntries()) {
-			addIfNonNull(this.player.getRegistryManager(), entry::supplyStack, stacks);
+			addIfNonNull(this.player.registryAccess(), entry::supplyStack, stacks);
 		}
 
 		this.appendCustomInitialStacks(stacks);
@@ -209,25 +208,25 @@ public abstract class Kit {
 		return this.restockEntries;
 	}
 
-	protected StatusEffectInstance[] getStatusEffects() {
-		return new StatusEffectInstance[0];
+	protected MobEffectInstance[] getStatusEffects() {
+		return new MobEffectInstance[0];
 	}
 
 	public final void applyInventory() {
-		entry.getPlayer().getInventory().clear();
-		if (this.player.currentScreenHandler != null) {
-			this.player.currentScreenHandler.setCursorStack(ItemStack.EMPTY);
+		entry.getPlayer().getInventory().clearContent();
+		if (this.player.containerMenu != null) {
+			this.player.containerMenu.setCarried(ItemStack.EMPTY);
 		}
 
 		// Add status effects
-		for (StatusEffectInstance effect : this.getStatusEffects()) {
-			player.addStatusEffect(new StatusEffectInstance(effect.getEffectType(), effect.getDuration(), effect.getAmplifier(), true, false));
+		for (MobEffectInstance effect : this.getStatusEffects()) {
+			player.addEffect(new MobEffectInstance(effect.getEffect(), effect.getDuration(), effect.getAmplifier(), true, false));
 		}
 
 		List<ItemStack> armorStacks = this.getArmorStacks();
-		int slot = EquipmentSlot.HEAD.getOffsetEntitySlotId(36);
+		int slot = EquipmentSlot.HEAD.getIndex(36);
 		for (ItemStack stack : armorStacks) {
-			player.getInventory().setStack(slot, stack);
+			player.getInventory().setItem(slot, stack);
 			slot -= 1;
 		}
 	
@@ -235,7 +234,7 @@ public abstract class Kit {
 		this.appendInitialStacks(stacks);
 		slot = 0;
 		for (ItemStack stack : stacks) {
-			player.getInventory().setStack(slot, this.phase.isOldCombat() ? OldCombat.applyTo(stack) : stack);
+			player.getInventory().setItem(slot, this.phase.isOldCombat() ? OldCombat.applyTo(stack) : stack);
 			slot += 1;
 		}
 
@@ -248,16 +247,16 @@ public abstract class Kit {
 
 	public final void initialize() {
 		this.reinitialize();
-		this.entry.getPlayer().sendMessage(this.getInitialMessage(), false);
+		this.entry.getPlayer().sendSystemMessage(this.getInitialMessage(), false);
 	}
 
 	protected void setExperienceBar(float progress) {
-		this.player.experienceProgress = MathHelper.clamp(progress, 0, 1);
-		this.player.setExperienceLevel(0);
+		this.player.experienceProgress = Mth.clamp(progress, 0, 1);
+		this.player.setExperienceLevels(0);
 	}
 
-	public ActionResult onUseBlock(Hand hand, BlockHitResult hitResult) {
-		return ActionResult.PASS;
+	public InteractionResult onUseBlock(InteractionHand hand, BlockHitResult hitResult) {
+		return InteractionResult.PASS;
 	}
 
 	public EventResult afterBlockPlace(BlockPos pos, ItemStack stack, BlockState state) {
@@ -269,7 +268,7 @@ public abstract class Kit {
 	}
 
 	public EventResult onDamaged(PlayerEntry target, DamageSource source, float amount) {
-		if (source.isIn(DamageTypeTags.IS_FIRE) && !this.isDamagedByFire()) {
+		if (source.is(DamageTypeTags.IS_FIRE) && !this.isDamagedByFire()) {
 			return EventResult.DENY;
 		}
 
@@ -292,7 +291,7 @@ public abstract class Kit {
 		return EventResult.PASS;
 	}
 
-	protected static ItemStack unbreakableStack(ItemConvertible item) {
+	protected static ItemStack unbreakableStack(ItemLike item) {
 		return ItemStackBuilder.of(item).setUnbreakable().build();
 	}
 
@@ -320,7 +319,7 @@ public abstract class Kit {
 		return null;
 	}
 
-	private static void addIfNonNull(RegistryWrapper.WrapperLookup registries, Function<RegistryWrapper.WrapperLookup, ItemStack> supplier, List<ItemStack> stacks) {
+	private static void addIfNonNull(HolderLookup.Provider registries, Function<HolderLookup.Provider, ItemStack> supplier, List<ItemStack> stacks) {
 		addIfNonNull(() -> supplier.apply(registries), stacks);
 	}
 
@@ -331,9 +330,9 @@ public abstract class Kit {
 		}
 	}
 
-	protected static ItemStack createPotionStack(ItemConvertible item, Optional<RegistryEntry<Potion>> maybePotion) {
+	protected static ItemStack createPotionStack(ItemLike item, Optional<Holder<Potion>> maybePotion) {
 		return maybePotion
-			.map(potion -> PotionContentsComponent.createStack(item.asItem(), potion))
+			.map(potion -> PotionContents.createItemStack(item.asItem(), potion))
 			.orElseGet(() -> new ItemStack(item));
 	}
 }

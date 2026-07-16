@@ -1,14 +1,15 @@
 package io.github.haykam821.microbattle.game.map.fixture.canvas;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.gen.stateprovider.BlockStateProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import xyz.nucleoid.map_templates.MapTemplate;
 
 public class TemplateFixtureCanvas implements FixtureCanvas {
 	private final MapTemplate template;
-	private final BlockPos.Mutable pointer = new BlockPos.Mutable();
+	private final BlockPos.MutableBlockPos pointer = new BlockPos.MutableBlockPos();
 
 	private BlockPos start;
 
@@ -31,9 +32,9 @@ public class TemplateFixtureCanvas implements FixtureCanvas {
 	}
 
 	@Override
-	public void setBlockState(int x, int y, int z, BlockStateProvider provider, Random random) {
+	public void setBlockState(int x, int y, int z, BlockStateProvider provider, RandomSource random) {
 		this.setPointer(x, y, z);
-		BlockState state = provider.get(random, this.pointer);
+		BlockState state = provider.getState(null, random, this.pointer);
 		this.template.setBlockState(this.pointer, state);
 	}
 }

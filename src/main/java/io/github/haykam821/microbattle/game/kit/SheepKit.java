@@ -1,25 +1,25 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import xyz.nucleoid.stimuli.event.EventResult;
 
 public class SheepKit extends Kit {
-	private static final BlockState DIRT = Blocks.DIRT.getDefaultState();
-	private static final BlockState WOOL_COAT = Blocks.COBWEB.getDefaultState();
+	private static final BlockState DIRT = Blocks.DIRT.defaultBlockState();
+	private static final BlockState WOOL_COAT = Blocks.COBWEB.defaultBlockState();
 	private static final int WOOL_COAT_REQUIRED_GRASS = 25;
 
 	private int grassEaten = 0;
@@ -51,32 +51,32 @@ public class SheepKit extends Kit {
 	}
 
 	@Override
-	public ActionResult onUseBlock(Hand hand, BlockHitResult hitResult) {
-		if (hitResult.getSide() != Direction.DOWN) {
+	public InteractionResult onUseBlock(InteractionHand hand, BlockHitResult hitResult) {
+		if (hitResult.getDirection() != Direction.DOWN) {
 			BlockPos pos = hitResult.getBlockPos();
-			World world = this.player.getEntityWorld();
+			Level world = this.player.level();
 			BlockState state = world.getBlockState(pos);
 
-			boolean grassBlock = state.isOf(Blocks.GRASS_BLOCK);
-			if (state.isOf(Blocks.SHORT_GRASS) || grassBlock) {
+			boolean grassBlock = state.is(Blocks.GRASS_BLOCK);
+			if (state.is(Blocks.SHORT_GRASS) || grassBlock) {
 				if (grassBlock) {
-					world.syncWorldEvent(2001, pos, Block.getRawIdFromState(Blocks.GRASS_BLOCK.getDefaultState()));
-					world.setBlockState(pos, DIRT, 2);
+					world.levelEvent(2001, pos, Block.getId(Blocks.GRASS_BLOCK.defaultBlockState()));
+					world.setBlock(pos, DIRT, 2);
 				} else {
-					world.breakBlock(pos, false, this.player);
+					world.destroyBlock(pos, false, this.player);
 				}
 
 				this.grassEaten += 1;
 				this.updateExperienceBarForWoolCoat();
 
 				if (this.grassEaten == WOOL_COAT_REQUIRED_GRASS) {
-					world.playSoundFromEntity(null, this.player, SoundEvents.ENTITY_SHEEP_AMBIENT, SoundCategory.PLAYERS, 1, 1);
+					world.playSound(null, this.player, SoundEvents.SHEEP_AMBIENT, SoundSource.PLAYERS, 1, 1);
 				}
 
-				return ActionResult.FAIL;
+				return InteractionResult.FAIL;
 			}
 		}
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 
 	@Override
@@ -86,24 +86,24 @@ public class SheepKit extends Kit {
 		this.grassEaten = 0;
 		this.updateExperienceBarForWoolCoat();
 
-		World world = this.player.getEntityWorld();
-		BlockPos pos = target.getPlayer().getBlockPos();
+		Level world = this.player.level();
+		BlockPos pos = target.getPlayer().blockPosition();
 
-		world.setBlockState(pos, WOOL_COAT);
-		world.setBlockState(pos.up(), WOOL_COAT);
+		world.setBlockAndUpdate(pos, WOOL_COAT);
+		world.setBlockAndUpdate(pos.above(), WOOL_COAT);
 
-		world.playSoundFromEntity(null, this.player, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1, 1);
+		world.playSound(null, this.player, SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1, 1);
 
 		return EventResult.PASS;
 	}
 
 	@Override
 	public SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_SHEEP_DEATH;
+		return SoundEvents.SHEEP_DEATH;
 	}
 
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_SHEEP_HURT;
+		return SoundEvents.SHEEP_HURT;
 	}
 }

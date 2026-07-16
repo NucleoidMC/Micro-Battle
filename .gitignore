@@ -28,6 +28,7 @@ gradlew.bat
 gradle/wrapper/
 .project
 .settings/
+.idea/
 
 run/
 bin/

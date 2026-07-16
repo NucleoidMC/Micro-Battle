@@ -12,8 +12,9 @@ import io.github.haykam821.microbattle.game.kit.KitPreset;
 import io.github.haykam821.microbattle.game.kit.KitType;
 import io.github.haykam821.microbattle.game.map.MicroBattleMapConfig;
 import net.minecraft.SharedConstants;
-import net.minecraft.util.math.intprovider.ConstantIntProvider;
-import net.minecraft.util.math.intprovider.IntProvider;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.IntProviders;
 import xyz.nucleoid.plasmid.api.game.common.config.WaitingLobbyConfig;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamList;
 
@@ -26,7 +27,7 @@ public class MicroBattleConfig {
 			Codec.BOOL.optionalFieldOf("old_combat", false).forGetter(MicroBattleConfig::isOldCombat),
 			MicroBattleMapConfig.CODEC.fieldOf("map").forGetter(MicroBattleConfig::getMapConfig),
 			WaitingLobbyConfig.CODEC.fieldOf("players").forGetter(MicroBattleConfig::getPlayerConfig),
-			IntProvider.NON_NEGATIVE_CODEC.optionalFieldOf("ticks_until_close", ConstantIntProvider.create(SharedConstants.TICKS_PER_SECOND * 5)).forGetter(MicroBattleConfig::getTicksUntilClose)
+			IntProviders.NON_NEGATIVE_CODEC.optionalFieldOf("ticks_until_close", ConstantInt.of(SharedConstants.TICKS_PER_SECOND * 5)).forGetter(MicroBattleConfig::getTicksUntilClose)
 		).apply(instance, MicroBattleConfig::new);
 	});
 

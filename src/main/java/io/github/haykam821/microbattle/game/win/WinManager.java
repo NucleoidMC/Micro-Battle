@@ -1,8 +1,8 @@
 package io.github.haykam821.microbattle.game.win;
 
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 public abstract class WinManager {
 	protected final MicroBattleActivePhase phase;
@@ -11,8 +11,8 @@ public abstract class WinManager {
 		this.phase = phase;
 	}
 
-	protected Text getNoWinnersMessage() {
-		return Text.translatable("text.microbattle.no_winners").formatted(Formatting.GOLD);
+	protected Component getNoWinnersMessage() {
+		return Component.translatable("text.microbattle.no_winners").withStyle(ChatFormatting.GOLD);
 	}
 
 	public abstract boolean checkForWinner();

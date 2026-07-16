@@ -1,14 +1,14 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.util.DyeColor;
+import net.minecraft.world.item.DyeColor;
 
 public class PlayerKit extends Kit {
 	private final int color;
 
 	public PlayerKit(KitType<?> type, PlayerEntry entry) {
 		super(type, entry);
-		this.color = this.entry.getTeamKey() == null ? DyeColor.RED.getFireworkColor() : this.entry.getTeamConfig().fireworkColor().getRgb();
+		this.color = this.entry.getTeamKey() == null ? DyeColor.RED.getFireworkColor() : this.entry.getTeamConfig().fireworkColor().getValue();
 	}
 
 	public PlayerKit(PlayerEntry entry) {

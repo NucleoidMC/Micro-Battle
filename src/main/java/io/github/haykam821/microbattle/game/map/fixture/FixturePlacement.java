@@ -1,6 +1,6 @@
 package io.github.haykam821.microbattle.game.map.fixture;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public record FixturePlacement(
 	Fixture fixture,

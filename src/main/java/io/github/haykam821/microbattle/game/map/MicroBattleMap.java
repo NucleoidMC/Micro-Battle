@@ -1,11 +1,11 @@
 package io.github.haykam821.microbattle.game.map;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
-import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.level.generator.TemplateChunkGenerator;
 
 public class MicroBattleMap {
 	private final MapTemplate template;
@@ -21,7 +21,7 @@ public class MicroBattleMap {
 		this.floorBounds = floorBounds;
 		this.fullBounds = fullBounds;
 
-		BlockPos maxBeaconPos = fullBounds.max().withY(config.getBeaconMaxHeight());
+		BlockPos maxBeaconPos = fullBounds.max().atY(config.getBeaconMaxHeight());
 		this.beaconBounds = BlockBounds.of(fullBounds.min(), maxBeaconPos);
 	}
 

@@ -3,24 +3,23 @@ package io.github.haykam821.microbattle.game.kit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import eu.pb4.sgui.api.GuiHelpers;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import eu.pb4.sgui.api.SguiUtils;
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
 import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 
 public class ShulkerKit extends ArcherKit {
-	private static final Text ARROW_NAME = Text.translatable("item.microbattle.shulker_arrow").styled(GuiHelpers.STYLE_CLEARER);
+	private static final Component ARROW_NAME = Component.translatable("item.microbattle.shulker_arrow").withStyle(SguiUtils.STYLE_CLEARER);
 
 	public ShulkerKit(PlayerEntry entry) {
 		super(KitTypes.SHULKER, entry);
@@ -64,19 +63,19 @@ public class ShulkerKit extends ArcherKit {
 	@Override
 	protected ItemStack getArrowStack() {
 		ItemStack stack = ItemStackBuilder.of(Items.TIPPED_ARROW)
-			.set(DataComponentTypes.CUSTOM_NAME, ARROW_NAME)
+			.set(DataComponents.CUSTOM_NAME, ARROW_NAME)
 			.build();
 
 		Optional<Integer> customColor = Optional.of(0xCEFFFF);
-		StatusEffectInstance effect = new StatusEffectInstance(StatusEffects.LEVITATION, 3 * 20);
+		MobEffectInstance effect = new MobEffectInstance(MobEffects.LEVITATION, 3 * 20);
 
-		PotionContentsComponent existingComponent = stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
+		PotionContents existingComponent = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
 
-		List<StatusEffectInstance> customEffects = new ArrayList<>(existingComponent.customEffects());
+		List<MobEffectInstance> customEffects = new ArrayList<>(existingComponent.customEffects());
 		customEffects.add(effect);
 
-		PotionContentsComponent component = new PotionContentsComponent(existingComponent.potion(), customColor, customEffects, existingComponent.customName());
-		stack.set(DataComponentTypes.POTION_CONTENTS, component);
+		PotionContents component = new PotionContents(existingComponent.potion(), customColor, customEffects, existingComponent.customName());
+		stack.set(DataComponents.POTION_CONTENTS, component);
 
 		return stack;
 	}
@@ -87,11 +86,11 @@ public class ShulkerKit extends ArcherKit {
 
 	@Override
 	public SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_SHULKER_DEATH;
+		return SoundEvents.SHULKER_DEATH;
 	}
 
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_SHULKER_HURT;
+		return SoundEvents.SHULKER_HURT;
 	}
 }

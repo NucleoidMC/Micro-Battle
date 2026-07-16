@@ -4,7 +4,28 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Function;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import io.github.haykam821.microbattle.Main;
 import io.github.haykam821.microbattle.game.MicroBattleConfig;
 import io.github.haykam821.microbattle.game.PlayerEntry;
@@ -19,28 +40,6 @@ import io.github.haykam821.microbattle.game.map.MicroBattleMap;
 import io.github.haykam821.microbattle.game.win.FreeForAllWinManager;
 import io.github.haykam821.microbattle.game.win.TeamWinManager;
 import io.github.haykam821.microbattle.game.win.WinManager;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
 import xyz.nucleoid.plasmid.api.game.GameCloseReason;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
@@ -64,7 +63,7 @@ import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public class MicroBattleActivePhase {
-	private final ServerWorld world;
+	private final ServerLevel world;
 	private final GameSpace gameSpace;
 	private final MicroBattleMap map;
 	private final MicroBattleConfig config;
@@ -75,7 +74,7 @@ public class MicroBattleActivePhase {
 	private boolean singleplayer;
 	private int ticksUntilClose = -1;
 
-	public MicroBattleActivePhase(GameSpace gameSpace, ServerWorld world, MicroBattleMap map, TeamManager teamManager, KitSelectionManager kitSelection, MicroBattleConfig config) {
+	public MicroBattleActivePhase(GameSpace gameSpace, ServerLevel world, MicroBattleMap map, TeamManager teamManager, KitSelectionManager kitSelection, MicroBattleConfig config) {
 		this.world = world;
 		this.gameSpace = gameSpace;
 		this.map = map;
@@ -87,7 +86,7 @@ public class MicroBattleActivePhase {
 		this.teamManager = teamManager;
 		this.winManager = teamManager == null ? new FreeForAllWinManager(this) : new TeamWinManager(this);
 
-		for (ServerPlayerEntity player : participants) {
+		for (ServerPlayer player : participants) {
 			GameTeamKey team = teamManager == null ? null : teamManager.teamFor(player);
 			KitType<?> kitType = kitSelection.get(player, this.world.getRandom());
 
@@ -95,7 +94,7 @@ public class MicroBattleActivePhase {
 		}
 	}
 
-	public static void open(GameSpace gameSpace, ServerWorld world, MicroBattleMap map, TeamSelectionLobby teamSelection, KitSelectionManager kitSelection, MicroBattleConfig config) {
+	public static void open(GameSpace gameSpace, ServerLevel world, MicroBattleMap map, TeamSelectionLobby teamSelection, KitSelectionManager kitSelection, MicroBattleConfig config) {
 		gameSpace.setActivity(activity -> {
 			MicroBattleActivePhase phase;
 			if (teamSelection == null) {
@@ -150,27 +149,27 @@ public class MicroBattleActivePhase {
 		this.singleplayer = this.players.size() == 1;
 
  		for (PlayerEntry entry : this.players) {
-			entry.getPlayer().changeGameMode(GameMode.SURVIVAL);
-			entry.getPlayer().closeHandledScreen();
+			entry.getPlayer().setGameMode(GameType.SURVIVAL);
+			entry.getPlayer().closeContainer();
 
 			entry.initializeKit();
 		}
 
-		for (ServerPlayerEntity player : this.gameSpace.getPlayers().spectators()) {
+		for (ServerPlayer player : this.gameSpace.getPlayers().spectators()) {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
 			this.setSpectator(player);
 		}
 	}
 
-	private boolean isInVoid(ServerPlayerEntity player) {
+	private boolean isInVoid(ServerPlayer player) {
 		return player.getY() < this.map.getFullBounds().min().getY();
 	}
 
-	private Text getCustomEliminatedMessage(ServerPlayerEntity player, String type) {
-		if (player.getPrimeAdversary() == null) {
-			return Text.translatable("text.microbattle.eliminated." + type, player.getDisplayName()).formatted(Formatting.RED);
+	private Component getCustomEliminatedMessage(ServerPlayer player, String type) {
+		if (player.getKillCredit() == null) {
+			return Component.translatable("text.microbattle.eliminated." + type, player.getDisplayName()).withStyle(ChatFormatting.RED);
 		} else {
-			return Text.translatable("text.microbattle.eliminated." + type + ".by", player.getDisplayName(), player.getPrimeAdversary().getDisplayName()).formatted(Formatting.RED);
+			return Component.translatable("text.microbattle.eliminated." + type + ".by", player.getDisplayName(), player.getKillCredit().getDisplayName()).withStyle(ChatFormatting.RED);
 		}
 	}
 
@@ -191,8 +190,8 @@ public class MicroBattleActivePhase {
 			PlayerEntry entry = playerIterator.next();
 			entry.tick();
 
-			ServerPlayerEntity player = entry.getPlayer();
-			if (!this.map.getFullBounds().contains(player.getBlockPos())) {
+			ServerPlayer player = entry.getPlayer();
+			if (!this.map.getFullBounds().contains(player.blockPosition())) {
 				if (this.isInVoid(player)) {
 					if (this.applyToKit(entry, kit -> kit.attemptRespawn()) == EventResult.ALLOW) {
 						break;
@@ -233,7 +232,7 @@ public class MicroBattleActivePhase {
 		return this.gameSpace;
 	}
 
-	public ServerWorld getWorld() {
+	public ServerLevel getWorld() {
 		return this.world;
 	}
 
@@ -250,15 +249,15 @@ public class MicroBattleActivePhase {
 	}
 
 	private void endGame() {
-		this.ticksUntilClose = this.config.getTicksUntilClose().get(this.world.getRandom());
+		this.ticksUntilClose = this.config.getTicksUntilClose().sample(this.world.getRandom());
 	}
 
 	private boolean isGameEnding() {
 		return this.ticksUntilClose >= 0;
 	}
 
-	private void setSpectator(ServerPlayerEntity player) {
-		player.changeGameMode(GameMode.SPECTATOR);
+	private void setSpectator(ServerPlayer player) {
+		player.setGameMode(GameType.SPECTATOR);
 	}
 
 	private JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
@@ -267,7 +266,7 @@ public class MicroBattleActivePhase {
 		});
 	}
 
-	private void eliminate(PlayerEntry entry, Text message) {
+	private void eliminate(PlayerEntry entry, Component message) {
 		if (!this.isGameEnding()) {
 			this.gameSpace.getPlayers().sendMessage(message);
 			this.eliminatedPlayers.add(entry);
@@ -276,14 +275,14 @@ public class MicroBattleActivePhase {
 	}
 
 	private void eliminate(PlayerEntry entry, String suffix) {
-		this.eliminate(entry, Text.translatable("text.microbattle.eliminated" + suffix, entry.getPlayer().getDisplayName()).formatted(Formatting.RED));
+		this.eliminate(entry, Component.translatable("text.microbattle.eliminated" + suffix, entry.getPlayer().getDisplayName()).withStyle(ChatFormatting.RED));
 	}
 
 	private void eliminate(PlayerEntry entry) {
 		this.eliminate(entry, "");
 	}
 
-	private PlayerEntry getEntryFromPlayer(ServerPlayerEntity player) {
+	private PlayerEntry getEntryFromPlayer(ServerPlayer player) {
 		for (PlayerEntry entry : this.players) {
 			if (player.equals(entry.getPlayer())) {
 				return entry;
@@ -293,38 +292,38 @@ public class MicroBattleActivePhase {
 	}
 
 	private PlayerEntry getEntryFromEntity(Entity entity) {
-		if (entity instanceof ServerPlayerEntity player) {
+		if (entity instanceof ServerPlayer player) {
 			return this.getEntryFromPlayer(player);
 		}
 
 		return null;
 	}
 
-	private ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
+	private InteractionResult onUseBlock(ServerPlayer player, InteractionHand hand, BlockHitResult hitResult) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
 		if (entry != null) {
 			return entry.getKit().onUseBlock(hand, hitResult);
 		}
 
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 
-	private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+	private EventResult onPlayerDeath(ServerPlayer player, DamageSource source) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
 
 		EventResult kitResult = this.applyToKit(entry, kit -> kit.onDeath(source));
 		if (kitResult != EventResult.PASS) return kitResult;
 
-		PlayerEntry killer = this.getEntryFromEntity(source.getAttacker());
+		PlayerEntry killer = this.getEntryFromEntity(source.getEntity());
 		EventResult killerKitResult = this.applyToKit(killer, kit -> kit.onKilledPlayer(entry, source));
 		if (killerKitResult != EventResult.PASS) return killerKitResult;
 
 		if (entry == null) {
 			MicroBattleActivePhase.spawn(this.world, this.map, player);
-		} else if (!this.map.getFullBounds().contains(player.getBlockPos())) {
+		} else if (!this.map.getFullBounds().contains(player.blockPosition())) {
 			this.eliminate(entry, this.getCustomEliminatedMessage(player, "out_of_bounds"));
 		} else if (this.applyToKit(entry, kit -> kit.attemptRespawn()) != EventResult.ALLOW) {
-			this.eliminate(entry, source.getDeathMessage(player).copy().formatted(Formatting.RED));
+			this.eliminate(entry, source.getLocalizedDeathMessage(player).copy().withStyle(ChatFormatting.RED));
 		}
 		
 		return EventResult.DENY;
@@ -333,7 +332,7 @@ public class MicroBattleActivePhase {
 	public boolean placeBeacon(PlayerEntry entry, RespawnerKit respawner, BlockPos pos) {
 		if (respawner.hasRespawnPos()) return true;
 		if (!this.map.getBeaconBounds().contains(pos)) {
-			entry.getPlayer().sendMessage(Text.translatable("text.microbattle.cannot_place_out_of_bounds_beacon").formatted(Formatting.RED), false);
+			entry.getPlayer().sendSystemMessage(Component.translatable("text.microbattle.cannot_place_out_of_bounds_beacon").withStyle(ChatFormatting.RED), false);
 			return false;
 		}
 		respawner.setRespawnPos(pos);
@@ -348,14 +347,14 @@ public class MicroBattleActivePhase {
 		return function.apply(entry.getKit());
 	}
 
-	private EventResult afterBlockPlace(BlockPos pos, World world, ServerPlayerEntity player, ItemStack stack, BlockState state) {
+	private EventResult afterBlockPlace(BlockPos pos, Level world, ServerPlayer player, ItemStack stack, BlockState state) {
 		PlayerEntry placer = this.getEntryFromPlayer(player);
 		if (placer == null) return EventResult.PASS;
 
 		return this.applyToKit(placer, kit -> kit.afterBlockPlace(pos, stack, state));
 	}
 
-	private EventResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
+	private EventResult onBreakBlock(ServerPlayer player, ServerLevel world, BlockPos pos) {
 		PlayerEntry breaker = this.getEntryFromPlayer(player);
 		if (breaker == null) return EventResult.PASS;
 
@@ -363,28 +362,28 @@ public class MicroBattleActivePhase {
 		if (kitResult != EventResult.PASS) return kitResult;
 
 		// Prevent breaking non-beacons
-		BlockState state = player.getEntityWorld().getBlockState(pos);
-		if (!state.isIn(Main.RESPAWN_BEACONS)) return EventResult.ALLOW;
+		BlockState state = player.level().getBlockState(pos);
+		if (!state.is(Main.RESPAWN_BEACONS)) return EventResult.ALLOW;
 
 		// Send message
 		for (PlayerEntry entry : this.players) {
 			if (entry.getKit().isRespawnPos(pos, true)) {
-				this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 1, 1);
-				this.gameSpace.getPlayers().sendMessage(Text.translatable("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).formatted(Formatting.RED));
+				this.gameSpace.getPlayers().playSound(SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 1, 1);
+				this.gameSpace.getPlayers().sendMessage(Component.translatable("text.microbattle.beacon_break", entry.getPlayer().getDisplayName(), breaker.getPlayer().getDisplayName()).withStyle(ChatFormatting.RED));
 				break;
 			}
 		}
 
 		// Remove beacon
-		player.getEntityWorld().setBlockState(pos, state.getFluidState().getBlockState());
+		player.level().setBlockAndUpdate(pos, state.getFluidState().createLegacyBlock());
 		return EventResult.DENY;
 	}
 
-	private EventResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+	private EventResult onPlayerDamage(ServerPlayer player, DamageSource source, float amount) {
 		PlayerEntry target = this.getEntryFromPlayer(player);
 		if (target == null) return EventResult.PASS;
 
-		PlayerEntry attacker = this.getEntryFromEntity(source.getAttacker());
+		PlayerEntry attacker = this.getEntryFromEntity(source.getEntity());
 
 		// Prevent attacks from teammates
 		if (attacker != null && target.isSameTeam(attacker)) {
@@ -404,7 +403,7 @@ public class MicroBattleActivePhase {
 		return EventResult.PASS;
 	}
 	
-	public void onPlayerRemove(ServerPlayerEntity player) {
+	public void onPlayerRemove(ServerPlayer player) {
 		PlayerEntry entry = this.getEntryFromPlayer(player);
 		if (entry != null) {
 			this.eliminate(entry);
@@ -412,11 +411,11 @@ public class MicroBattleActivePhase {
 	}
 
 	@SuppressWarnings("deprecation")
-	private EventResult onThrowItem(ServerPlayerEntity player, int slot, ItemStack stack) {
+	private EventResult onThrowItem(ServerPlayer player, int slot, ItemStack stack) {
 		if (stack.getItem() instanceof BlockItem blockItem) {
-			RegistryEntry<Block> entry = blockItem.getBlock().getRegistryEntry();
+			Holder<Block> entry = blockItem.getBlock().builtInRegistryHolder();
 			
-			if (entry.isIn(Main.RESPAWN_BEACONS)) {
+			if (entry.is(Main.RESPAWN_BEACONS)) {
 				return EventResult.DENY;
 			}
 		}
@@ -432,16 +431,16 @@ public class MicroBattleActivePhase {
 		return this.config.getLayerKit().orElse(null);
 	}
 
-	public static Vec3d getSpawnPos(ServerWorld world, MicroBattleMap map) {
-		Vec3d center = map.getFloorBounds().center();
+	public static Vec3 getSpawnPos(ServerLevel world, MicroBattleMap map) {
+		Vec3 center = map.getFloorBounds().center();
 		int xOffset = (map.getRiverRadius() + 2) * (world.getRandom().nextBoolean() ? 1 : -1);
 		int zOffset = (map.getRiverRadius() + 2) * (world.getRandom().nextBoolean() ? 1 : -1);
 
-		return new Vec3d(center.getX() + xOffset + 0.5, map.getFloorBounds().max().getY(), center.getZ() + zOffset + 0.5);
+		return new Vec3(center.x() + xOffset + 0.5, map.getFloorBounds().max().getY(), center.z() + zOffset + 0.5);
 	}
 
-	public static void spawn(ServerWorld world, MicroBattleMap map, ServerPlayerEntity player) {
-		Vec3d spawnPos = MicroBattleActivePhase.getSpawnPos(world, map);
-		player.teleport(world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), Set.of(), 0, 0, true);
+	public static void spawn(ServerLevel world, MicroBattleMap map, ServerPlayer player) {
+		Vec3 spawnPos = MicroBattleActivePhase.getSpawnPos(world, map);
+		player.teleportTo(world, spawnPos.x(), spawnPos.y(), spawnPos.z(), Set.of(), 0, 0, true);
 	}
 }

@@ -1,28 +1,27 @@
 package io.github.haykam821.microbattle.game.kit;
 
 import java.util.Optional;
-
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.phys.Vec3;
 import io.github.haykam821.microbattle.PoolHelper;
 import io.github.haykam821.microbattle.game.PlayerEntry;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.collection.Pool;
-import net.minecraft.util.math.Vec3d;
 import xyz.nucleoid.plasmid.api.game.common.OldCombat;
 
 public class FoxKit extends Kit {
-	private static final Pool<DigEntry> DIG_ITEMS = Pool.<DigEntry>builder()
+	private static final WeightedList<DigEntry> DIG_ITEMS = WeightedList.<DigEntry>builder()
 		.add(new DigEntry(durabilityStack(Items.IRON_SWORD, 4), true), 500)
 		.add(new DigEntry(durabilityStack(Items.IRON_PICKAXE, 32), true), 500)
 		.add(new DigEntry(durabilityStack(Items.IRON_AXE, 4), true), 500)
@@ -86,31 +85,31 @@ public class FoxKit extends Kit {
 	}
 
 	@Override
-	protected StatusEffectInstance[] getStatusEffects() {
-		return new StatusEffectInstance[] {
-			new StatusEffectInstance(StatusEffects.SPEED, Integer.MAX_VALUE, 2),
+	protected MobEffectInstance[] getStatusEffects() {
+		return new MobEffectInstance[] {
+			new MobEffectInstance(MobEffects.SPEED, Integer.MAX_VALUE, 2),
 		};
 	}
 
 	private boolean canDig() {
-		return this.player.isSneaking() && this.player.isOnGround();
+		return this.player.isShiftKeyDown() && this.player.onGround();
 	}
 
 	private void dig() {
 		this.digTicks = RESET_DIG_TICKS;
-		Vec3d pos = entry.getPlayer().getEntityPos();
-		entry.getPlayer().networkHandler.sendPacket(new PlaySoundS2CPacket(RegistryEntry.of(SoundEvents.BLOCK_GRASS_BREAK), SoundCategory.BLOCKS, pos.getX(), pos.getY(), pos.getZ(), 1, 1, entry.getPlayer().getEntityWorld().getRandom().nextLong()));
+		Vec3 pos = entry.getPlayer().position();
+		entry.getPlayer().connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvents.GRASS_BREAK), SoundSource.BLOCKS, pos.x(), pos.y(), pos.z(), 1, 1, entry.getPlayer().level().getRandom().nextLong()));
 
 		ItemStack stack = this.getDigStack();
 		if (stack != null) {
-			entry.getPlayer().giveItemStack(entry.getPhase().isOldCombat() ? OldCombat.applyTo(stack) : stack);
+			entry.getPlayer().addItem(entry.getPhase().isOldCombat() ? OldCombat.applyTo(stack) : stack);
 		}
 	}
 
 	private ItemStack getDigStack() {
-		Pool<DigEntry> pool = PoolHelper.filter(DIG_ITEMS, entry -> !entry.isRestricted(this.player));
+		WeightedList<DigEntry> pool = PoolHelper.filter(DIG_ITEMS, entry -> !entry.isRestricted(this.player));
 
-		Optional<DigEntry> optional = pool.getOrEmpty(entry.getPlayer().getRandom());
+		Optional<DigEntry> optional = pool.getRandom(entry.getPlayer().getRandom());
 		return optional.isPresent() ? optional.get().stack().copy() : null;
 	}
 
@@ -132,18 +131,18 @@ public class FoxKit extends Kit {
 
 	@Override
 	public SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_FOX_DEATH;
+		return SoundEvents.FOX_DEATH;
 	}
 
 	@Override
 	public SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_FOX_HURT;
+		return SoundEvents.FOX_HURT;
 	}
 
-	protected static ItemStack durabilityStack(ItemConvertible item, int durability) {
+	protected static ItemStack durabilityStack(ItemLike item, int durability) {
 		ItemStack stack = new ItemStack(item);
 
-		stack.setDamage(stack.getMaxDamage() - durability);
+		stack.setDamageValue(stack.getMaxDamage() - durability);
 
 		return stack;
 	}
@@ -153,8 +152,8 @@ public class FoxKit extends Kit {
 	}
 
 	private record DigEntry(ItemStack stack, boolean unique) {
-		private boolean isRestricted(ServerPlayerEntity player) {
-			return this.unique && player.getInventory().count(stack.getItem()) > 0;
+		private boolean isRestricted(ServerPlayer player) {
+			return this.unique && player.getInventory().countItem(stack.getItem()) > 0;
 		}
 	}
 }
