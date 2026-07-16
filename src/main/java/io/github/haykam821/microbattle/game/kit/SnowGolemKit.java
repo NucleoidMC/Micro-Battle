@@ -69,7 +69,7 @@ public class SnowGolemKit extends Kit {
 	}
 
 	private void tickTrail() {
-		ServerWorld world = this.player.getServerWorld();
+		ServerWorld world = this.player.getEntityWorld();
 
 		BlockPos.Mutable pos = new BlockPos.Mutable(0, Math.floor(this.player.getY()), 0);
 		for (int corner = 0; corner < 4; corner++) {

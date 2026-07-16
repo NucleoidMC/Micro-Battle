@@ -10,6 +10,7 @@ import io.github.haykam821.microbattle.game.PlayerEntry;
 import io.github.haykam821.microbattle.game.phase.MicroBattleActivePhase;
 import net.minecraft.block.BlockState;
 import net.minecraft.component.type.PotionContentsComponent;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
@@ -96,7 +97,7 @@ public abstract class Kit {
 
 	private Text getHoverableName() {
 		return this.getName().copy().styled(style -> {
-			return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, this.getTooltip("")));
+			return style.withHoverEvent(new HoverEvent.ShowText(this.getTooltip("")));
 		});
 	}
 
@@ -155,8 +156,8 @@ public abstract class Kit {
 			entry.tick(this.entry);
 		}
 
-		if (this.isDamagedByWater() && this.player.isWet()) {
-			this.player.damage(this.player.getServerWorld(), this.player.getDamageSources().drown(), 1.0F);
+		if (this.isDamagedByWater() && this.player.isTouchingWaterOrRain()) {
+			this.player.damage(this.player.getEntityWorld(), this.player.getDamageSources().drown(), 1.0F);
 		}
 
 		this.tick();
@@ -224,15 +225,15 @@ public abstract class Kit {
 		}
 
 		List<ItemStack> armorStacks = this.getArmorStacks();
-		int index = 3;
+		int slot = EquipmentSlot.HEAD.getOffsetEntitySlotId(36);
 		for (ItemStack stack : armorStacks) {
-			player.getInventory().armor.set(index, stack);
-			index -= 1;
+			player.getInventory().setStack(slot, stack);
+			slot -= 1;
 		}
 	
 		List<ItemStack> stacks = new ArrayList<>();
 		this.appendInitialStacks(stacks);
-		int slot = 0;
+		slot = 0;
 		for (ItemStack stack : stacks) {
 			player.getInventory().setStack(slot, this.phase.isOldCombat() ? OldCombat.applyTo(stack) : stack);
 			slot += 1;

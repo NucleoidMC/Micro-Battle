@@ -6,13 +6,13 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
 import io.github.haykam821.microbattle.game.kit.KitType;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Unit;
 import xyz.nucleoid.plasmid.api.shop.ShopEntry;
 
 public class KitSelectionUi {
@@ -23,7 +23,14 @@ public class KitSelectionUi {
 		Text name = kitType.getName().copy().formatted(Formatting.GREEN);
 
 		ItemStack icon = kitType.getIcon();
-		icon.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+
+		icon.apply(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT, display -> {
+			return display
+				.with(DataComponentTypes.ATTRIBUTE_MODIFIERS, true)
+				.with(DataComponentTypes.BEES, true)
+				.with(DataComponentTypes.BLOCK_STATE, true)
+				.with(DataComponentTypes.POTION_CONTENTS, true);
+		});
 
 		if (icon.contains(DataComponentTypes.POTION_CONTENTS)) {
 			icon.set(DataComponentTypes.CUSTOM_NAME, name.copy().styled(GuiHelpers.STYLE_CLEARER));
@@ -50,7 +57,6 @@ public class KitSelectionUi {
 		gui.setTitle(TITLE);
 
 		ItemStack icon = new ItemStack(Items.ENDER_CHEST);
-		icon.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
 
 		gui.addSlot(ShopEntry
 			.ofIcon(icon)

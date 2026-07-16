@@ -2,6 +2,7 @@ package io.github.haykam821.microbattle.game.kit;
 
 import java.util.Optional;
 
+import io.github.haykam821.microbattle.PoolHelper;
 import io.github.haykam821.microbattle.game.PlayerEntry;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -9,17 +10,19 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.collection.DataPool;
-import net.minecraft.util.collection.Weighted;
+import net.minecraft.util.collection.Pool;
+import net.minecraft.util.math.Vec3d;
 import xyz.nucleoid.plasmid.api.game.common.OldCombat;
 
 public class FoxKit extends Kit {
-	private static final DataPool<DigEntry> DIG_ITEMS = DataPool.<DigEntry>builder()
+	private static final Pool<DigEntry> DIG_ITEMS = Pool.<DigEntry>builder()
 		.add(new DigEntry(durabilityStack(Items.IRON_SWORD, 4), true), 500)
 		.add(new DigEntry(durabilityStack(Items.IRON_PICKAXE, 32), true), 500)
 		.add(new DigEntry(durabilityStack(Items.IRON_AXE, 4), true), 500)
@@ -95,7 +98,8 @@ public class FoxKit extends Kit {
 
 	private void dig() {
 		this.digTicks = RESET_DIG_TICKS;
-		entry.getPlayer().playSoundToPlayer(SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1, 1);
+		Vec3d pos = entry.getPlayer().getEntityPos();
+		entry.getPlayer().networkHandler.sendPacket(new PlaySoundS2CPacket(RegistryEntry.of(SoundEvents.BLOCK_GRASS_BREAK), SoundCategory.BLOCKS, pos.getX(), pos.getY(), pos.getZ(), 1, 1, entry.getPlayer().getEntityWorld().getRandom().nextLong()));
 
 		ItemStack stack = this.getDigStack();
 		if (stack != null) {
@@ -104,15 +108,9 @@ public class FoxKit extends Kit {
 	}
 
 	private ItemStack getDigStack() {
-		DataPool.Builder<DigEntry> builder = DataPool.builder();
+		Pool<DigEntry> pool = PoolHelper.filter(DIG_ITEMS, entry -> !entry.isRestricted(this.player));
 
-		for (Weighted.Present<DigEntry> entry : DIG_ITEMS.getEntries()) {
-			if (!entry.data().isRestricted(this.player)) {
-				builder.add(entry.data(), entry.getWeight().getValue());
-			}
-		}
-
-		Optional<DigEntry> optional = builder.build().getDataOrEmpty(entry.getPlayer().getRandom());
+		Optional<DigEntry> optional = pool.getOrEmpty(entry.getPlayer().getRandom());
 		return optional.isPresent() ? optional.get().stack().copy() : null;
 	}
 

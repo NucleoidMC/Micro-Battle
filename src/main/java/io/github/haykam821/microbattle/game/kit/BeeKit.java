@@ -53,7 +53,7 @@ public class BeeKit extends Kit {
 	@Override
 	public EventResult onKilledPlayer(PlayerEntry entry, DamageSource source) {
 		if (entry.getPlayer().isOnGround()) {
-			this.placeFlower(entry.getPlayer().getServerWorld(), entry.getPlayer().getBlockPos());
+			this.placeFlower(entry.getPlayer().getEntityWorld(), entry.getPlayer().getBlockPos());
 		}
 		return EventResult.PASS;
 	}

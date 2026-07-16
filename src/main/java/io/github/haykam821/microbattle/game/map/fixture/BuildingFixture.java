@@ -4,12 +4,12 @@ import io.github.haykam821.microbattle.game.map.fixture.canvas.FixtureCanvas;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.VineBlock;
-import net.minecraft.util.collection.DataPool;
+import net.minecraft.util.collection.Pool;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 
 public class BuildingFixture extends Fixture {
-	private static final DataPool<BlockState> STATES = DataPool.<BlockState>builder()
+	private static final Pool<BlockState> STATES = Pool.<BlockState>builder()
 		.add(Blocks.STONE_BRICKS.getDefaultState(), 20)
 		.add(Blocks.COBBLESTONE.getDefaultState(), 5)
 		.add(Blocks.BRICKS.getDefaultState(), 5)
@@ -94,7 +94,7 @@ public class BuildingFixture extends Fixture {
 
 		double vineDensity = getVineDensity(random);
 
-		BlockState state = STATES.getDataOrEmpty(random).orElseThrow(IllegalStateException::new);
+		BlockState state = STATES.getOrEmpty(random).orElseThrow(IllegalStateException::new);
 		return new BuildingFixture(size, random.nextInt(4) + 6, size, vineDensity, state);
 	}
 }

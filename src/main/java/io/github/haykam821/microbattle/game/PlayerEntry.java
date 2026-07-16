@@ -66,7 +66,7 @@ public class PlayerEntry {
 
 	public void tickOutOfBounds() {
 		this.outOfBoundsTicks += 1;
-		this.player.damage(this.player.getServerWorld(), this.player.getDamageSources().outOfWorld(), this.outOfBoundsTicks / 80);
+		this.player.damage(this.player.getEntityWorld(), this.player.getDamageSources().outOfWorld(), this.outOfBoundsTicks / 80);
 	}
 
 	/**
