@@ -19,15 +19,16 @@ import xyz.nucleoid.stimuli.event.EventResult;
 
 @Mixin(BlockItem.class)
 public class BlockItemMixin {
-	@Inject(method = "updateCustomBlockEntityTag(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/block/state/BlockState;)Z", at = @At("HEAD"))
-	private void invokeAfterBlockPlaceListeners(BlockPos pos, Level world, Player player, ItemStack stack, BlockState state, CallbackInfoReturnable<Boolean> ci) {
-		if (world.isClientSide()) return;
+	@Inject(method = "updateCustomBlockEntityTag", at = @At("HEAD"))
+	private static void invokeAfterBlockPlaceListeners(Level level, Player player, BlockPos pos, ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
+		if (level.isClientSide()) return;
 		
 		try (EventInvokers invokers = Stimuli.select().forEntity(player)) {
 			ServerPlayer serverPlayer = (ServerPlayer) player;
-			if (invokers.get(AfterBlockPlaceListener.EVENT).afterBlockPlace(pos, world, serverPlayer, stack, state) == EventResult.DENY) {
-				world.setBlockAndUpdate(pos, state.getFluidState().createLegacyBlock());
-				stack.grow(1);
+			var state = level.getBlockState(pos);
+			if (invokers.get(AfterBlockPlaceListener.EVENT).afterBlockPlace(pos, level, serverPlayer, itemStack, state) == EventResult.DENY) {
+				level.setBlockAndUpdate(pos, state.getFluidState().createLegacyBlock());
+				itemStack.grow(1);
 
 				// Update inventory
 				player.containerMenu.broadcastChanges();

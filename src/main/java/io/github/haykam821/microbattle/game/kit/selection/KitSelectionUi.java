@@ -48,7 +48,7 @@ public class KitSelectionUi {
 	public static GuiLike build(KitSelectionManager kitSelection, GuiLike ui, ServerPlayer player) {
 		var gui = new SimpleGui(MenuType.GENERIC_9x5, player, false) {
 			@Override
-			public void onRemoved() {
+			public void afterRemoval() {
 				ui.open();
 			}
 		};

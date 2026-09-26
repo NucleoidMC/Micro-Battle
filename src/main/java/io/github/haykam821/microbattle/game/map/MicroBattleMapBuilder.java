@@ -58,7 +58,7 @@ public class MicroBattleMapBuilder {
 		this.buildTerrain(floorBounds, template, mapConfig, random);
 		FixtureArea.generate(floorBounds, template, random, mapConfig);
 
-		BlockBounds fullBounds = BlockBounds.of(floorBounds.min().offset(-8, -4, -8), new BlockPos(floorBounds.max().offset(8, mapConfig.getY() - mapConfig.getFloorHeight(), 8)));
+		BlockBounds fullBounds = BlockBounds.of(floorBounds.min().offset(-8, -4, -8), floorBounds.max().offset(8, mapConfig.getY() - mapConfig.getFloorHeight(), 8));
 		return new MicroBattleMap(template, mapConfig, floorBounds, fullBounds);
 	}
 
@@ -113,7 +113,7 @@ public class MicroBattleMapBuilder {
 				double exponent = Math.pow(x - centerX, 2) / denominatorX + Math.pow(z - centerZ, 2) / denominatorZ;
 				double bell = Math.exp(-exponent) * (size.getY() - 4) + 4;
 
-				double noise = noiseSampler.getValue(x / 20d, z / 20d) * 2;
+				double noise = noiseSampler.get(x / 20d, z / 20d) * 2;
 				double height = Math.max(4, bell + noise);
 
 				for (int y = 0; y < height; y += 1) {

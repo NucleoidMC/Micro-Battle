@@ -67,7 +67,7 @@ public class ShulkerKit extends ArcherKit {
 			.build();
 
 		Optional<Integer> customColor = Optional.of(0xCEFFFF);
-		MobEffectInstance effect = new MobEffectInstance(MobEffects.LEVITATION, 3 * 20);
+		MobEffectInstance effect = new MobEffectInstance(MobEffects.LEVITATION, 3 * 20 * 10);
 
 		PotionContents existingComponent = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
 
